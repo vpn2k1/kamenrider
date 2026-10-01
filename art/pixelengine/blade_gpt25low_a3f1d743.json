@@ -1,0 +1,12 @@
+{
+  "prompt": "Pixel art game sprite in exactly the same style, scale, outline and side-view standing pose as the reference image. Kamen Rider Blade: dark navy blue bodysuit, silver chest and shoulder armor with a blue spade emblem, silver helmet with a single upward beetle-horn crest and large red compound eyes, silver belt buckle with a card slot, sword sheathed at the left hip. One character only, full body, side view facing right, plain white background.",
+  "model": "oai_gpt25_low",
+  "pixel_config": {
+    "colors": 32
+  },
+  "job": "a3f1d743-e4e5-441b-a728-8c65cf6bb190",
+  "credits": 6,
+  "seconds": 30,
+  "width": 92,
+  "height": 92
+}

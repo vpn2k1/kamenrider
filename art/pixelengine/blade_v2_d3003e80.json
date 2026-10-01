@@ -1,0 +1,12 @@
+{
+  "prompt": "Pixel art game sprite in exactly the same style, scale, outline and side-view standing pose as the reference image. Kamen Rider Blade Ace Form, faithful to the TV suit: SILVER helmet with a tall silver blade-shaped crest rising from the forehead, large red compound eyes, silver face; dark navy blue bodysuit; large SILVER chest armor plate outlined with thin red lines; silver shoulder armor with gold trim; gold bracelets on the forearms; dark navy gloves; RED belt with a large silver card-reader buckle with an orange spade emblem; silver sword held low at the side. One character only, full body, side view facing right, plain white background.",
+  "model": "oai_gpt25_low",
+  "pixel_config": {
+    "colors": 32
+  },
+  "job": "d3003e80-e0e4-4e1f-96ad-64ae26f58587",
+  "credits": 6,
+  "seconds": 22,
+  "width": 110,
+  "height": 110
+}

@@ -1,0 +1,15 @@
+{
+  "prompt": "side view facing right, standing on the left leg and swinging the right leg up into a high roundhouse kick at head height, body stays upright, then back to stance, keep the large horn on the head in every frame",
+  "model": "pixel-engine-v1.1",
+  "output_frames": 8,
+  "output_format": "spritesheet",
+  "matte_color": "#FF00FF",
+  "job": "3618e8b9-c202-4061-b419-b3e023d62089",
+  "credits": 12,
+  "seconds": 126,
+  "width": 544,
+  "height": 68,
+  "frame_h": 68,
+  "frame_w": 68,
+  "frame_count": 8
+}

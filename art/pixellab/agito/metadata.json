@@ -1,0 +1,83 @@
+{
+  "group_id": "0ec16c81-c9b6-44b2-b79b-5226cc4abd8b",
+  "states": [
+    {
+      "character": {
+        "id": "ba9a38b4-739a-4715-854a-0ebcdae2060d",
+        "name": "Idle",
+        "prompt": "Kamen Rider Agito Ground Form: helmet with large red compound eyes, golden V-shaped horns that spread wide, gold chest armor plates, gold shoulder pads, black bodysuit, black gloves, silver belt with glowing red gem core in the center, black boots with gold trim",
+        "size": {
+          "width": 68,
+          "height": 68
+        },
+        "template_id": "mannequin",
+        "directions": 4,
+        "view": "side",
+        "created_at": "2026-09-30T10:20:35.337555+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "west": "Idle/rotations/west.png",
+          "east": "Idle/rotations/east.png",
+          "north": "Idle/rotations/north.png"
+        },
+        "animations": {
+          "heavy": {
+            "east": [
+              "Idle/animations/heavy/east/frame_000.png",
+              "Idle/animations/heavy/east/frame_001.png",
+              "Idle/animations/heavy/east/frame_002.png",
+              "Idle/animations/heavy/east/frame_003.png",
+              "Idle/animations/heavy/east/frame_004.png",
+              "Idle/animations/heavy/east/frame_005.png",
+              "Idle/animations/heavy/east/frame_006.png"
+            ]
+          },
+          "idle": {
+            "east": [
+              "Idle/animations/idle/east/frame_000.png",
+              "Idle/animations/idle/east/frame_001.png",
+              "Idle/animations/idle/east/frame_002.png",
+              "Idle/animations/idle/east/frame_003.png",
+              "Idle/animations/idle/east/frame_004.png",
+              "Idle/animations/idle/east/frame_005.png",
+              "Idle/animations/idle/east/frame_006.png",
+              "Idle/animations/idle/east/frame_007.png"
+            ]
+          },
+          "hurt": {
+            "east": [
+              "Idle/animations/hurt/east/frame_000.png",
+              "Idle/animations/hurt/east/frame_001.png",
+              "Idle/animations/hurt/east/frame_002.png",
+              "Idle/animations/hurt/east/frame_003.png",
+              "Idle/animations/hurt/east/frame_004.png",
+              "Idle/animations/hurt/east/frame_005.png"
+            ]
+          },
+          "light": {
+            "east": [
+              "Idle/animations/light/east/frame_000.png",
+              "Idle/animations/light/east/frame_001.png",
+              "Idle/animations/light/east/frame_002.png"
+            ]
+          },
+          "run": {
+            "east": [
+              "Idle/animations/run/east/frame_000.png",
+              "Idle/animations/run/east/frame_001.png",
+              "Idle/animations/run/east/frame_002.png",
+              "Idle/animations/run/east/frame_003.png",
+              "Idle/animations/run/east/frame_004.png",
+              "Idle/animations/run/east/frame_005.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-09-30T10:37:48.823349"
+}

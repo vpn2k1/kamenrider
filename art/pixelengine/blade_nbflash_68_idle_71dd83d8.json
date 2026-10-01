@@ -1,0 +1,15 @@
+{
+  "prompt": "side view facing right, combat ready idle stance, gentle breathing loop, stays in place, sword held low at the side",
+  "model": "pixel-engine-v1.1",
+  "output_frames": 8,
+  "output_format": "spritesheet",
+  "matte_color": "#FF00FF",
+  "job": "71dd83d8-833b-4c81-a115-668790692870",
+  "credits": 20,
+  "seconds": 171,
+  "width": 544,
+  "height": 68,
+  "frame_h": 68,
+  "frame_w": 68,
+  "frame_count": 8
+}

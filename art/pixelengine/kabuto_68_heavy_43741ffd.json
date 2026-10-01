@@ -1,0 +1,15 @@
+{
+  "prompt": "side view facing right, standing on the left leg and swinging the right leg up into a high roundhouse kick at head height, body stays upright, then back to stance",
+  "model": "pixel-engine-v1.1",
+  "output_frames": 8,
+  "output_format": "spritesheet",
+  "matte_color": "#FF00FF",
+  "job": "43741ffd-3a6d-4e4e-bd55-b796564d5fd9",
+  "credits": 12,
+  "seconds": 111,
+  "width": 544,
+  "height": 68,
+  "frame_h": 68,
+  "frame_w": 68,
+  "frame_count": 8
+}

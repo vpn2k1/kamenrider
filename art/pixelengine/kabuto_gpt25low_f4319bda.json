@@ -1,0 +1,12 @@
+{
+  "prompt": "Pixel art game sprite in exactly the same style, scale, outline and side-view standing pose as the reference image. Kamen Rider Kabuto Rider Form: black bodysuit, glossy red armor on chest, shoulders and forearms, red helmet with one large upward rhinoceros-beetle horn, large blue compound eyes, silver belt with a red beetle-shaped buckle. One character only, full body, side view facing right, plain white background.",
+  "model": "oai_gpt25_low",
+  "pixel_config": {
+    "colors": 32
+  },
+  "job": "f4319bda-3865-474d-99bf-981c3ae15dff",
+  "credits": 6,
+  "seconds": 27,
+  "width": 89,
+  "height": 89
+}

@@ -1,0 +1,16 @@
+{
+  "_ghi_chu": "ID nhân vật trên PixelLab. tools/import_pixellab.py --download tải lại theo danh sách này vào art/pixellab/<tên>/. 6 nhân vật đầu nằm ở tài khoản PixelLab cũ, từ agito trở đi ở tài khoản mới (30/09/2026); link tải không cần đăng nhập nên tải được cả hai.",
+  "hero": "16989cb7-9dbe-4447-bacd-1001e58786ec",
+  "kuuga_mighty_fixed": "9aaf2e5e-4ccf-4049-aebd-77c6f84dcccc",
+  "grongi_zu": "aa29bf60-bc93-4b7c-9ab5-afdd3de7a4a6",
+  "daguba": "a224727b-26df-4671-8bea-cd7ed36b644e",
+  "orphnoch": "d30ddc25-481b-43f3-af03-ca80e2070f13",
+  "masquerade": "2e05b586-7ead-4527-9f80-da8780ea9898",
+  "agito": "ba9a38b4-739a-4715-854a-0ebcdae2060d",
+  "jaguar_lord": "b3dceee7-d40c-436c-b30e-8e0fe77a1b00",
+  "overlord": "0d0c4374-180f-4b74-863e-0c612d7c2fd2",
+  "ryuki": "94b8d81d-9d90-4ae5-94d8-c817bd6fd8a1",
+  "sheerghost": "fd82fdde-1147-453f-b2f8-f483637c473d",
+  "odin": "3267e113-53e5-4a67-8f76-94411fc5e4e9",
+  "faiz": "514cc9e7-848c-4919-a607-9b848a369fc2"
+}

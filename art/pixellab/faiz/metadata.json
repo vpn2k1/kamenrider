@@ -1,0 +1,83 @@
+{
+  "group_id": "26b648a7-90a5-4d81-9275-2a3e3e02ee49",
+  "states": [
+    {
+      "character": {
+        "id": "514cc9e7-848c-4919-a607-9b848a369fc2",
+        "name": "Idle",
+        "prompt": "Kamen Rider Faiz: black bodysuit with glowing red lines running along arms, legs and torso like circuits, silver chest armor plate, silver helmet with large yellow compound eyes shaped like the Greek letter phi, short antenna, black and silver belt with a flip-phone buckle",
+        "size": {
+          "width": 68,
+          "height": 68
+        },
+        "template_id": "mannequin",
+        "directions": 4,
+        "view": "side",
+        "created_at": "2026-09-30T10:27:07.159399+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "west": "Idle/rotations/west.png",
+          "east": "Idle/rotations/east.png",
+          "north": "Idle/rotations/north.png"
+        },
+        "animations": {
+          "idle": {
+            "east": [
+              "Idle/animations/idle/east/frame_000.png",
+              "Idle/animations/idle/east/frame_001.png",
+              "Idle/animations/idle/east/frame_002.png",
+              "Idle/animations/idle/east/frame_003.png",
+              "Idle/animations/idle/east/frame_004.png",
+              "Idle/animations/idle/east/frame_005.png",
+              "Idle/animations/idle/east/frame_006.png",
+              "Idle/animations/idle/east/frame_007.png"
+            ]
+          },
+          "heavy": {
+            "east": [
+              "Idle/animations/heavy/east/frame_000.png",
+              "Idle/animations/heavy/east/frame_001.png",
+              "Idle/animations/heavy/east/frame_002.png",
+              "Idle/animations/heavy/east/frame_003.png",
+              "Idle/animations/heavy/east/frame_004.png",
+              "Idle/animations/heavy/east/frame_005.png",
+              "Idle/animations/heavy/east/frame_006.png"
+            ]
+          },
+          "light": {
+            "east": [
+              "Idle/animations/light/east/frame_000.png",
+              "Idle/animations/light/east/frame_001.png",
+              "Idle/animations/light/east/frame_002.png"
+            ]
+          },
+          "run": {
+            "east": [
+              "Idle/animations/run/east/frame_000.png",
+              "Idle/animations/run/east/frame_001.png",
+              "Idle/animations/run/east/frame_002.png",
+              "Idle/animations/run/east/frame_003.png",
+              "Idle/animations/run/east/frame_004.png",
+              "Idle/animations/run/east/frame_005.png"
+            ]
+          },
+          "hurt": {
+            "east": [
+              "Idle/animations/hurt/east/frame_000.png",
+              "Idle/animations/hurt/east/frame_001.png",
+              "Idle/animations/hurt/east/frame_002.png",
+              "Idle/animations/hurt/east/frame_003.png",
+              "Idle/animations/hurt/east/frame_004.png",
+              "Idle/animations/hurt/east/frame_005.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-09-30T11:25:27.932098"
+}

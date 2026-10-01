@@ -1,0 +1,12 @@
+{
+  "prompt": "Pixel art game sprite of the same character as the reference image, in exactly the same style, scale, outline and side-view standing pose. Kamen Rider Kabuto HYPER FORM, faithful to the TV suit: same glossy red helmet with very large electric-blue compound eyes; a MUCH LARGER red rhinoceros-beetle horn rising from the face, taller than in the reference, topped by a wide crossbar with silver comb-like prongs; bulkier glossy red chest armor and big rounded red shoulder armor, both with thin silver trim lines and small silver vents; black arms with silver bands at the wrists; black legs with silver knee pads and silver ankle bands; silver belt with a red beetle-shaped buckle and a silver Hyper Zecter on the left hip. One character only, full body, side view facing right, plain white background.",
+  "model": "oai_gpt25_low",
+  "pixel_config": {
+    "colors": 32
+  },
+  "job": "388bd593-a980-4cc7-ac0d-bd2d40437599",
+  "credits": 6,
+  "seconds": 33,
+  "width": 110,
+  "height": 110
+}

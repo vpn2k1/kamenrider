@@ -1,0 +1,15 @@
+{
+  "prompt": "side view facing right, gets hit and recoils backward, head snapping back, then recovers to stance, keep the large horn on the head in every frame",
+  "model": "pixel-engine-v1.1",
+  "output_frames": 6,
+  "output_format": "spritesheet",
+  "matte_color": "#FF00FF",
+  "job": "eb66779b-13d2-49f0-a5a2-be4af5f5971b",
+  "credits": 12,
+  "seconds": 127,
+  "width": 408,
+  "height": 68,
+  "frame_h": 68,
+  "frame_w": 68,
+  "frame_count": 6
+}

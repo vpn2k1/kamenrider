@@ -1,0 +1,68 @@
+{
+  "source": "pixelengine",
+  "states": [
+    {
+      "frames": {
+        "rotations": {
+          "east": "rotations/east.png"
+        },
+        "animations": {
+          "idle": {
+            "east": [
+              "animations/idle/east/frame_000.png",
+              "animations/idle/east/frame_001.png",
+              "animations/idle/east/frame_002.png",
+              "animations/idle/east/frame_003.png",
+              "animations/idle/east/frame_004.png",
+              "animations/idle/east/frame_005.png",
+              "animations/idle/east/frame_006.png",
+              "animations/idle/east/frame_007.png"
+            ]
+          },
+          "run": {
+            "east": [
+              "animations/run/east/frame_000.png",
+              "animations/run/east/frame_001.png",
+              "animations/run/east/frame_002.png",
+              "animations/run/east/frame_003.png",
+              "animations/run/east/frame_004.png",
+              "animations/run/east/frame_005.png",
+              "animations/run/east/frame_006.png",
+              "animations/run/east/frame_007.png"
+            ]
+          },
+          "light": {
+            "east": [
+              "animations/light/east/frame_000.png",
+              "animations/light/east/frame_001.png",
+              "animations/light/east/frame_002.png",
+              "animations/light/east/frame_003.png"
+            ]
+          },
+          "heavy": {
+            "east": [
+              "animations/heavy/east/frame_000.png",
+              "animations/heavy/east/frame_001.png",
+              "animations/heavy/east/frame_002.png",
+              "animations/heavy/east/frame_003.png",
+              "animations/heavy/east/frame_004.png",
+              "animations/heavy/east/frame_005.png",
+              "animations/heavy/east/frame_006.png",
+              "animations/heavy/east/frame_007.png"
+            ]
+          },
+          "hurt": {
+            "east": [
+              "animations/hurt/east/frame_000.png",
+              "animations/hurt/east/frame_001.png",
+              "animations/hurt/east/frame_002.png",
+              "animations/hurt/east/frame_003.png",
+              "animations/hurt/east/frame_004.png",
+              "animations/hurt/east/frame_005.png"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

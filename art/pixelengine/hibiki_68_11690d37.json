@@ -1,0 +1,15 @@
+{
+  "prompt": "side view facing right, one quick straight punch forward with the right fist, then back to stance",
+  "model": "pixel-engine-v1.1",
+  "output_frames": 4,
+  "output_format": "spritesheet",
+  "matte_color": "#FF00FF",
+  "job": "11690d37-ae2a-4be0-a506-97c8b353eca0",
+  "credits": 20,
+  "seconds": 12,
+  "width": 272,
+  "height": 68,
+  "frame_h": 68,
+  "frame_w": 68,
+  "frame_count": 4
+}

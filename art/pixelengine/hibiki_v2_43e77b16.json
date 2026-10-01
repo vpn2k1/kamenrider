@@ -1,0 +1,12 @@
+{
+  "prompt": "Pixel art game sprite in exactly the same style, scale, outline and side-view standing pose as the reference image. Kamen Rider Hibiki, faithful to the TV suit: metallic PURPLE bodysuit and PURPLE chest; silver jagged fang-shaped trim around the collar and down the chest; purple helmet with no visible eyes, red kumadori stripe markings across the face, a small gold oni crest on the forehead, silver horns sweeping back; RED forearms and red gloves with silver bracelets, upper arms purple; silver belt with a round red and gold taiko drum buckle; short red loincloth at the front; two red drumsticks on the back. One character only, full body, side view facing right, plain white background.",
+  "model": "oai_gpt25_low",
+  "pixel_config": {
+    "colors": 32
+  },
+  "job": "43e77b16-1559-4fa0-a83e-31882cdf573f",
+  "credits": 6,
+  "seconds": 23,
+  "width": 76,
+  "height": 76
+}

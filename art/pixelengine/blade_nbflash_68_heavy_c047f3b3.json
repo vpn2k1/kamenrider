@@ -1,0 +1,15 @@
+{
+  "prompt": "side view facing right, powerful high front kick forward with the right leg, then back to stance",
+  "model": "pixel-engine-v1.1",
+  "output_frames": 8,
+  "output_format": "spritesheet",
+  "matte_color": "#FF00FF",
+  "job": "c047f3b3-2989-4dea-95aa-c29dde023a68",
+  "credits": 12,
+  "seconds": 173,
+  "width": 544,
+  "height": 68,
+  "frame_h": 68,
+  "frame_w": 68,
+  "frame_count": 8
+}

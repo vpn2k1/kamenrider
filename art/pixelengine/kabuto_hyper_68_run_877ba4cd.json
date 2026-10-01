@@ -1,0 +1,15 @@
+{
+  "prompt": "side view facing right, running to the right in a steady loop, arms swinging, legs moving from the first frame, keep the large horn on the head in every frame",
+  "model": "pixel-engine-v1.1",
+  "output_frames": 8,
+  "output_format": "spritesheet",
+  "matte_color": "#FF00FF",
+  "job": "877ba4cd-bb3e-4e6c-abbb-939099b83461",
+  "credits": 12,
+  "seconds": 125,
+  "width": 544,
+  "height": 68,
+  "frame_h": 68,
+  "frame_w": 68,
+  "frame_count": 8
+}

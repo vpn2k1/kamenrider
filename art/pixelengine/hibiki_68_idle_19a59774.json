@@ -1,0 +1,15 @@
+{
+  "prompt": "side view facing right, relaxed martial arts stance with fists raised, gentle breathing loop, stays in place",
+  "model": "pixel-engine-v1.1",
+  "output_frames": 8,
+  "output_format": "spritesheet",
+  "matte_color": "#FF00FF",
+  "job": "19a59774-51c2-4ccd-acdc-c7b407874283",
+  "credits": 20,
+  "seconds": 285,
+  "width": 544,
+  "height": 68,
+  "frame_h": 68,
+  "frame_w": 68,
+  "frame_count": 8
+}

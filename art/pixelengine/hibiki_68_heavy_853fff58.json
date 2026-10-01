@@ -1,0 +1,15 @@
+{
+  "prompt": "side view facing right, standing on the left leg and swinging the right leg up into a high kick at head height, body stays upright, then back to stance",
+  "model": "pixel-engine-v1.1",
+  "output_frames": 8,
+  "output_format": "spritesheet",
+  "matte_color": "#FF00FF",
+  "job": "853fff58-5ad5-4cfa-a4ab-b8d72ff5753c",
+  "credits": 12,
+  "seconds": 287,
+  "width": 544,
+  "height": 68,
+  "frame_h": 68,
+  "frame_w": 68,
+  "frame_count": 8
+}

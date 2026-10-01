@@ -1,0 +1,51 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/enemy.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/combat/hitbox.gd" id="2_hitbox"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="3_hurtbox"]
+[ext_resource type="SpriteFrames" path="res://art/characters/enemy_frames.tres" id="4_frames"]
+
+[sub_resource type="RectangleShape2D" id="body_shape"]
+size = Vector2(25, 47)
+
+[sub_resource type="RectangleShape2D" id="hurt_shape"]
+size = Vector2(29, 47)
+
+[sub_resource type="RectangleShape2D" id="hit_shape"]
+size = Vector2(20, 14)
+
+[node name="Enemy" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 17
+script = ExtResource("1_enemy")
+
+[node name="Placeholder" type="Polygon2D" parent="."]
+color = Color(0.4, 0.75, 0.35, 1)
+polygon = PackedVector2Array(-13, -47, 13, -47, 13, 0, -13, 0)
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -34)
+sprite_frames = ExtResource("4_frames")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -23.5)
+shape = SubResource("body_shape")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 0
+script = ExtResource("3_hurtbox")
+team = &"enemy"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -23.5)
+shape = SubResource("hurt_shape")
+
+[node name="Hitbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 8
+script = ExtResource("2_hitbox")
+team = &"enemy"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+shape = SubResource("hit_shape")

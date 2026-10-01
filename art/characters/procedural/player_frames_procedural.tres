@@ -1,0 +1,2514 @@
+[gd_resource type="SpriteFrames" load_steps=283 format=3]
+
+[ext_resource type="Texture2D" path="res://art/characters/procedural/human.png" id="tex_0"]
+[ext_resource type="Texture2D" path="res://art/characters/procedural/kuuga_growing.png" id="tex_1"]
+[ext_resource type="Texture2D" path="res://art/characters/procedural/kuuga_mighty.png" id="tex_2"]
+[ext_resource type="Texture2D" path="res://art/characters/procedural/kuuga_dragon.png" id="tex_3"]
+[ext_resource type="Texture2D" path="res://art/characters/procedural/kuuga_pegasus.png" id="tex_4"]
+[ext_resource type="Texture2D" path="res://art/characters/procedural/kuuga_titan.png" id="tex_5"]
+
+[sub_resource type="AtlasTexture" id="at_human_idle_0"]
+atlas = ExtResource("tex_0")
+region = Rect2(0, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_idle_1"]
+atlas = ExtResource("tex_0")
+region = Rect2(64, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_idle_2"]
+atlas = ExtResource("tex_0")
+region = Rect2(128, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_idle_3"]
+atlas = ExtResource("tex_0")
+region = Rect2(192, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_run_0"]
+atlas = ExtResource("tex_0")
+region = Rect2(0, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_run_1"]
+atlas = ExtResource("tex_0")
+region = Rect2(64, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_run_2"]
+atlas = ExtResource("tex_0")
+region = Rect2(128, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_run_3"]
+atlas = ExtResource("tex_0")
+region = Rect2(192, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_run_4"]
+atlas = ExtResource("tex_0")
+region = Rect2(256, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_run_5"]
+atlas = ExtResource("tex_0")
+region = Rect2(320, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_jump_0"]
+atlas = ExtResource("tex_0")
+region = Rect2(0, 96, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_jump_1"]
+atlas = ExtResource("tex_0")
+region = Rect2(64, 96, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_light_0"]
+atlas = ExtResource("tex_0")
+region = Rect2(0, 144, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_light_1"]
+atlas = ExtResource("tex_0")
+region = Rect2(64, 144, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_light_2"]
+atlas = ExtResource("tex_0")
+region = Rect2(128, 144, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_heavy_0"]
+atlas = ExtResource("tex_0")
+region = Rect2(0, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_heavy_1"]
+atlas = ExtResource("tex_0")
+region = Rect2(64, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_heavy_2"]
+atlas = ExtResource("tex_0")
+region = Rect2(128, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_heavy_3"]
+atlas = ExtResource("tex_0")
+region = Rect2(192, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_dodge_0"]
+atlas = ExtResource("tex_0")
+region = Rect2(0, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_dodge_1"]
+atlas = ExtResource("tex_0")
+region = Rect2(64, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_hurt_0"]
+atlas = ExtResource("tex_0")
+region = Rect2(0, 288, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_hurt_1"]
+atlas = ExtResource("tex_0")
+region = Rect2(64, 288, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_break_0"]
+atlas = ExtResource("tex_0")
+region = Rect2(0, 336, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_break_1"]
+atlas = ExtResource("tex_0")
+region = Rect2(64, 336, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_human_ko_0"]
+atlas = ExtResource("tex_0")
+region = Rect2(0, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_idle_0"]
+atlas = ExtResource("tex_1")
+region = Rect2(0, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_idle_1"]
+atlas = ExtResource("tex_1")
+region = Rect2(64, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_idle_2"]
+atlas = ExtResource("tex_1")
+region = Rect2(128, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_idle_3"]
+atlas = ExtResource("tex_1")
+region = Rect2(192, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_run_0"]
+atlas = ExtResource("tex_1")
+region = Rect2(0, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_run_1"]
+atlas = ExtResource("tex_1")
+region = Rect2(64, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_run_2"]
+atlas = ExtResource("tex_1")
+region = Rect2(128, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_run_3"]
+atlas = ExtResource("tex_1")
+region = Rect2(192, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_run_4"]
+atlas = ExtResource("tex_1")
+region = Rect2(256, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_run_5"]
+atlas = ExtResource("tex_1")
+region = Rect2(320, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_jump_0"]
+atlas = ExtResource("tex_1")
+region = Rect2(0, 96, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_jump_1"]
+atlas = ExtResource("tex_1")
+region = Rect2(64, 96, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_light_0"]
+atlas = ExtResource("tex_1")
+region = Rect2(0, 144, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_light_1"]
+atlas = ExtResource("tex_1")
+region = Rect2(64, 144, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_light_2"]
+atlas = ExtResource("tex_1")
+region = Rect2(128, 144, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_heavy_0"]
+atlas = ExtResource("tex_1")
+region = Rect2(0, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_heavy_1"]
+atlas = ExtResource("tex_1")
+region = Rect2(64, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_heavy_2"]
+atlas = ExtResource("tex_1")
+region = Rect2(128, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_heavy_3"]
+atlas = ExtResource("tex_1")
+region = Rect2(192, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_swap_in_0"]
+atlas = ExtResource("tex_1")
+region = Rect2(0, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_swap_in_1"]
+atlas = ExtResource("tex_1")
+region = Rect2(64, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_swap_in_2"]
+atlas = ExtResource("tex_1")
+region = Rect2(128, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_swap_in_3"]
+atlas = ExtResource("tex_1")
+region = Rect2(192, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_dodge_0"]
+atlas = ExtResource("tex_1")
+region = Rect2(0, 288, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_dodge_1"]
+atlas = ExtResource("tex_1")
+region = Rect2(64, 288, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_hurt_0"]
+atlas = ExtResource("tex_1")
+region = Rect2(0, 336, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_hurt_1"]
+atlas = ExtResource("tex_1")
+region = Rect2(64, 336, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_henshin_0"]
+atlas = ExtResource("tex_1")
+region = Rect2(0, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_henshin_1"]
+atlas = ExtResource("tex_1")
+region = Rect2(64, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_henshin_2"]
+atlas = ExtResource("tex_1")
+region = Rect2(128, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_henshin_3"]
+atlas = ExtResource("tex_1")
+region = Rect2(192, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_henshin_4"]
+atlas = ExtResource("tex_1")
+region = Rect2(256, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_henshin_5"]
+atlas = ExtResource("tex_1")
+region = Rect2(320, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_henshin_6"]
+atlas = ExtResource("tex_1")
+region = Rect2(384, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_henshin_7"]
+atlas = ExtResource("tex_1")
+region = Rect2(448, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_henshin_8"]
+atlas = ExtResource("tex_1")
+region = Rect2(512, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_henshin_9"]
+atlas = ExtResource("tex_1")
+region = Rect2(576, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_henshin_10"]
+atlas = ExtResource("tex_1")
+region = Rect2(640, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_henshin_11"]
+atlas = ExtResource("tex_1")
+region = Rect2(704, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_henshin_12"]
+atlas = ExtResource("tex_1")
+region = Rect2(768, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_henshin_13"]
+atlas = ExtResource("tex_1")
+region = Rect2(832, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_final_0"]
+atlas = ExtResource("tex_1")
+region = Rect2(0, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_final_1"]
+atlas = ExtResource("tex_1")
+region = Rect2(64, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_final_2"]
+atlas = ExtResource("tex_1")
+region = Rect2(128, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_final_3"]
+atlas = ExtResource("tex_1")
+region = Rect2(192, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_final_4"]
+atlas = ExtResource("tex_1")
+region = Rect2(256, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_final_5"]
+atlas = ExtResource("tex_1")
+region = Rect2(320, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_final_6"]
+atlas = ExtResource("tex_1")
+region = Rect2(384, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_final_7"]
+atlas = ExtResource("tex_1")
+region = Rect2(448, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_growing_final_8"]
+atlas = ExtResource("tex_1")
+region = Rect2(512, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_idle_0"]
+atlas = ExtResource("tex_2")
+region = Rect2(0, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_idle_1"]
+atlas = ExtResource("tex_2")
+region = Rect2(64, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_idle_2"]
+atlas = ExtResource("tex_2")
+region = Rect2(128, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_idle_3"]
+atlas = ExtResource("tex_2")
+region = Rect2(192, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_run_0"]
+atlas = ExtResource("tex_2")
+region = Rect2(0, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_run_1"]
+atlas = ExtResource("tex_2")
+region = Rect2(64, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_run_2"]
+atlas = ExtResource("tex_2")
+region = Rect2(128, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_run_3"]
+atlas = ExtResource("tex_2")
+region = Rect2(192, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_run_4"]
+atlas = ExtResource("tex_2")
+region = Rect2(256, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_run_5"]
+atlas = ExtResource("tex_2")
+region = Rect2(320, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_jump_0"]
+atlas = ExtResource("tex_2")
+region = Rect2(0, 96, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_jump_1"]
+atlas = ExtResource("tex_2")
+region = Rect2(64, 96, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_light_0"]
+atlas = ExtResource("tex_2")
+region = Rect2(0, 144, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_light_1"]
+atlas = ExtResource("tex_2")
+region = Rect2(64, 144, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_light_2"]
+atlas = ExtResource("tex_2")
+region = Rect2(128, 144, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_heavy_0"]
+atlas = ExtResource("tex_2")
+region = Rect2(0, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_heavy_1"]
+atlas = ExtResource("tex_2")
+region = Rect2(64, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_heavy_2"]
+atlas = ExtResource("tex_2")
+region = Rect2(128, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_heavy_3"]
+atlas = ExtResource("tex_2")
+region = Rect2(192, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_swap_in_0"]
+atlas = ExtResource("tex_2")
+region = Rect2(0, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_swap_in_1"]
+atlas = ExtResource("tex_2")
+region = Rect2(64, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_swap_in_2"]
+atlas = ExtResource("tex_2")
+region = Rect2(128, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_swap_in_3"]
+atlas = ExtResource("tex_2")
+region = Rect2(192, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_dodge_0"]
+atlas = ExtResource("tex_2")
+region = Rect2(0, 288, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_dodge_1"]
+atlas = ExtResource("tex_2")
+region = Rect2(64, 288, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_hurt_0"]
+atlas = ExtResource("tex_2")
+region = Rect2(0, 336, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_hurt_1"]
+atlas = ExtResource("tex_2")
+region = Rect2(64, 336, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_henshin_0"]
+atlas = ExtResource("tex_2")
+region = Rect2(0, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_henshin_1"]
+atlas = ExtResource("tex_2")
+region = Rect2(64, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_henshin_2"]
+atlas = ExtResource("tex_2")
+region = Rect2(128, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_henshin_3"]
+atlas = ExtResource("tex_2")
+region = Rect2(192, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_henshin_4"]
+atlas = ExtResource("tex_2")
+region = Rect2(256, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_henshin_5"]
+atlas = ExtResource("tex_2")
+region = Rect2(320, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_henshin_6"]
+atlas = ExtResource("tex_2")
+region = Rect2(384, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_henshin_7"]
+atlas = ExtResource("tex_2")
+region = Rect2(448, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_henshin_8"]
+atlas = ExtResource("tex_2")
+region = Rect2(512, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_henshin_9"]
+atlas = ExtResource("tex_2")
+region = Rect2(576, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_henshin_10"]
+atlas = ExtResource("tex_2")
+region = Rect2(640, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_henshin_11"]
+atlas = ExtResource("tex_2")
+region = Rect2(704, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_henshin_12"]
+atlas = ExtResource("tex_2")
+region = Rect2(768, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_henshin_13"]
+atlas = ExtResource("tex_2")
+region = Rect2(832, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_final_0"]
+atlas = ExtResource("tex_2")
+region = Rect2(0, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_final_1"]
+atlas = ExtResource("tex_2")
+region = Rect2(64, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_final_2"]
+atlas = ExtResource("tex_2")
+region = Rect2(128, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_final_3"]
+atlas = ExtResource("tex_2")
+region = Rect2(192, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_final_4"]
+atlas = ExtResource("tex_2")
+region = Rect2(256, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_final_5"]
+atlas = ExtResource("tex_2")
+region = Rect2(320, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_final_6"]
+atlas = ExtResource("tex_2")
+region = Rect2(384, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_final_7"]
+atlas = ExtResource("tex_2")
+region = Rect2(448, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_mighty_final_8"]
+atlas = ExtResource("tex_2")
+region = Rect2(512, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_idle_0"]
+atlas = ExtResource("tex_3")
+region = Rect2(0, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_idle_1"]
+atlas = ExtResource("tex_3")
+region = Rect2(64, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_idle_2"]
+atlas = ExtResource("tex_3")
+region = Rect2(128, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_idle_3"]
+atlas = ExtResource("tex_3")
+region = Rect2(192, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_run_0"]
+atlas = ExtResource("tex_3")
+region = Rect2(0, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_run_1"]
+atlas = ExtResource("tex_3")
+region = Rect2(64, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_run_2"]
+atlas = ExtResource("tex_3")
+region = Rect2(128, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_run_3"]
+atlas = ExtResource("tex_3")
+region = Rect2(192, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_run_4"]
+atlas = ExtResource("tex_3")
+region = Rect2(256, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_run_5"]
+atlas = ExtResource("tex_3")
+region = Rect2(320, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_jump_0"]
+atlas = ExtResource("tex_3")
+region = Rect2(0, 96, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_jump_1"]
+atlas = ExtResource("tex_3")
+region = Rect2(64, 96, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_light_0"]
+atlas = ExtResource("tex_3")
+region = Rect2(0, 144, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_light_1"]
+atlas = ExtResource("tex_3")
+region = Rect2(64, 144, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_light_2"]
+atlas = ExtResource("tex_3")
+region = Rect2(128, 144, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_heavy_0"]
+atlas = ExtResource("tex_3")
+region = Rect2(0, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_heavy_1"]
+atlas = ExtResource("tex_3")
+region = Rect2(64, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_heavy_2"]
+atlas = ExtResource("tex_3")
+region = Rect2(128, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_heavy_3"]
+atlas = ExtResource("tex_3")
+region = Rect2(192, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_swap_in_0"]
+atlas = ExtResource("tex_3")
+region = Rect2(0, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_swap_in_1"]
+atlas = ExtResource("tex_3")
+region = Rect2(64, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_swap_in_2"]
+atlas = ExtResource("tex_3")
+region = Rect2(128, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_swap_in_3"]
+atlas = ExtResource("tex_3")
+region = Rect2(192, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_dodge_0"]
+atlas = ExtResource("tex_3")
+region = Rect2(0, 288, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_dodge_1"]
+atlas = ExtResource("tex_3")
+region = Rect2(64, 288, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_hurt_0"]
+atlas = ExtResource("tex_3")
+region = Rect2(0, 336, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_hurt_1"]
+atlas = ExtResource("tex_3")
+region = Rect2(64, 336, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_henshin_0"]
+atlas = ExtResource("tex_3")
+region = Rect2(0, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_henshin_1"]
+atlas = ExtResource("tex_3")
+region = Rect2(64, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_henshin_2"]
+atlas = ExtResource("tex_3")
+region = Rect2(128, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_henshin_3"]
+atlas = ExtResource("tex_3")
+region = Rect2(192, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_henshin_4"]
+atlas = ExtResource("tex_3")
+region = Rect2(256, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_henshin_5"]
+atlas = ExtResource("tex_3")
+region = Rect2(320, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_henshin_6"]
+atlas = ExtResource("tex_3")
+region = Rect2(384, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_henshin_7"]
+atlas = ExtResource("tex_3")
+region = Rect2(448, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_henshin_8"]
+atlas = ExtResource("tex_3")
+region = Rect2(512, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_henshin_9"]
+atlas = ExtResource("tex_3")
+region = Rect2(576, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_henshin_10"]
+atlas = ExtResource("tex_3")
+region = Rect2(640, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_henshin_11"]
+atlas = ExtResource("tex_3")
+region = Rect2(704, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_henshin_12"]
+atlas = ExtResource("tex_3")
+region = Rect2(768, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_henshin_13"]
+atlas = ExtResource("tex_3")
+region = Rect2(832, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_final_0"]
+atlas = ExtResource("tex_3")
+region = Rect2(0, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_final_1"]
+atlas = ExtResource("tex_3")
+region = Rect2(64, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_final_2"]
+atlas = ExtResource("tex_3")
+region = Rect2(128, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_final_3"]
+atlas = ExtResource("tex_3")
+region = Rect2(192, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_final_4"]
+atlas = ExtResource("tex_3")
+region = Rect2(256, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_final_5"]
+atlas = ExtResource("tex_3")
+region = Rect2(320, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_final_6"]
+atlas = ExtResource("tex_3")
+region = Rect2(384, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_final_7"]
+atlas = ExtResource("tex_3")
+region = Rect2(448, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_dragon_final_8"]
+atlas = ExtResource("tex_3")
+region = Rect2(512, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_idle_0"]
+atlas = ExtResource("tex_4")
+region = Rect2(0, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_idle_1"]
+atlas = ExtResource("tex_4")
+region = Rect2(64, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_idle_2"]
+atlas = ExtResource("tex_4")
+region = Rect2(128, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_idle_3"]
+atlas = ExtResource("tex_4")
+region = Rect2(192, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_run_0"]
+atlas = ExtResource("tex_4")
+region = Rect2(0, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_run_1"]
+atlas = ExtResource("tex_4")
+region = Rect2(64, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_run_2"]
+atlas = ExtResource("tex_4")
+region = Rect2(128, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_run_3"]
+atlas = ExtResource("tex_4")
+region = Rect2(192, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_run_4"]
+atlas = ExtResource("tex_4")
+region = Rect2(256, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_run_5"]
+atlas = ExtResource("tex_4")
+region = Rect2(320, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_jump_0"]
+atlas = ExtResource("tex_4")
+region = Rect2(0, 96, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_jump_1"]
+atlas = ExtResource("tex_4")
+region = Rect2(64, 96, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_light_0"]
+atlas = ExtResource("tex_4")
+region = Rect2(0, 144, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_light_1"]
+atlas = ExtResource("tex_4")
+region = Rect2(64, 144, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_light_2"]
+atlas = ExtResource("tex_4")
+region = Rect2(128, 144, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_heavy_0"]
+atlas = ExtResource("tex_4")
+region = Rect2(0, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_heavy_1"]
+atlas = ExtResource("tex_4")
+region = Rect2(64, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_heavy_2"]
+atlas = ExtResource("tex_4")
+region = Rect2(128, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_heavy_3"]
+atlas = ExtResource("tex_4")
+region = Rect2(192, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_swap_in_0"]
+atlas = ExtResource("tex_4")
+region = Rect2(0, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_swap_in_1"]
+atlas = ExtResource("tex_4")
+region = Rect2(64, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_swap_in_2"]
+atlas = ExtResource("tex_4")
+region = Rect2(128, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_swap_in_3"]
+atlas = ExtResource("tex_4")
+region = Rect2(192, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_dodge_0"]
+atlas = ExtResource("tex_4")
+region = Rect2(0, 288, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_dodge_1"]
+atlas = ExtResource("tex_4")
+region = Rect2(64, 288, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_hurt_0"]
+atlas = ExtResource("tex_4")
+region = Rect2(0, 336, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_hurt_1"]
+atlas = ExtResource("tex_4")
+region = Rect2(64, 336, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_henshin_0"]
+atlas = ExtResource("tex_4")
+region = Rect2(0, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_henshin_1"]
+atlas = ExtResource("tex_4")
+region = Rect2(64, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_henshin_2"]
+atlas = ExtResource("tex_4")
+region = Rect2(128, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_henshin_3"]
+atlas = ExtResource("tex_4")
+region = Rect2(192, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_henshin_4"]
+atlas = ExtResource("tex_4")
+region = Rect2(256, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_henshin_5"]
+atlas = ExtResource("tex_4")
+region = Rect2(320, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_henshin_6"]
+atlas = ExtResource("tex_4")
+region = Rect2(384, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_henshin_7"]
+atlas = ExtResource("tex_4")
+region = Rect2(448, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_henshin_8"]
+atlas = ExtResource("tex_4")
+region = Rect2(512, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_henshin_9"]
+atlas = ExtResource("tex_4")
+region = Rect2(576, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_henshin_10"]
+atlas = ExtResource("tex_4")
+region = Rect2(640, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_henshin_11"]
+atlas = ExtResource("tex_4")
+region = Rect2(704, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_henshin_12"]
+atlas = ExtResource("tex_4")
+region = Rect2(768, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_henshin_13"]
+atlas = ExtResource("tex_4")
+region = Rect2(832, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_final_0"]
+atlas = ExtResource("tex_4")
+region = Rect2(0, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_final_1"]
+atlas = ExtResource("tex_4")
+region = Rect2(64, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_final_2"]
+atlas = ExtResource("tex_4")
+region = Rect2(128, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_final_3"]
+atlas = ExtResource("tex_4")
+region = Rect2(192, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_final_4"]
+atlas = ExtResource("tex_4")
+region = Rect2(256, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_final_5"]
+atlas = ExtResource("tex_4")
+region = Rect2(320, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_final_6"]
+atlas = ExtResource("tex_4")
+region = Rect2(384, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_final_7"]
+atlas = ExtResource("tex_4")
+region = Rect2(448, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_pegasus_final_8"]
+atlas = ExtResource("tex_4")
+region = Rect2(512, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_idle_0"]
+atlas = ExtResource("tex_5")
+region = Rect2(0, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_idle_1"]
+atlas = ExtResource("tex_5")
+region = Rect2(64, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_idle_2"]
+atlas = ExtResource("tex_5")
+region = Rect2(128, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_idle_3"]
+atlas = ExtResource("tex_5")
+region = Rect2(192, 0, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_run_0"]
+atlas = ExtResource("tex_5")
+region = Rect2(0, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_run_1"]
+atlas = ExtResource("tex_5")
+region = Rect2(64, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_run_2"]
+atlas = ExtResource("tex_5")
+region = Rect2(128, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_run_3"]
+atlas = ExtResource("tex_5")
+region = Rect2(192, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_run_4"]
+atlas = ExtResource("tex_5")
+region = Rect2(256, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_run_5"]
+atlas = ExtResource("tex_5")
+region = Rect2(320, 48, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_jump_0"]
+atlas = ExtResource("tex_5")
+region = Rect2(0, 96, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_jump_1"]
+atlas = ExtResource("tex_5")
+region = Rect2(64, 96, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_light_0"]
+atlas = ExtResource("tex_5")
+region = Rect2(0, 144, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_light_1"]
+atlas = ExtResource("tex_5")
+region = Rect2(64, 144, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_light_2"]
+atlas = ExtResource("tex_5")
+region = Rect2(128, 144, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_heavy_0"]
+atlas = ExtResource("tex_5")
+region = Rect2(0, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_heavy_1"]
+atlas = ExtResource("tex_5")
+region = Rect2(64, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_heavy_2"]
+atlas = ExtResource("tex_5")
+region = Rect2(128, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_heavy_3"]
+atlas = ExtResource("tex_5")
+region = Rect2(192, 192, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_swap_in_0"]
+atlas = ExtResource("tex_5")
+region = Rect2(0, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_swap_in_1"]
+atlas = ExtResource("tex_5")
+region = Rect2(64, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_swap_in_2"]
+atlas = ExtResource("tex_5")
+region = Rect2(128, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_swap_in_3"]
+atlas = ExtResource("tex_5")
+region = Rect2(192, 240, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_dodge_0"]
+atlas = ExtResource("tex_5")
+region = Rect2(0, 288, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_dodge_1"]
+atlas = ExtResource("tex_5")
+region = Rect2(64, 288, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_hurt_0"]
+atlas = ExtResource("tex_5")
+region = Rect2(0, 336, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_hurt_1"]
+atlas = ExtResource("tex_5")
+region = Rect2(64, 336, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_henshin_0"]
+atlas = ExtResource("tex_5")
+region = Rect2(0, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_henshin_1"]
+atlas = ExtResource("tex_5")
+region = Rect2(64, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_henshin_2"]
+atlas = ExtResource("tex_5")
+region = Rect2(128, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_henshin_3"]
+atlas = ExtResource("tex_5")
+region = Rect2(192, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_henshin_4"]
+atlas = ExtResource("tex_5")
+region = Rect2(256, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_henshin_5"]
+atlas = ExtResource("tex_5")
+region = Rect2(320, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_henshin_6"]
+atlas = ExtResource("tex_5")
+region = Rect2(384, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_henshin_7"]
+atlas = ExtResource("tex_5")
+region = Rect2(448, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_henshin_8"]
+atlas = ExtResource("tex_5")
+region = Rect2(512, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_henshin_9"]
+atlas = ExtResource("tex_5")
+region = Rect2(576, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_henshin_10"]
+atlas = ExtResource("tex_5")
+region = Rect2(640, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_henshin_11"]
+atlas = ExtResource("tex_5")
+region = Rect2(704, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_henshin_12"]
+atlas = ExtResource("tex_5")
+region = Rect2(768, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_henshin_13"]
+atlas = ExtResource("tex_5")
+region = Rect2(832, 384, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_final_0"]
+atlas = ExtResource("tex_5")
+region = Rect2(0, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_final_1"]
+atlas = ExtResource("tex_5")
+region = Rect2(64, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_final_2"]
+atlas = ExtResource("tex_5")
+region = Rect2(128, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_final_3"]
+atlas = ExtResource("tex_5")
+region = Rect2(192, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_final_4"]
+atlas = ExtResource("tex_5")
+region = Rect2(256, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_final_5"]
+atlas = ExtResource("tex_5")
+region = Rect2(320, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_final_6"]
+atlas = ExtResource("tex_5")
+region = Rect2(384, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_final_7"]
+atlas = ExtResource("tex_5")
+region = Rect2(448, 432, 64, 48)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_kuuga_titan_final_8"]
+atlas = ExtResource("tex_5")
+region = Rect2(512, 432, 64, 48)
+filter_clip = true
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_human_idle_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_human_idle_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_human_idle_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_human_idle_3")
+}],
+"loop": true,
+"name": &"human_idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_human_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_human_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_human_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_human_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_human_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_human_run_5")
+}],
+"loop": true,
+"name": &"human_run",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_human_jump_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_human_jump_1")
+}],
+"loop": true,
+"name": &"human_jump",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_human_light_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_human_light_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_human_light_2")
+}],
+"loop": false,
+"name": &"human_light",
+"speed": 11.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_human_heavy_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_human_heavy_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_human_heavy_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_human_heavy_3")
+}],
+"loop": false,
+"name": &"human_heavy",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_human_dodge_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_human_dodge_1")
+}],
+"loop": false,
+"name": &"human_dodge",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_human_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_human_hurt_1")
+}],
+"loop": false,
+"name": &"human_hurt",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_human_break_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_human_break_1")
+}],
+"loop": true,
+"name": &"human_break",
+"speed": 4.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_human_ko_0")
+}],
+"loop": false,
+"name": &"human_ko",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_idle_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_idle_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_idle_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_idle_3")
+}],
+"loop": true,
+"name": &"kuuga_growing_idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_run_5")
+}],
+"loop": true,
+"name": &"kuuga_growing_run",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_jump_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_jump_1")
+}],
+"loop": true,
+"name": &"kuuga_growing_jump",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_light_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_light_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_light_2")
+}],
+"loop": false,
+"name": &"kuuga_growing_light",
+"speed": 11.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_heavy_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_heavy_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_heavy_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_heavy_3")
+}],
+"loop": false,
+"name": &"kuuga_growing_heavy",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_swap_in_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_swap_in_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_swap_in_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_swap_in_3")
+}],
+"loop": false,
+"name": &"kuuga_growing_swap_in",
+"speed": 16.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_dodge_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_dodge_1")
+}],
+"loop": false,
+"name": &"kuuga_growing_dodge",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_hurt_1")
+}],
+"loop": false,
+"name": &"kuuga_growing_hurt",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_henshin_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_henshin_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_henshin_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_henshin_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_henshin_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_henshin_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_henshin_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_henshin_7")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_henshin_8")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_henshin_9")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_henshin_10")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_henshin_11")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_henshin_12")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_henshin_13")
+}],
+"loop": false,
+"name": &"kuuga_growing_henshin",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_final_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_final_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_final_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_final_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_final_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_final_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_final_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_final_7")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_growing_final_8")
+}],
+"loop": false,
+"name": &"kuuga_growing_final",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_idle_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_idle_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_idle_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_idle_3")
+}],
+"loop": true,
+"name": &"kuuga_mighty_idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_run_5")
+}],
+"loop": true,
+"name": &"kuuga_mighty_run",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_jump_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_jump_1")
+}],
+"loop": true,
+"name": &"kuuga_mighty_jump",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_light_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_light_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_light_2")
+}],
+"loop": false,
+"name": &"kuuga_mighty_light",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_heavy_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_heavy_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_heavy_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_heavy_3")
+}],
+"loop": false,
+"name": &"kuuga_mighty_heavy",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_swap_in_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_swap_in_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_swap_in_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_swap_in_3")
+}],
+"loop": false,
+"name": &"kuuga_mighty_swap_in",
+"speed": 16.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_dodge_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_dodge_1")
+}],
+"loop": false,
+"name": &"kuuga_mighty_dodge",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_hurt_1")
+}],
+"loop": false,
+"name": &"kuuga_mighty_hurt",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_henshin_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_henshin_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_henshin_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_henshin_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_henshin_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_henshin_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_henshin_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_henshin_7")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_henshin_8")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_henshin_9")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_henshin_10")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_henshin_11")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_henshin_12")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_henshin_13")
+}],
+"loop": false,
+"name": &"kuuga_mighty_henshin",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_final_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_final_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_final_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_final_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_final_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_final_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_final_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_final_7")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_mighty_final_8")
+}],
+"loop": false,
+"name": &"kuuga_mighty_final",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_idle_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_idle_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_idle_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_idle_3")
+}],
+"loop": true,
+"name": &"kuuga_dragon_idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_run_5")
+}],
+"loop": true,
+"name": &"kuuga_dragon_run",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_jump_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_jump_1")
+}],
+"loop": true,
+"name": &"kuuga_dragon_jump",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_light_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_light_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_light_2")
+}],
+"loop": false,
+"name": &"kuuga_dragon_light",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_heavy_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_heavy_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_heavy_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_heavy_3")
+}],
+"loop": false,
+"name": &"kuuga_dragon_heavy",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_swap_in_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_swap_in_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_swap_in_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_swap_in_3")
+}],
+"loop": false,
+"name": &"kuuga_dragon_swap_in",
+"speed": 16.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_dodge_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_dodge_1")
+}],
+"loop": false,
+"name": &"kuuga_dragon_dodge",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_hurt_1")
+}],
+"loop": false,
+"name": &"kuuga_dragon_hurt",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_henshin_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_henshin_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_henshin_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_henshin_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_henshin_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_henshin_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_henshin_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_henshin_7")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_henshin_8")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_henshin_9")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_henshin_10")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_henshin_11")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_henshin_12")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_henshin_13")
+}],
+"loop": false,
+"name": &"kuuga_dragon_henshin",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_final_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_final_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_final_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_final_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_final_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_final_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_final_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_final_7")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_dragon_final_8")
+}],
+"loop": false,
+"name": &"kuuga_dragon_final",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_idle_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_idle_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_idle_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_idle_3")
+}],
+"loop": true,
+"name": &"kuuga_pegasus_idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_run_5")
+}],
+"loop": true,
+"name": &"kuuga_pegasus_run",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_jump_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_jump_1")
+}],
+"loop": true,
+"name": &"kuuga_pegasus_jump",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_light_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_light_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_light_2")
+}],
+"loop": false,
+"name": &"kuuga_pegasus_light",
+"speed": 6.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_heavy_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_heavy_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_heavy_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_heavy_3")
+}],
+"loop": false,
+"name": &"kuuga_pegasus_heavy",
+"speed": 4.5
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_swap_in_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_swap_in_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_swap_in_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_swap_in_3")
+}],
+"loop": false,
+"name": &"kuuga_pegasus_swap_in",
+"speed": 16.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_dodge_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_dodge_1")
+}],
+"loop": false,
+"name": &"kuuga_pegasus_dodge",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_hurt_1")
+}],
+"loop": false,
+"name": &"kuuga_pegasus_hurt",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_henshin_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_henshin_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_henshin_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_henshin_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_henshin_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_henshin_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_henshin_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_henshin_7")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_henshin_8")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_henshin_9")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_henshin_10")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_henshin_11")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_henshin_12")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_henshin_13")
+}],
+"loop": false,
+"name": &"kuuga_pegasus_henshin",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_final_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_final_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_final_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_final_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_final_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_final_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_final_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_final_7")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_pegasus_final_8")
+}],
+"loop": false,
+"name": &"kuuga_pegasus_final",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_idle_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_idle_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_idle_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_idle_3")
+}],
+"loop": true,
+"name": &"kuuga_titan_idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_run_5")
+}],
+"loop": true,
+"name": &"kuuga_titan_run",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_jump_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_jump_1")
+}],
+"loop": true,
+"name": &"kuuga_titan_jump",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_light_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_light_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_light_2")
+}],
+"loop": false,
+"name": &"kuuga_titan_light",
+"speed": 6.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_heavy_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_heavy_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_heavy_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_heavy_3")
+}],
+"loop": false,
+"name": &"kuuga_titan_heavy",
+"speed": 4.5
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_swap_in_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_swap_in_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_swap_in_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_swap_in_3")
+}],
+"loop": false,
+"name": &"kuuga_titan_swap_in",
+"speed": 16.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_dodge_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_dodge_1")
+}],
+"loop": false,
+"name": &"kuuga_titan_dodge",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_hurt_1")
+}],
+"loop": false,
+"name": &"kuuga_titan_hurt",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_henshin_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_henshin_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_henshin_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_henshin_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_henshin_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_henshin_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_henshin_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_henshin_7")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_henshin_8")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_henshin_9")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_henshin_10")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_henshin_11")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_henshin_12")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_henshin_13")
+}],
+"loop": false,
+"name": &"kuuga_titan_henshin",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_final_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_final_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_final_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_final_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_final_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_final_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_final_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_final_7")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_kuuga_titan_final_8")
+}],
+"loop": false,
+"name": &"kuuga_titan_final",
+"speed": 8.0
+}]

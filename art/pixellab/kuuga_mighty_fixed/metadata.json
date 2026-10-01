@@ -1,0 +1,119 @@
+{
+  "group_id": "6d5d2626-661b-46a9-811f-33619183727a",
+  "states": [
+    {
+      "character": {
+        "id": "9aaf2e5e-4ccf-4049-aebd-77c6f84dcccc",
+        "name": "Idle",
+        "prompt": "Kamen Rider Kuuga Mighty Form: black helmet with huge red compound eyes, golden antler horns, silver mouthplate, red chest and shoulder armor, black bodysuit, silver belt with red gem, black boots with gold anklets",
+        "size": {
+          "width": 68,
+          "height": 68
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "side",
+        "created_at": "2026-09-29T07:07:07.652067+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "idle": {
+            "east": [
+              "Idle/animations/idle/east/frame_000.png",
+              "Idle/animations/idle/east/frame_001.png",
+              "Idle/animations/idle/east/frame_002.png",
+              "Idle/animations/idle/east/frame_003.png",
+              "Idle/animations/idle/east/frame_004.png",
+              "Idle/animations/idle/east/frame_005.png",
+              "Idle/animations/idle/east/frame_006.png",
+              "Idle/animations/idle/east/frame_007.png"
+            ]
+          },
+          "heavy": {
+            "east": [
+              "Idle/animations/heavy/east/frame_000.png",
+              "Idle/animations/heavy/east/frame_001.png",
+              "Idle/animations/heavy/east/frame_002.png",
+              "Idle/animations/heavy/east/frame_003.png",
+              "Idle/animations/heavy/east/frame_004.png",
+              "Idle/animations/heavy/east/frame_005.png",
+              "Idle/animations/heavy/east/frame_006.png"
+            ]
+          },
+          "final": {
+            "east": [
+              "Idle/animations/final/east/frame_000.png",
+              "Idle/animations/final/east/frame_001.png",
+              "Idle/animations/final/east/frame_002.png",
+              "Idle/animations/final/east/frame_003.png",
+              "Idle/animations/final/east/frame_004.png",
+              "Idle/animations/final/east/frame_005.png"
+            ]
+          },
+          "crouch": {
+            "east": [
+              "Idle/animations/crouch/east/frame_000.png",
+              "Idle/animations/crouch/east/frame_001.png",
+              "Idle/animations/crouch/east/frame_002.png",
+              "Idle/animations/crouch/east/frame_003.png",
+              "Idle/animations/crouch/east/frame_004.png"
+            ]
+          },
+          "hurt": {
+            "east": [
+              "Idle/animations/hurt/east/frame_000.png",
+              "Idle/animations/hurt/east/frame_001.png",
+              "Idle/animations/hurt/east/frame_002.png",
+              "Idle/animations/hurt/east/frame_003.png",
+              "Idle/animations/hurt/east/frame_004.png",
+              "Idle/animations/hurt/east/frame_005.png"
+            ]
+          },
+          "light": {
+            "east": [
+              "Idle/animations/light/east/frame_000.png",
+              "Idle/animations/light/east/frame_001.png",
+              "Idle/animations/light/east/frame_002.png"
+            ]
+          },
+          "jump": {
+            "east": [
+              "Idle/animations/jump/east/frame_000.png",
+              "Idle/animations/jump/east/frame_001.png",
+              "Idle/animations/jump/east/frame_002.png",
+              "Idle/animations/jump/east/frame_003.png",
+              "Idle/animations/jump/east/frame_004.png",
+              "Idle/animations/jump/east/frame_005.png",
+              "Idle/animations/jump/east/frame_006.png",
+              "Idle/animations/jump/east/frame_007.png",
+              "Idle/animations/jump/east/frame_008.png"
+            ]
+          },
+          "run": {
+            "east": [
+              "Idle/animations/run/east/frame_000.png",
+              "Idle/animations/run/east/frame_001.png",
+              "Idle/animations/run/east/frame_002.png",
+              "Idle/animations/run/east/frame_003.png",
+              "Idle/animations/run/east/frame_004.png",
+              "Idle/animations/run/east/frame_005.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-09-29T08:20:03.688117"
+}

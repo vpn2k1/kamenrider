@@ -1,0 +1,15 @@
+{
+  "prompt": "side view facing right, one quick straight punch forward with the right fist, then back to stance, keep the large horn on the head in every frame",
+  "model": "pixel-engine-v1.1",
+  "output_frames": 4,
+  "output_format": "spritesheet",
+  "matte_color": "#FF00FF",
+  "job": "bc669eda-496e-487a-89a4-217019cbfba5",
+  "credits": 12,
+  "seconds": 126,
+  "width": 272,
+  "height": 68,
+  "frame_h": 68,
+  "frame_w": 68,
+  "frame_count": 4
+}

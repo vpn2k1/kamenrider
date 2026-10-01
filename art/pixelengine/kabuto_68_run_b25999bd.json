@@ -1,0 +1,15 @@
+{
+  "prompt": "side view facing right, running to the right in a steady loop, arms swinging, legs moving from the first frame",
+  "model": "pixel-engine-v1.1",
+  "output_frames": 8,
+  "output_format": "spritesheet",
+  "matte_color": "#FF00FF",
+  "job": "b25999bd-1d58-4a0a-84ad-ee55983b68bb",
+  "credits": 12,
+  "seconds": 109,
+  "width": 544,
+  "height": 68,
+  "frame_h": 68,
+  "frame_w": 68,
+  "frame_count": 8
+}

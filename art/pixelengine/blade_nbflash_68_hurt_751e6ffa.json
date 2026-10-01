@@ -1,0 +1,15 @@
+{
+  "prompt": "side view facing right, gets hit and recoils backward, head snapping back, then recovers to stance",
+  "model": "pixel-engine-v1.1",
+  "output_frames": 6,
+  "output_format": "spritesheet",
+  "matte_color": "#FF00FF",
+  "job": "751e6ffa-4560-4758-b79a-8962b2e33c88",
+  "credits": 12,
+  "seconds": 174,
+  "width": 408,
+  "height": 68,
+  "frame_h": 68,
+  "frame_w": 68,
+  "frame_count": 6
+}

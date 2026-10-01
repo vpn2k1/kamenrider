@@ -1,0 +1,15 @@
+{
+  "prompt": "side view facing right, calm confident fighting stance, gentle breathing loop, stays in place, keep the large horn on the head in every frame",
+  "model": "pixel-engine-v1.1",
+  "output_frames": 8,
+  "output_format": "spritesheet",
+  "matte_color": "#FF00FF",
+  "job": "f281179c-6b8a-472b-a745-176749792b3f",
+  "credits": 20,
+  "seconds": 124,
+  "width": 544,
+  "height": 68,
+  "frame_h": 68,
+  "frame_w": 68,
+  "frame_count": 8
+}

@@ -1,0 +1,32 @@
+{
+  "group_id": "c926f358-3283-4eb3-a158-d35f929ec444",
+  "states": [
+    {
+      "character": {
+        "id": "2e05b586-7ead-4527-9f80-da8780ea9898",
+        "name": "Idle",
+        "prompt": "henchman soldier in black bodysuit with white skull mask, silver bone pattern on chest, thin wiry build, grey belt",
+        "size": {
+          "width": 68,
+          "height": 68
+        },
+        "template_id": "mannequin",
+        "directions": 4,
+        "view": "side",
+        "created_at": "2026-09-29T06:46:35.505426+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "west": "Idle/rotations/west.png",
+          "east": "Idle/rotations/east.png",
+          "north": "Idle/rotations/north.png"
+        },
+        "animations": {}
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-09-29T08:20:14.397580"
+}

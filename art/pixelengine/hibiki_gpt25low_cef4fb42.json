@@ -1,0 +1,12 @@
+{
+  "prompt": "Tiny pixel art game sprite on a 68x68 pixel canvas, character about 54 pixels tall, in exactly the same style, outline and side-view standing pose as the reference image. Kamen Rider Hibiki: deep purple oni-like bodysuit, crimson red arms and chest plate, purple helmet with no visible eyes, a pair of silver demon horns curving up from the forehead and a red flame-like face pattern, onsa tuning-fork buckle on the belt, drumsticks on the back. One character only, full body, side view facing right, plain white background.",
+  "model": "oai_gpt25_low",
+  "pixel_config": {
+    "colors": 32
+  },
+  "job": "cef4fb42-1c79-47f7-b92e-4f4902180969",
+  "credits": 6,
+  "seconds": 23,
+  "width": 95,
+  "height": 95
+}

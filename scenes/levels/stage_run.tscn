@@ -1,0 +1,81 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/levels/stage_run.gd" id="1_stage"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://scripts/ui/player_hud.gd" id="3_hud"]
+[ext_resource type="Texture2D" path="res://art/backgrounds/shibuya_night.png" id="4_bg"]
+[ext_resource type="Script" path="res://scripts/ui/touch_controls.gd" id="5_touch"]
+
+[node name="StageRun" type="Node2D"]
+script = ExtResource("1_stage")
+
+[node name="Sky" type="CanvasLayer" parent="."]
+layer = -10
+
+[node name="Color" type="ColorRect" parent="Sky"]
+offset_right = 480.0
+offset_bottom = 270.0
+color = Color(0.086, 0.035, 0.255, 1)
+
+[node name="FarCity" type="Parallax2D" parent="."]
+modulate = Color(0.55, 0.52, 0.68, 1)
+scroll_scale = Vector2(0.3, 0.15)
+repeat_size = Vector2(800, 0)
+repeat_times = 4
+
+[node name="A" type="Sprite2D" parent="FarCity"]
+texture = ExtResource("4_bg")
+centered = false
+position = Vector2(-400, -60)
+
+[node name="B" type="Sprite2D" parent="FarCity"]
+texture = ExtResource("4_bg")
+centered = false
+flip_h = true
+position = Vector2(0, -60)
+
+[node name="Level" type="Node2D" parent="."]
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector2(60, 148)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(240, 100)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Bars" type="Control" parent="HUD"]
+offset_left = 6.0
+offset_top = 6.0
+offset_right = 250.0
+offset_bottom = 54.0
+mouse_filter = 2
+script = ExtResource("3_hud")
+
+[node name="Status" type="Label" parent="HUD"]
+offset_left = 300.0
+offset_top = 4.0
+offset_right = 474.0
+offset_bottom = 30.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 8
+horizontal_alignment = 2
+
+[node name="Banner" type="Label" parent="HUD"]
+offset_left = 60.0
+offset_top = 70.0
+offset_right = 420.0
+offset_bottom = 130.0
+theme_override_colors/font_color = Color(1, 0.95, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Touch" type="Node2D" parent="HUD"]
+script = ExtResource("5_touch")

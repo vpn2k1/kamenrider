@@ -1,0 +1,15 @@
+{
+  "prompt": "side view facing right, calm confident fighting stance, gentle breathing loop, stays in place",
+  "model": "pixel-engine-v1.1",
+  "output_frames": 8,
+  "output_format": "spritesheet",
+  "matte_color": "#FF00FF",
+  "job": "6b37d9e4-a9b0-463b-bd84-c46ef95826af",
+  "credits": 20,
+  "seconds": 107,
+  "width": 544,
+  "height": 68,
+  "frame_h": 68,
+  "frame_w": 68,
+  "frame_count": 8
+}
