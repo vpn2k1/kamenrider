@@ -799,7 +799,9 @@ func _process(delta: float) -> void:
 		if _banner_timer <= 0.0:
 			hud.banner = ""
 			hud.banner_small = ""
-	if screen == Screen.MENU and Input.is_action_just_pressed("menu"):
+	# Esc / Menu lúc bảng hướng dẫn đang mở là để đóng bảng, không thoát phòng / bỏ trận
+	var menu_pressed := Input.is_action_just_pressed("menu") and not HelpOverlay.is_showing()
+	if screen == Screen.MENU and menu_pressed:
 		_on_back()
 		return
 	if screen != Screen.MATCH or me == null:
@@ -807,7 +809,7 @@ func _process(delta: float) -> void:
 	_update_my_placeholder()
 	_update_hud()
 	_menu_armed = maxf(_menu_armed - delta, 0.0)
-	if Input.is_action_just_pressed("menu"):
+	if menu_pressed:
 		if _menu_armed > 0.0:
 			_abort.rpc(GameState.player_name)
 		else:
@@ -966,6 +968,8 @@ func _build_arena() -> void:
 	touch.set_script(TOUCH_SCRIPT)
 	touch.visible = false
 	layer.add_child(touch)
+	# Bảng hướng dẫn nút bấm (bản web, nút "?"): trận qua mạng không dừng được nên không pause
+	layer.add_child(HelpOverlay.new())
 
 
 func _solid(r: Rect2) -> void:

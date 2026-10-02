@@ -6,7 +6,8 @@ extends Node2D
 ##   Góc phải:  nút ĐÁNH to (đấm theo chuỗi rồi tự đá), Né.
 ##              Chỉ hiện khi dùng được: Bắn (form có súng), Chém (form có kiếm), Kỹ năng (đổi form),
 ##              Biến thân / Tuyệt chiêu.
-##   Góc trên trái, bên trái thanh máu: Menu (về màn chọn màn). Mỗi màn một Rider nên không có nút Đổi Rider.
+##   Góc trên trái, bên trái thanh máu: Menu (về màn chọn màn), dưới nó nút "?" mở bảng hướng dẫn (chỉ bản web,
+##              HelpOverlay). Mỗi màn một Rider nên không có nút Đổi Rider.
 ## Gán `player` để các nút biết hồi chiêu và điều kiện dùng.
 
 const ICON_DIR := "res://art/ui/icons/"
@@ -29,6 +30,7 @@ const LAYOUT := [
 	["attack_slash", "slash", Vector2(382, 156), 15.0, Color(1, 0.6, 0.45), false, "Chém", ""],
 	["special", "skill", Vector2(430, 170), 15.0, Color(1, 0.85, 0.3), false, "Kỹ năng", ""],
 	["menu", "menu", Vector2(15, 14), 10.0, Color(0.85, 0.85, 0.95), false, "", ""],
+	["help", "help", Vector2(15, 38), 9.0, Color(0.85, 0.85, 0.95), false, "", ""],
 	["ultimate", "ultimate", Vector2(430, 122), 17.0, Color(1, 0.85, 0.3), true, "Biến thân", ""],
 ]
 

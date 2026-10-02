@@ -7,6 +7,7 @@ class_name StageSelect
 ##     Quầng màu Rider, huy hiệu số thế giới. Đã giải cứu: huy hiệu và đường nối vàng. Đang tới: viền vàng nhấp nháy.
 ##     Chưa mở: hành tinh nhuộm xám, khoá tinh thể.
 ##     ◀ ▶ đổi thế giới · Đánh / Enter vào. Chạm vòng để chọn, chạm lần nữa (hoặc nút VÀO) để vào.
+##     Esc / Menu / nút "◀ MENU" góc trái trên: về màn hình chính (để vào COMBAT hoặc đổi tên).
 ##     Dưới dải: bảng thông tin thế giới đang chọn (tên, số màn đã qua).
 ##   Bước 2 · màn: lưới dọc 2 ô một hàng, mỗi màn một ô vuông bo góc 1 · 2 · 3 · 4 · B (OOO tới 8 · B).
 ##     Lưới dài hơn màn hình thì kéo dọc để cuộn. Ô đã qua: viền vàng + dấu ✓. Ô đã mở chưa qua: sáng. Ô chưa mở: xám.
@@ -18,6 +19,7 @@ class_name StageSelect
 ## Bố cục theo khung 480×270 đặt giữa màn hình (Screen.fit); nền, sao và dải thế giới tràn ra cả màn hình máy.
 
 signal chosen(world: int, stage: int)
+signal menu_requested    ## bước 1 bấm Esc / Menu / nút ◀ MENU: về màn hình chính
 
 enum Mode { WORLD, STAGE }
 
@@ -46,6 +48,7 @@ const PANEL := Rect2(206, 44, 258, 170)
 const BUTTON_CENTER := Rect2(185, 236, 110, 26)
 const BUTTON := Rect2(340, 228, 110, 30)
 const BACK := Rect2(220, 228, 110, 30)
+const MENU_BTN := Rect2(8, 8, 66, 20)   ## nút ◀ MENU ở bước 1
 
 const TYPE_NAMES := {0: "Thức tỉnh", 1: "Luyện tập", 2: "Trùm", 3: "Đặc biệt"}
 
@@ -172,6 +175,10 @@ func _process_world() -> void:
 	elif Input.is_action_just_pressed("attack_light") or Input.is_action_just_pressed("ui_accept"):
 		_enter_world()
 		return
+	elif (Input.is_action_just_pressed("menu") or Input.is_action_just_pressed("ui_cancel")) \
+			and not HelpOverlay.is_showing():
+		menu_requested.emit()
+		return
 	if w != _world:
 		_set_world(w)
 
@@ -275,6 +282,9 @@ func _input(event: InputEvent) -> void:
 
 func _tap(p: Vector2) -> void:
 	if mode == Mode.WORLD:
+		if MENU_BTN.has_point(p):
+			menu_requested.emit()
+			return
 		if BUTTON_CENTER.has_point(p):
 			_enter_world()
 			return
@@ -385,6 +395,7 @@ func _draw_worlds() -> void:
 	_draw_world_info()
 	_text(Vector2(0, 230), "◀ ▶ / kéo: chọn thế giới · chạm lần nữa / Đánh / Enter: vào", 7, Color(0.7, 0.7, 0.8),
 		size.x)
+	_pill(MENU_BTN, "◀ MENU", Color(0.25, 0.25, 0.35, 0.95))
 	_pill(BUTTON_CENTER, "VÀO" if _world_unlocked(_world) else "BỊ KHOÁ",
 		Color(0.85, 0.22, 0.25, 0.95) if _world_unlocked(_world) else Color(0.25, 0.25, 0.32, 0.95))
 

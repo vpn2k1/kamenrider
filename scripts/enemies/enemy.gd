@@ -98,10 +98,13 @@ const GHOST_EVERY := 0.07       ## quái siêu tốc để bóng mờ mỗi ch�
 @export var max_hp := 30.0
 @export var move_speed := 55.0
 @export var sight_range := 180.0
-@export var attack_range := 24.0
+## Tầm đòn khớp với hình: tay quái lúc đánh vươn ~23 px từ tâm (đo trên enemy_frames), nên vùng đòn chỉ tới
+## (offset.x + size.x / 2) × SCALE ≈ 26 px trước tâm. Quái tiến tới attack_range (≈ 34 px, hai thân gần chạm) mới tụ
+## đòn, để đứng yên thì trúng, còn lùi ra lúc quái tụ đòn thì tránh được.
+@export var attack_range := 19.0
 @export var attack_damage := 8.0
-@export var attack_size := Vector2(20, 14)
-@export var attack_offset := Vector2(14, -12)
+@export var attack_size := Vector2(13, 14)
+@export var attack_offset := Vector2(8, -12)
 @export var attack_knockback := Vector2(120, -60)
 @export var windup_time := 0.45
 @export var active_time := 0.12

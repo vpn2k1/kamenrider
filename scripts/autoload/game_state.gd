@@ -65,6 +65,7 @@ const INPUT_KEYS := {
 	"menu": [KEY_ESCAPE, KEY_P],   ## về màn chọn màn
 	"final_attack": [KEY_U],
 	"ultimate": [],   ## nút tuyệt chiêu trên màn hình: biến thân hoặc Final Attack
+	"help": [],       ## nút "?" trên màn hình (chỉ bản web): mở bảng hướng dẫn nút bấm (HelpOverlay)
 }
 
 var world_index := 0                    ## màn đang chơi (chọn ở màn chọn màn)

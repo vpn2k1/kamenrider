@@ -75,6 +75,8 @@ const DODGE_COOLDOWN := 0.6
 
 const PLATFORM_LAYER := 5      ## lớp va chạm của bệ một chiều (xuống bằng ↓ + nhảy, hoặc bấm đúp ↓)
 const DOUBLE_TAP_TIME := 0.3   ## bấm ↓ hai lần trong chừng này giây khi đứng trên bệ = xuống khỏi bệ
+const COYOTE_TIME := 0.1       ## vừa rời mép trong chừng này giây vẫn nhảy được
+const JUMP_BUFFER := 0.12      ## bấm Nhảy sớm chừng này giây trước khi chạm đất / hết đòn thì vẫn nhảy
 const RESPAWN_INVULN := 1.5
 ## Bất tử ngắn sau mỗi lần trúng đòn, để không bị nhiều quái/đạn trừ máu dồn dập cùng lúc.
 const HIT_INVULN_HUMAN := 0.6
@@ -158,6 +160,8 @@ var _gun: Sprite2D             ## hình súng hiện ở tay lúc bắn
 var _gun_timer := 0.0
 static var _weapon_textures := {}
 var _down_tap := INF           ## giây kể từ lần bấm ↓ trước (bấm đúp để xuống bệ)
+var _air_time := 0.0           ## giây kể từ lúc rời mặt đất (COYOTE_TIME)
+var _jump_buffer := 0.0        ## còn chừng này giây thì lần bấm Nhảy gần nhất vẫn được tính (JUMP_BUFFER)
 var _buffered: StringName = &""
 var _combo := 0
 var _combo_timer := 0.0
@@ -200,6 +204,11 @@ func _draw() -> void:
 
 func _physics_process(delta: float) -> void:
 	_tick_timers(delta)
+	_air_time = 0.0 if is_on_floor() else _air_time + delta
+	if Input.is_action_just_pressed("jump") and not input_locked:
+		_jump_buffer = JUMP_BUFFER
+	else:
+		_jump_buffer = maxf(_jump_buffer - delta, 0.0)
 	if current_form:
 		current_form.update(delta)
 	if not is_on_floor():
@@ -319,10 +328,12 @@ func _state_normal(delta: float) -> void:
 	if dir != 0.0:
 		facing = 1 if dir > 0.0 else -1
 		sprite.flip_h = facing < 0
-	if Input.is_action_just_pressed("jump") and is_on_floor():
-		if Input.is_action_pressed("move_down") and _on_platform():
+	if _jump_buffer > 0.0 and _air_time <= COYOTE_TIME:
+		_jump_buffer = 0.0
+		if is_on_floor() and Input.is_action_pressed("move_down") and _on_platform():
 			_drop_through()            # ↓ + nhảy trên bệ = xuống khỏi bệ (như Contra)
 			return
+		_air_time = COYOTE_TIME + 1.0   # đã nhảy: hết quyền nhảy trên không tới khi chạm đất lại
 		velocity.y = jump_velocity * Units.SCALE * (current_form.jump_mult * current_form.bonus("jump") if current_form else 1.0)
 		Sound.sfx("jump", 0.03, -4.0)
 	if Input.is_action_just_pressed("move_down") and is_on_floor():
@@ -636,6 +647,8 @@ func _on_platform() -> bool:
 
 func _drop_through() -> void:
 	_set_crouch(false)
+	_jump_buffer = 0.0
+	_air_time = COYOTE_TIME + 1.0   # xuống khỏi bệ không phải bước hụt: không nhảy ngược lên được
 	set_collision_mask_value(PLATFORM_LAYER, false)
 	velocity.y = 80.0
 	get_tree().create_timer(0.3).timeout.connect(func() -> void: set_collision_mask_value(PLATFORM_LAYER, true))
@@ -898,6 +911,8 @@ func is_action_visible(action: String) -> bool:
 			return current_form != null and equipped.size() >= 2
 		"ultimate":
 			return current_form != null or not equipped.is_empty()
+		"help":
+			return HelpOverlay.enabled()
 	return true
 
 

@@ -21,6 +21,17 @@ var player: Player
 var _touch_index := -1
 var _pressed := false
 
+const GROUP := &"touch_buttons"
+
+
+## Nhả mọi nút ảo đang giữ (trước khi dừng màn: nút bị dừng không nhận được lúc nhả tay, action sẽ bị kẹt).
+static func release_all(tree: SceneTree) -> void:
+	for b in tree.get_nodes_in_group(GROUP):
+		var tb := b as TouchButton
+		if tb._pressed:
+			tb._touch_index = -1
+			tb._set_pressed(false)
+
 
 func _input(event: InputEvent) -> void:
 	if not visible:
@@ -55,6 +66,10 @@ func _set_pressed(on: bool) -> void:
 			Input.action_press(a)
 		else:
 			Input.action_release(a)
+
+
+func _enter_tree() -> void:
+	add_to_group(GROUP)
 
 
 func _exit_tree() -> void:

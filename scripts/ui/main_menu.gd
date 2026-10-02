@@ -7,6 +7,7 @@ extends Control
 ## cài đặt, GameState.name_set) thì vào thẳng. Nút "✎ Tên: …" dưới hai nút để đổi tên.
 ## Nền phủ kín màn hình máy (ảnh nền lặp theo bề ngang), hai nút luôn ở giữa màn hình.
 ## ▲ ▼ (hoặc W / S, ◀ ▶) chọn, Enter / Space / Đánh (J) / chạm để vào.
+## Bản web: nút "?" góc trên phải mở bảng hướng dẫn nút bấm (HelpOverlay).
 
 const NAME_SCENE := "res://scenes/ui/name_entry.tscn"
 const BG_TEX := preload("res://art/backgrounds/tokyo.png")
@@ -17,6 +18,7 @@ const GOLD := Color(1, 0.85, 0.3)
 
 var _cards: Array[Button] = []
 var _message: Label
+var _help: HelpOverlay
 
 
 func _ready() -> void:
@@ -72,9 +74,32 @@ func _ready() -> void:
 	_message.custom_minimum_size = Vector2(0, 12)
 	box.add_child(_message)
 	_cards[0 if NameEntry.mode == NameEntry.Mode.PLAY else 1].grab_focus()
+	if HelpOverlay.enabled():
+		var help_button := Button.new()
+		help_button.text = "? Hướng dẫn"
+		help_button.focus_mode = Control.FOCUS_NONE
+		help_button.add_theme_font_size_override("font_size", 8)
+		help_button.add_theme_color_override("font_color", GOLD)
+		help_button.add_theme_color_override("font_hover_color", Color.WHITE)
+		for state in ["normal", "hover", "pressed"]:
+			var sb := _pill(Color(0.12, 0.1, 0.22, 0.9 if state == "normal" else 1.0),
+				GOLD if state != "normal" else Color(0.6, 0.55, 0.8), 1, 9)
+			sb.content_margin_left = 8
+			sb.content_margin_right = 8
+			sb.content_margin_top = 3
+			sb.content_margin_bottom = 3
+			help_button.add_theme_stylebox_override(state, sb)
+		help_button.pressed.connect(func() -> void: _help.open())
+		add_child(help_button)
+		help_button.size = help_button.get_combined_minimum_size()
+		help_button.position = Vector2(VIEW.x - help_button.size.x - 8, 8)
+		_help = HelpOverlay.new()
+		add_child(_help)
 
 
 func _process(_delta: float) -> void:
+	if HelpOverlay.is_showing():
+		return
 	# W / S (A / D cũng được) và phím Đánh (J) dùng được như ở các màn chọn khác.
 	if Input.is_action_just_pressed("move_up") or Input.is_action_just_pressed("move_left"):
 		_cards[0].grab_focus()
@@ -114,12 +139,12 @@ func _card(title: String, desc: String, accent: Color, mode: NameEntry.Mode) -> 
 
 
 ## Nền nút bo tròn hai đầu. Tắt khử răng cưa để mép bo giữ nét pixel như phần còn lại của game.
-func _pill(fill: Color, border: Color, width: int) -> StyleBoxFlat:
+func _pill(fill: Color, border: Color, width: int, radius := RADIUS) -> StyleBoxFlat:
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = fill
 	sb.border_color = border
 	sb.set_border_width_all(width)
-	sb.set_corner_radius_all(RADIUS)
+	sb.set_corner_radius_all(radius)
 	sb.corner_detail = 12
 	sb.anti_aliasing = false
 	return sb

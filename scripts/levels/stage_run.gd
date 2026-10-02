@@ -47,6 +47,7 @@ extends Node2D
 ##     Trong lúc thoại cả màn dừng lại (get_tree().paused), phase = TALK.
 
 const ENEMY_SCENE := preload("res://scenes/enemies/enemy.tscn")
+const MENU_SCENE := "res://scenes/ui/main_menu.tscn"
 const TOP_TEX := preload("res://art/tiles/street_top.png")
 const FILL_TEX := preload("res://art/tiles/street_fill.png")
 const CRATE_TEX := preload("res://art/tiles/crate.png")
@@ -173,6 +174,7 @@ func _ready() -> void:
 	_stage_select = StageSelect.new()
 	_stage_select.visible = false
 	_stage_select.chosen.connect(_on_stage_chosen)
+	_stage_select.menu_requested.connect(_to_main_menu)
 	$HUD.add_child(_stage_select)
 	_form_select = FormSelect.new()
 	_form_select.visible = false
@@ -196,6 +198,10 @@ func _ready() -> void:
 	$HUD.add_child(_fade)
 	_dialogue = DialogueBox.new()
 	$HUD.add_child(_dialogue)
+	# Bảng hướng dẫn nút bấm (bản web, nút "?"): trên cùng, dừng cả màn khi đang mở
+	var help := HelpOverlay.new()
+	help.pause_tree = true
+	$HUD.add_child(help)
 	_layout_hud()
 	get_viewport().size_changed.connect(_layout_hud)
 	_on_form_changed(&"")
@@ -230,6 +236,13 @@ func _open_map(show_select := true) -> void:
 	_stage_select.open(w, st)
 	Sound.music("map")
 	_fade_to(0.0)
+
+
+## Màn chọn thế giới bấm ◀ MENU / Esc: lưu rồi về màn hình chính (CHƠI / COMBAT).
+func _to_main_menu() -> void:
+	GameState.save_game()
+	get_tree().paused = false
+	get_tree().change_scene_to_file(MENU_SCENE)
 
 
 func _on_stage_chosen(world: int, stage: int) -> void:
@@ -1079,9 +1092,10 @@ func _make_enemy(kind: String, pos: Vector2) -> Enemy:
 		e.attack_damage = boss["damage"]
 		e.poise = boss["poise"]
 		e.move_speed = boss["speed"]
-		e.attack_range = 34.0
-		e.attack_size = Vector2(30, 20)
-		e.attack_offset = Vector2(22, -26)
+		# Vùng đòn tới ~38 px trước tâm trùm (hình trùm vươn tối đa ~34 px), không trúng khi còn cách xa
+		e.attack_range = 24.0
+		e.attack_size = Vector2(18, 22)
+		e.attack_offset = Vector2(12, -24)
 		e.sight_range = 400.0
 		e.fragment_reward = 50
 		e.sprite_prefix = boss.get("sprite", "")
