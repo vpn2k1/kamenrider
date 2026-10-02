@@ -4,8 +4,14 @@ class_name Projectile
 ## (trừ đạn xuyên), chạm tường/mặt đất (lớp world) thì vỡ. Bay xuyên qua bệ một chiều.
 ## Tự vẽ bằng _draw theo style (Fx.SHOTS): ball quả cầu sáng, bolt tia sét, fire cầu lửa, arrow mũi tên khí.
 ## hit_fx: hiệu ứng Fx khi trúng ("" = không có).
+## Chém đạn (Player._check_parry): vung vũ khí đúng lúc, đạn ở trong tầm lưỡi thì đạn bị chém tan (cut) hoặc,
+## vung sớm và đạn ở mũi lưỡi, bị đánh bật ngược lại về phía kẻ bắn (reflect) với sát thương gấp đôi.
+## Mọi viên đạn nằm trong nhóm GROUP để người chơi quét.
 
 signal hit_landed(target: Node, info: DamageInfo)
+
+const GROUP := &"projectiles"
+const REFLECT_COLOR := Color(1.0, 0.85, 0.3)
 
 var velocity := Vector2.ZERO
 var damage := 5.0
@@ -20,11 +26,14 @@ var style := "ball"
 var hit_fx := ""
 ## Bản sao để nhìn (chế độ đấu: đạn của đối thủ do máy đối thủ tính trúng). Chạm Hurtbox phe kia thì tan, không gây sát thương.
 var visual_only := false
+var parried := false           ## đã bị chém / phản: không bị chém lần nữa
+
 
 var _hit: Array = []
 
 
 func _ready() -> void:
+	add_to_group(GROUP)
 	collision_layer = 0
 	collision_mask = 1 | 8        # world + hurtbox
 	var shape := CollisionShape2D.new()
@@ -71,6 +80,36 @@ func _on_area_entered(area: Area2D) -> void:
 
 func _on_body_entered(_body: Node2D) -> void:
 	queue_free()
+
+
+## Bị chém tan: tia lửa rồi biến mất.
+func cut() -> void:
+	parried = true
+	Fx.spawn(get_parent(), global_position, "spark", REFLECT_COLOR, 1 if velocity.x < 0.0 else -1, 1.2)
+	queue_free()
+
+
+## Bị đánh bật ngược: đổi phe sang người chém, bay về phía `target` (kẻ bắn, nếu còn sống) hoặc ngược hướng cũ,
+## nhanh hơn speed_mult lần, sát thương ×dmg_mult, thêm &"heavy" (phá giáp).
+func reflect(by: Node, new_team: StringName, target: Node2D, speed_mult: float, dmg_mult: float) -> void:
+	parried = true
+	team = new_team
+	source = by
+	damage *= dmg_mult
+	tags = tags.duplicate()
+	if not tags.has(&"heavy"):
+		tags.append(&"heavy")
+	var dir := -velocity.normalized()
+	if is_instance_valid(target):
+		var aim := (target.global_position + Vector2(0, -30) - global_position).normalized()
+		if aim.x * dir.x > 0.0:      # kẻ bắn còn ở phía trước thì nhắm thẳng vào nó
+			dir = aim
+	velocity = dir * velocity.length() * speed_mult
+	color = REFLECT_COLOR
+	radius += 1.0
+	life = maxf(life, 1.2)
+	_hit.clear()
+	queue_redraw()
 
 
 func _draw() -> void:

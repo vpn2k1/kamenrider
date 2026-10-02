@@ -212,6 +212,13 @@ func has_blade() -> bool:
 	return not _blade().is_empty()
 
 
+## Form cầm sẵn vũ khí ("armed", như Blay Rouzer của Blade): nút Đánh cũng là vung vũ khí nên chém được đạn.
+func can_parry(kind: StringName) -> bool:
+	if _stats().get("armed", false) and (kind == &"light" or kind == &"kick"):
+		return true
+	return super(kind)
+
+
 func slash_count() -> int:
 	return 2 if str(_blade().get("style", "blade")) == "heavy" else 3
 

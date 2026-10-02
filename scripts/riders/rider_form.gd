@@ -70,6 +70,11 @@ func has_blade() -> bool:
 	return false
 
 
+## Đòn `kind` vung vũ khí chém được đạn (Player._check_parry): mặc định các nhát Chém (kiếm / vũ khí cận chiến).
+func can_parry(kind: StringName) -> bool:
+	return kind == &"slash" or kind == &"slash_finish"
+
+
 ## Số nhát &"slash" trước nhát kết &"slash_finish".
 func slash_count() -> int:
 	return 3

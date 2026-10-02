@@ -531,7 +531,7 @@ Màn chơi cuộn ngang                 scripts/levels/stage_run.gd + stage_buil
 | A / D | Di chuyển (camera theo cả hai chiều) |
 | W (giữ) | Ngắm (form có súng): W bắn thẳng lên, W + A/D bắn chéo; trên không giữ S bắn xuống |
 | H (giữ) | **Bắn** liên tục, **chỉ khi form có súng** (mục 3.14). Súng chỉ hiện ở tay lúc bắn |
-| K | **Chém**, **chỉ khi form có kiếm / vũ khí cận chiến**: chuỗi chém rồi nhát kết. Vũ khí chỉ hiện khi chém |
+| K | **Chém**, **chỉ khi form có kiếm / vũ khí cận chiến**: chuỗi chém rồi nhát kết. Vũ khí chỉ hiện khi chém. Vung đúng lúc thì chém tan / phản đạn |
 | S (giữ) | **Cúi / thủ thế**: đứng yên, thân thấp lại (hurtbox cao 50 → 30, đạn cao bay qua), đòn cận chiến chỉ còn 40%, không bị đẩy lùi. Đánh nhẹ hoặc né để thoát |
 | W | W Rider: giữ W khi bấm Special để đổi nửa Body |
 | Space | Nhảy (cao ~110 px, xa ~170 px). Đứng trên bệ: S + Space, hoặc bấm đúp S (trong 0.3 giây) để xuống |
@@ -709,6 +709,7 @@ Bị đánh (sát thương ≥ poise) → HURT 0.35 giây · HP về 0 → DEAD 
     - **Đạn cao** (cách chân 40): quái ửng **đỏ**, đạn đỏ. Trúng người đứng (hurtbox cao 50), bay qua người **cúi** (hurtbox cao 30).
     - **Đạn thấp** (cách chân 8): quái ửng **xanh**, đạn xanh. Cúi vẫn trúng, phải **nhảy**.
     - Lúc tụ đòn có chấm sáng nhấp nháy đúng độ cao viên đạn sắp bay ra. Né (Shift) không tránh được đạn.
+    - **Chém đạn** (`Player._check_parry`): nhát Chém (`RiderForm.can_parry`; form `"armed"` cả nút Đánh) mở cửa sổ 0.22 giây kể từ lúc vung. Đạn phe kia lao vào tầm lưỡi (phía trước, tầm hitbox của nhát chém + 8 px, cả chiều cao người) trong cửa sổ thì bị chém tan, +4 nộ. Vung trong 0.11 giây đầu và đạn ở mũi lưỡi (≥ 45% tầm với) thì **phản đạn**: đạn đổi phe, bay về kẻ bắn nhanh ×1.4, sát thương ×2, thêm `heavy`, +10 nộ, khựng hình ngắn, banner "PHẢN ĐẠN!". Chế độ đấu: chém bản sao đạn của đối thủ, bỏ qua lần báo trúng đạn tới trong 0.5 giây; phản thì bắn ra một viên đạn thật của mình.
 - **Lượt tấn công:** tối đa 2 quái cận chiến ra đòn cùng lúc; quái khác đứng vòng ngoài (3 lần tầm đánh) chờ. Đánh xong quái **nghỉ 1 giây** mới xin lượt mới và lùi ra vòng ngoài, nhường lượt cho quái đang chờ (trước đây 2 con đứng sát cứ giành lại lượt, các con vòng ngoài hầu như không bao giờ được đánh). Quái chỉ vung đòn khi cùng độ cao với người chơi.
 - **Chỗ thả quái:** thả ở mép màn hình cao hơn sàn 40; nếu chỗ đó có chồng thùng 2–3 tầng thì đặt lên nóc chồng thùng (trước đây quái bị thả lọt vào trong rồi xuyên qua chồng thùng).
 - **Làm chậm:** mọi chuyển động và bộ đếm giờ của quái nhân với `enemy_time_scale`.

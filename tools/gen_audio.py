@@ -189,6 +189,10 @@ SFX = {
     "swing_wind": lambda: noise(0.22, 0.6, lowpass=0.25, curve=0.8, attack=0.06),
     "hit": lambda: mix(tone(0.09, 320, 110, vol=0.5, duty=0.4), noise(0.06, 0.6, lowpass=0.5)),
     "hit_heavy": lambda: mix(tone(0.16, 220, 60, vol=0.6, duty=0.5), noise(0.14, 0.9, lowpass=0.35), tone(0.14, 90, 40, wave_fn=math.sin, vol=0.8)),
+    # Chém đạn: tiếng kim loại "keng" ngắn; phản đạn: keng + vang chuông cao đi lên
+    "parry": lambda: mix(tone(0.1, 2600, 2200, vol=0.3, duty=0.25, curve=2), bell(0.18, 1900, 0.25), noise(0.04, 0.5, lowpass=0.9, highpass=0.5)),
+    "parry_perfect": lambda: mix(tone(0.12, 2800, 2400, vol=0.35, duty=0.25, curve=2), bell(0.45, 2093, 0.3), bell(0.45, 3136, 0.2),
+                                 noise(0.05, 0.6, lowpass=0.9, highpass=0.5), offsets=[0, 0, 0.06, 0]),
     "hit_guard": lambda: mix(tone(0.12, 1250, wave_fn=square, vol=0.25, duty=0.3, curve=2), tone(0.12, 1330, vol=0.2, duty=0.3, curve=2), noise(0.04, 0.4, lowpass=0.8)),
     "shot_ball": lambda: tone(0.12, 900, 380, vol=0.45, duty=0.25),
     "shot_bolt": lambda: mix(tone(0.1, 2200, 600, vol=0.35, duty=0.15), noise(0.08, 0.5, lowpass=0.9, highpass=0.5)),

@@ -22,6 +22,13 @@ class_name Player
 ##   art/characters/weapons/) hiện ở tay theo hướng ngắm suốt lúc giữ nút Bắn, thả nút thì cất sau GUN_SHOW_TIME giây.
 ## Đổi nút giữa chừng: đang hồi chiêu mà bấm nút KHÁC loại (đấm ↔ chém) hoặc giữ Bắn thì ra ngay, không chờ hồi chiêu.
 ## Né (Shift) bất tử với đòn cận chiến nhưng KHÔNG tránh được đạn: đạn cao thì cúi, đạn thấp thì nhảy.
+## Chém đạn: vung vũ khí (nút Chém; form cầm sẵn vũ khí thì cả nút Đánh, RiderForm.can_parry) mở cửa sổ PARRY_WINDOW
+##   giây. Đạn của phe kia bay vào tầm lưỡi (phía trước, tầm hitbox của nhát chém + PARRY_PAD, cả chiều cao người) trong
+##   cửa sổ thì bị chém tan, cộng nộ. Vung đúng lúc (trong PARRY_PERFECT giây đầu) và đạn ở mũi lưỡi (xa hơn PARRY_TIP
+##   tầm với) thì PHẢN ĐẠN: đạn bật ngược về kẻ bắn, nhanh ×REFLECT_SPEED, sát thương ×REFLECT_DAMAGE, phá giáp.
+##   Vung trễ / đạn ngoài tầm thì vẫn trúng như thường. Chế độ đấu: đạn của đối thủ trên máy này chỉ là bản sao
+##   (Projectile.visual_only) nên chém tan bản sao, giữ một "lượt đỡ" để bỏ qua đòn đạn máy đối thủ báo về sau đó
+##   (PARRY_NET_GRACE giây); phản đạn thì bắn ra một viên đạn thật của mình.
 ## Qua màn: release_henshin() giải trừ biến thân (cảnh biến thân chạy ngược, không bị phạt như Henshin Break).
 ## Vào màn: reset_for_stage() đưa về dạng người, máu người đầy, nộ đầy. input_locked = true thì đứng yên, bỏ qua phím.
 ## Cần các node con: Sprite (AnimatedSprite2D), Hitbox, Hurtbox, Forms (Node).
@@ -42,6 +49,7 @@ signal notice(text: String)                      ## thông báo ngắn cho màn 
 signal died
 signal net_hit(info: DamageInfo)                 ## net_puppet bị đánh trúng: chuyển đòn sang máy của người chơi đó
 signal shot_fired(projectile: Projectile)        ## vừa bắn một viên đạn (chế độ đấu gửi bản sao sang máy kia)
+signal parried(perfect: bool)                    ## vừa chém tan (false) hoặc phản (true) một viên đạn
 
 enum State { NORMAL, ATTACK, DODGE, HURT, HENSHIN, SWAP, BREAK, KO, CROUCH, RELEASE }
 
@@ -72,6 +80,20 @@ const RESPAWN_INVULN := 1.5
 const HIT_INVULN_HUMAN := 0.6
 const HIT_INVULN_RIDER := 0.35
 const REVERT_INVULN := 0.6     ## hết nộ, về form gốc: bất tử một chút
+
+# Chém đạn (xem đầu file)
+const PARRY_WINDOW := 0.22     ## giây kể từ lúc vung: đạn vào tầm lưỡi trong khoảng này thì bị chém
+const PARRY_PERFECT := 0.11    ## vung trong chừng này giây đầu + đạn ở mũi lưỡi = phản đạn
+const PARRY_TIP := 0.45        ## mũi lưỡi: đạn cách tâm người từ chừng này phần tầm với trở ra
+const PARRY_PAD := 8.0         ## px cộng vào tầm hitbox của nhát chém
+const PARRY_TOP := -62.0       ## vùng chém theo chiều dọc (px so với chân): cả người, đạn cao lẫn đạn thấp
+const PARRY_BOTTOM := 4.0
+const REFLECT_SPEED := 1.4
+const REFLECT_DAMAGE := 2.0
+const REFLECT_VERSUS_DAMAGE := 8.0   ## chế độ đấu: sát thương gốc của viên đạn phản (× sức đánh của form)
+const PARRY_RAGE := 4.0
+const PERFECT_PARRY_RAGE := 10.0
+const PARRY_NET_GRACE := 0.5
 
 # Cúi người = thế thủ: đứng yên, thân thấp lại (đạn cao bay qua đầu), đòn cận chiến chỉ còn 40% và không bị đẩy lùi.
 const CROUCH_DAMAGE_MULT := 0.4
@@ -143,6 +165,9 @@ var _gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 var _stand_hurtbox_height := 0.0
 var _ghost_timer := 0.0
 var _feather_timer := 0.0
+var _parry_timer := 0.0        ## thời gian còn lại của cửa sổ chém đạn (0 = đòn hiện tại không chém đạn)
+var _parry_tokens := 0         ## chế độ đấu: số đòn đạn sắp báo về sẽ bỏ qua (đã chém bản sao trên máy này)
+var _parry_token_timer := 0.0
 
 
 func _ready() -> void:
@@ -346,6 +371,9 @@ func _state_normal(delta: float) -> void:
 
 func _state_attack(delta: float) -> void:
 	velocity.x = move_toward(velocity.x, 0.0, 900.0 * Units.SCALE * delta)
+	if _parry_timer > 0.0:
+		_check_parry()
+		_parry_timer -= delta * speed_mult
 	var cancellable: bool = not _attack.get("no_cancel", false)
 	if cancellable:
 		if input_locked:
@@ -783,6 +811,10 @@ func take_hit(info: DamageInfo) -> bool:
 			return false
 		net_hit.emit(info)
 		return true
+	# Chế độ đấu: viên đạn này đã bị chém tan trên máy này (bản sao), máy đối thủ báo trúng trễ thì bỏ qua.
+	if _parry_tokens > 0 and info.has_tag(&"ranged"):
+		_parry_tokens -= 1
+		return false
 	# Né chỉ tránh được đòn cận chiến; đạn phải nhảy hoặc cúi mà tránh.
 	var dodging_bullet := state == State.DODGE and _grace_timer <= 0.0 and info.has_tag(&"ranged")
 	if is_invulnerable() and not dodging_bullet:
@@ -979,6 +1011,7 @@ func _begin_attack(kind: StringName, data: Dictionary) -> void:
 	_attack_kind = kind
 	_attack_phase = 0
 	_state_timer = data["startup"]
+	_parry_timer = PARRY_WINDOW if current_form and not net_puppet and current_form.can_parry(kind) else 0.0
 	_buffered = &""
 	state = State.ATTACK
 	invincible = kind in [&"final", &"swap_in", &"henshin"]
@@ -989,6 +1022,78 @@ func _begin_attack(kind: StringName, data: Dictionary) -> void:
 		var off: Vector2 = data["offset"]
 		Fx.spawn(get_parent(), global_position + Vector2(off.x * facing, off.y) * Units.SCALE, swing, fx["color"],
 			facing, 1.3 if kind in [&"kick", &"final"] else 1.0)
+
+
+## Quét đạn phe kia trong tầm lưỡi khi đang vung vũ khí (xem đầu file).
+func _check_parry() -> void:
+	var size: Vector2 = _attack.get("size", Vector2(18, 12))
+	var off: Vector2 = _attack.get("offset", Vector2(14, -14))
+	var reach := (absf(off.x) + size.x / 2.0) * Units.SCALE + PARRY_PAD
+	var elapsed := PARRY_WINDOW - _parry_timer
+	for node in get_tree().get_nodes_in_group(Projectile.GROUP):
+		var p := node as Projectile
+		if p == null or p.parried or p.team == team or p.is_queued_for_deletion():
+			continue
+		var d := p.global_position - global_position
+		var ahead := d.x * facing
+		if ahead < -4.0 or ahead > reach + p.radius or d.y < PARRY_TOP or d.y > PARRY_BOTTOM:
+			continue
+		if p.velocity.x * facing > 0.0:
+			continue   # đạn bay ra xa (không lao vào mình)
+		_parry(p, elapsed <= PARRY_PERFECT and ahead >= reach * PARRY_TIP)
+
+
+func _parry(p: Projectile, perfect: bool) -> void:
+	var at := p.global_position
+	var target: Node2D = p.source as Node2D if is_instance_valid(p.source) else null
+	if p.visual_only:
+		# Chế độ đấu: đạn thật nằm trên máy đối thủ. Bỏ qua lần báo trúng tới sau, phản thì bắn viên thật của mình.
+		_parry_tokens += 1
+		_parry_token_timer = PARRY_NET_GRACE
+		if perfect:
+			_shoot_reflected(p, target)
+		p.cut()
+	elif perfect:
+		p.reflect(self, team, target, REFLECT_SPEED, REFLECT_DAMAGE)
+		if not p.hit_landed.is_connected(_on_hit_landed):
+			p.hit_landed.connect(_on_hit_landed)
+	else:
+		p.cut()
+	var fx := current_fx()
+	Fx.spawn(get_parent(), at, "slash", Projectile.REFLECT_COLOR if perfect else fx["color"], facing, 1.4 if perfect else 1.0)
+	if perfect:
+		Fx.spawn(get_parent(), at, "ring", Projectile.REFLECT_COLOR, facing, 0.8)
+	Sound.sfx("parry_perfect" if perfect else "parry", 0.05)
+	if not in_special_form():
+		add_rage(PERFECT_PARRY_RAGE if perfect else PARRY_RAGE)
+	if perfect:
+		notice.emit("PHẢN ĐẠN!")
+		if team == &"player":
+			CombatDirector.hit_stop(0.07, 0.1)
+	parried.emit(perfect)
+
+
+## Chế độ đấu: viên đạn phản là đạn thật của mình (máy này tính trúng, gửi bản sao sang máy khác qua shot_fired).
+func _shoot_reflected(from: Projectile, target: Node2D) -> void:
+	var p := Projectile.new()
+	p.team = team
+	p.source = self
+	p.style = from.style
+	p.radius = from.radius + 1.0
+	p.color = Projectile.REFLECT_COLOR
+	p.damage = REFLECT_VERSUS_DAMAGE * _damage_mult()
+	p.tags = [&"ranged", &"heavy"]
+	p.life = 1.2
+	var dir := -from.velocity.normalized()
+	if is_instance_valid(target):
+		var aim := (target.global_position + Vector2(0, -30) - from.global_position).normalized()
+		if aim.x * dir.x > 0.0:
+			dir = aim
+	p.velocity = dir * from.velocity.length() * REFLECT_SPEED
+	p.hit_landed.connect(_on_hit_landed)
+	get_parent().add_child(p)
+	p.global_position = from.global_position
+	shot_fired.emit(p)
 
 
 func _fire_hitbox() -> void:
@@ -1109,6 +1214,10 @@ func _tick_timers(delta: float) -> void:
 			_gun.visible = false
 	_grace_timer = maxf(_grace_timer - delta, 0.0)
 	dodge_cooldown = maxf(dodge_cooldown - delta, 0.0)
+	if _parry_tokens > 0:
+		_parry_token_timer -= delta
+		if _parry_token_timer <= 0.0:
+			_parry_tokens = 0
 	_tick_rage(delta)
 	if _combo > 0:
 		_combo_timer -= delta

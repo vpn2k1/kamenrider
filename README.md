@@ -32,6 +32,7 @@ mkdir -p export/web && godot --headless --path . --export-release "Web" export/w
 - **Rider thế hệ sau mạnh hơn:** máu và sát thương × (1 + 0.12 × số thứ tự thế giới), hiện ở màn chọn Rider là "Sức mạnh ×N". Quái cũng mạnh dần theo cùng nhịp, nên nên dùng Rider mới nhất làm Rider chính.
 - **Màn đầu dễ thở:** chưa có Driver (màn 1-1) quái chỉ gây 35% sát thương; thế giới 1 tăng dần 60% → 75% → 90% → 100% ở trùm. Trúng đòn xong được bất tử ngắn (người 0.6 giây, Rider 0.35 giây).
 - **Quái bắn đạn bay ngang ở 2 độ cao:** quái ửng **đỏ**, đạn đỏ ngang ngực thì **cúi** (S). Quái ửng **xanh**, đạn xanh sát đất thì **nhảy**. Né (Shift) không tránh được đạn.
+- **Chém đạn:** form có kiếm / vũ khí cận chiến bấm **Chém** (K) đúng lúc đạn bay vào tầm lưỡi thì đạn bị **chém tan**. Vung sớm một nhịp, lúc đạn còn ở **mũi lưỡi**, thì **PHẢN ĐẠN**: đạn bật ngược về kẻ bắn, gấp đôi sát thương, phá giáp. Vung quá sớm (đạn còn xa) hoặc quá trễ thì vẫn trúng đạn. Form cầm sẵn vũ khí (Blade) chém đạn bằng cả nút Đánh. Ở chế độ đấu chém được cả đạn của đối thủ.
 - **Quái rơi đồ ngẫu nhiên**, mỗi lúc chỉ một món, tồn tại 10 giây. Mỗi màn có một món chính: Driver của thế giới (màn X-1) hoặc form của màn (xem bảng dưới). Càng hạ nhiều quái mà chưa rơi thì tỉ lệ rơi càng cao. Nhặt **lần đầu** thì mở khóa, **nộ đầy** và **biến thân ngay** vào form đó. Tới vạch đích mà chưa nhặt được thì món đó rơi ở vạch đích. Khi đã có món chính, quái thỉnh thoảng rơi **nạp nộ** (+40).
 - **Qua màn:** quái và đạn còn lại tan biến, nhân vật **giải trừ biến thân về dạng người** (cảnh biến thân chạy ngược), rồi thoại và bảng kết quả. Màn hình tối dần, màn mới **đổi nền theo bối cảnh** (14 nền: di tích Nagano, tháp Tokyo, bến cảng, cao tốc, phòng thí nghiệm, tháp gió Fuuto...) rồi sáng dần.
 - **Vào màn** (kể cả chơi lại từ checkpoint): luôn ở **dạng người, máu người đầy, nộ đầy**. Đã có Driver thì bấm **Biến thân (I)** lúc nào cũng được; banner đầu màn nhắc việc này.
@@ -55,7 +56,7 @@ Bật **Debug → Visible Collision Shapes** trong editor để thấy hitbox kh
 | A / D | Di chuyển (camera theo cả hai chiều) |
 | W (giữ) | Ngắm lên (form có súng): W bắn thẳng lên, W + A/D bắn chéo |
 | H (giữ) | **Bắn** liên tục, chỉ khi form có súng (súng chỉ hiện ở tay lúc bắn) |
-| K | **Chém**, chỉ khi form có kiếm / vũ khí cận chiến (vũ khí chỉ hiện khi chém) |
+| K | **Chém**, chỉ khi form có kiếm / vũ khí cận chiến (vũ khí chỉ hiện khi chém). Vung đúng lúc thì chém tan / phản đạn |
 | S (giữ) | Cúi / thủ thế: đứng yên, thân thấp lại (đạn cao bay qua), đòn cận chiến chỉ còn 40%, không bị đẩy lùi |
 | Space | Nhảy. Đứng trên bệ thì S + Space (hoặc bấm đúp S) để xuống |
 | J | **Đánh**: bấm liên tục để đấm theo chuỗi, đủ số đòn thì tự ra **cú đá** kết thúc (sát thương cao hơn, đẩy xa, phá giáp). Nút Đánh luôn là tay không. Dạng người và form thường: 3 đấm + 1 đá; form nặng (Titan, Land...): 2 đòn + 1 đá; Kuuga Pegasus: 2 phát + 1 phát nạp mạnh. Ngừng bấm thì chuỗi về đầu |
