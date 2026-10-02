@@ -1,0 +1,77 @@
+# Build bản Web (preset "Web" trong export_presets.cfg) bằng Godot rồi đăng lên GitHub Pages, mỗi lần push lên main.
+# Lần đầu: GitHub → Settings → Pages → Source: "GitHub Actions".
+# Link: https://<tài khoản>.github.io/<repo>/
+name: Web build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: 4.7.2
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Godot + template Web (bộ template đủ nặng 1,3 GB, chỉ giữ phần web), lưu cache theo phiên bản
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/godot
+            ~/.local/share/godot/export_templates
+          key: godot-${{ env.GODOT_VERSION }}-web
+
+      - name: Tải Godot
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          base=https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable
+          mkdir -p ~/godot
+          curl -sSL -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip -d ~/godot
+          mv ~/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64 ~/godot/godot
+          curl -sSL -o templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          unzip -q templates.tpz 'templates/web_*' 'templates/version.txt' -d tpl
+          dest=~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          mkdir -p "$dest"
+          mv tpl/templates/* "$dest/"
+
+      - name: Import tài nguyên
+        run: ~/godot/godot --headless --path . --import
+
+      # Xuất ra ngoài thư mục dự án để bản build không bị gói ngược vào chính nó
+      - name: Export Web
+        run: |
+          out="$RUNNER_TEMP/web"
+          mkdir -p "$out"
+          ~/godot/godot --headless --path . --export-release "Web" "$out/index.html"
+          test -s "$out/index.pck"
+          touch "$out/.nojekyll"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ runner.temp }}/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

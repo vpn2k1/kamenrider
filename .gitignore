@@ -3,3 +3,7 @@
 export/
 .env
 __pycache__/
+# Tiếng biến thân cắt từ phim (có bản quyền): chỉ để chơi riêng trên máy, không đưa lên repo public
+audio/henshin_ext/
+*.apk
+*.idsig
