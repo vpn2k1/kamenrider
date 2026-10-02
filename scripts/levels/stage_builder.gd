@@ -86,7 +86,9 @@ static func path_dir(layout: Dictionary, s: float) -> Vector2:
 
 
 ## Quãng đường s ứng với một vị trí trên màn (vị trí chân nhân vật). Chỉ xét các đoạn gần near_s
-## để không nhầm sang đoạn khác nằm chồng phía trên / dưới.
+## để không nhầm sang đoạn khác nằm chồng phía trên / dưới (người chơi đang nhảy thì vị trí lệch khỏi sàn).
+## Không có near_s thì chiếu trên cả lộ trình: dùng cho thứ không đi liền mạch theo người chơi, như quái bị bỏ lại
+## ở đoạn trước (lộ trình quay đầu thì đoạn trước nằm ngay dưới đoạn sau, chiếu quanh s người chơi sẽ nhầm đoạn).
 static func project(layout: Dictionary, pos: Vector2, near_s := -1.0) -> float:
 	var pts: Array = layout["path"]
 	var ps: Array = layout["path_s"]

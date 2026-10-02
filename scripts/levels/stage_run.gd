@@ -2,8 +2,12 @@ extends Node2D
 ## Màn chơi kiểu Contra: lộ trình gồm nhiều đoạn ngang (sang phải / sang trái) và giếng dọc (leo lên / tụt xuống).
 ##
 ##   - Bố cục sinh từ StageBuilder theo màn hiện tại trong GameState (WorldData "route").
-##   - Trước mỗi màn (khi đã có từ 2 Rider): màn chọn Rider chính (RiderSelect). Đội hình trong màn =
-##     Rider chính + Rider của thế giới (GameState.rebuild_team). Hồi sinh ở checkpoint thì không hỏi lại.
+##   - Màn chọn màn (StageSelect, chọn thế giới rồi chọn màn): sau mỗi màn và khi bấm Menu (Esc / P / nút ≡)
+##     trong màn. Lần đầu chơi (chưa qua màn nào) vào thẳng 1-1, không qua màn chọn.
+##     Màn mở dần (qua màn xa nhất thì mở màn kế), màn đã mở chơi lại được để luyện cấp và nhặt item.
+##   - Trước khi vào màn: chọn MỘT Rider (RiderSelect, khi có từ 2 Rider) rồi chọn item mang theo (ItemSelect,
+##     tối đa GameState.MAX_ITEMS, khi Rider đó đã nhặt item). Trong màn không đổi sang Rider khác.
+##     Gục thì tải lại thẳng vào màn từ checkpoint (GameState.in_stage), không hỏi lại.
 ##   - Camera chạy trên đường gấp khúc của bố cục (vị trí là quãng đường cam_s) và đi theo người chơi CẢ HAI
 ##     CHIỀU: chạy ngược lại, leo ngược giếng tụt, rơi xuống giếng leo đều được. Camera nhìn trước CAMERA_LEAD
 ##     theo hướng nhân vật đang quay mặt (đoạn ngang) hoặc đang di chuyển (giếng), trượt theo cho mượt.
@@ -19,13 +23,17 @@ extends Node2D
 ##           Tỉ lệ KEY_DROP_BASE, mỗi con hạ mà chưa rơi +KEY_DROP_STEP (bảo hiểm xui).
 ##           Nhặt lần đầu: mở khóa, nộ đầy, biến thân ngay vào form đó.
 ##       Hết món chính thì thỉnh thoảng rơi "nạp nộ" của một form đặc biệt đã có: +CHARGE_RAGE nộ.
-##   - Tới vạch đích (cuối đoạn ngang cuối cùng):
+##   - Phải DIỆT HẾT QUÁI mới qua màn: tới vạch đích mà còn quái thì phải quay lại hạ nốt (quái chạy ngang ra
+##     khỏi khung nhìn sẽ quay đầu chạy lại, không biến mất). HUD hiện số quái còn lại.
+##   - Món chính là item (vũ khí, "item": true) thì chỉ rơi từ quái, không bắt buộc: lỡ thì chơi lại màn để nhặt.
+##     Nhặt Driver / form của Rider khác Rider đang dùng: chỉ mở khóa, dùng ở màn sau.
+##   - Tới vạch đích (cuối đoạn ngang cuối cùng), khi đã diệt hết quái:
 ##       Luyện tập  → qua màn (chưa nhặt được form của màn thì form rơi ở vạch đích, nhặt mới qua)
 ##       Thức tỉnh  → đánh nhóm quái canh giữ → chưa có Driver thì Driver rơi ra → nhặt
 ##       Trùm       → khóa camera ở đấu trường, đánh trùm → Driver thế giới kế rơi ra → nhặt
 ##   - Qua màn (_finish_stage): khóa điều khiển, dọn quái / đạn còn lại, GIẢI TRỪ BIẾN THÂN về dạng người,
-##     thoại "clear" → (trùm) bản đồ Chuỗi Trái Đất → bảng kết quả → màn hình tối dần → dựng màn kế,
-##     ĐỔI NỀN theo màn (WorldData "bg") → sáng dần. Mỗi màn (kể cả chơi lại từ checkpoint) bắt đầu ở dạng
+##     thoại "clear" → (trùm) bản đồ Chuỗi Trái Đất → bảng kết quả → về màn chọn màn (con trỏ ở màn kế).
+##     Dựng màn mới thì ĐỔI NỀN theo màn (WorldData "bg"). Mỗi màn (kể cả chơi lại từ checkpoint) bắt đầu ở dạng
 ##     người, máu người đầy, nộ đầy: đã có Driver thì bấm Biến thân lúc nào cũng được.
 ##   - Hội thoại (StoryData, DialogueBox): đầu màn ("start"), tới vạch đích màn Thức tỉnh / Trùm ("goal"),
 ##     vừa nhặt món chính ("key"), qua màn ("clear"); sau trùm thêm bản đồ Chuỗi Trái Đất.
@@ -58,7 +66,7 @@ const BG_TINT := Color(0.78, 0.78, 0.86)   ## nền xa tối bớt để cảnh 
 const HUMAN_COLOR := Color(0.9, 0.9, 0.9)   ## khối tạm dạng người
 const TIME_TINT := Color(0.35, 0.55, 1.0, 0.16)   ## thời gian chậm lại: thế giới ngả xanh
 
-enum Phase { SELECT, RUN, GOAL_FIGHT, PICKUP, RESULT, DONE, TALK, TRANSITION }
+enum Phase { SELECT, RUN, GOAL_FIGHT, PICKUP, RESULT, DONE, TALK, TRANSITION, MAP, ITEMS }
 
 @onready var player: Player = $Player
 @onready var placeholder: Polygon2D = $Player/Placeholder
@@ -94,6 +102,9 @@ var _drop: DriverPickup = null     ## vật phẩm đang nằm trên màn (tối
 var _key_misses := 0               ## số quái đã hạ mà món chính chưa rơi
 var _walls: Array[CollisionShape2D] = []   ## 3 tường vô hình: đầu màn + hai bên đấu trường trùm
 var _select: RiderSelect
+var _stage_select: StageSelect
+var _item_select: ItemSelect
+var _goal_nag := 0.0               ## hẹn giờ nhắc "còn quái" ở vạch đích
 var _dialogue: DialogueBox
 var _fade: ColorRect               ## màn đen phủ khi chuyển màn
 var _time_tint: ColorRect          ## phủ xanh nhạt khi thời gian chậm lại (Clock Up, Axel)
@@ -130,6 +141,14 @@ func _ready() -> void:
 	_select.visible = false
 	_select.chosen.connect(_on_rider_chosen)
 	$HUD.add_child(_select)
+	_stage_select = StageSelect.new()
+	_stage_select.visible = false
+	_stage_select.chosen.connect(_on_stage_chosen)
+	$HUD.add_child(_stage_select)
+	_item_select = ItemSelect.new()
+	_item_select.visible = false
+	_item_select.done.connect(_on_items_done)
+	$HUD.add_child(_item_select)
 	_time_tint = _overlay(TIME_TINT)
 	_flash = _overlay(Color(1, 1, 1, 0))
 	_fade = ColorRect.new()
@@ -140,7 +159,91 @@ func _ready() -> void:
 	_dialogue = DialogueBox.new()
 	$HUD.add_child(_dialogue)
 	_on_form_changed(&"")
+	if GameState.in_stage:
+		_start_stage()     # gục: tải lại thẳng vào màn, chơi tiếp từ checkpoint
+	else:
+		_open_map(not GameState.cleared_stages.is_empty())   # lần đầu chơi: vào thẳng 1-1
+
+
+# --- Chọn màn, Rider, item -------------------------------------------------
+
+## Về màn chọn màn: dọn màn đang chơi, con trỏ ở màn xa nhất đã mở (hoặc màn vừa chơi nếu đã qua hết).
+## show_select = false: không hiện màn chọn, vào thẳng màn xa nhất đã mở (lần đầu chơi là 1-1).
+func _open_map(show_select := true) -> void:
+	phase = Phase.MAP
+	GameState.in_stage = false
+	CombatDirector.set_enemy_time_scale(1.0)
+	_clear_field()
+	player.reset_for_stage()
+	player.input_locked = true
+	player.set_physics_process(false)
+	touch.visible = false
+	banner.text = ""
+	var w := GameState.frontier_world
+	var st := GameState.frontier_stage
+	if GameState.is_demo_finished():
+		w = GameState.world_index
+		st = GameState.stage_index
+	if not show_select:
+		_on_stage_chosen(w, st)
+		return
+	_stage_select.open(w, st)
+	_fade_to(0.0)
+
+
+func _on_stage_chosen(world: int, stage: int) -> void:
+	GameState.select_stage(world, stage)
+	var options := GameState.selectable_riders()
+	if options.size() >= 2:
+		phase = Phase.SELECT
+		var current := GameState.main_rider if options.has(GameState.main_rider) else options[options.size() - 1]
+		var colors := {}
+		for id in options:
+			colors[id] = WorldData.rider_color(id)
+		var st := GameState.current_stage()
+		_select.open(options, "CHỌN RIDER", "Màn %s · %s · mỗi màn một Rider" % [st["id"], st["name"]], current, colors)
+		return
+	if options.size() == 1:
+		GameState.choose_main(options[0])
+	_open_items()
+
+
+func _on_rider_chosen(id: StringName) -> void:
+	GameState.choose_main(id)
+	_open_items()
+
+
+## Chọn item mang vào màn (bỏ qua nếu Rider chưa nhặt item nào).
+func _open_items() -> void:
+	var rider := GameState.main_rider
+	var items := GameState.owned_items(rider) if rider != &"" else ([] as Array[StringName])
+	if items.is_empty():
+		_on_items_done([] as Array[StringName])
+		return
+	phase = Phase.ITEMS
+	_item_select.open(rider, items, GameState.carried_items)
+
+
+func _on_items_done(items: Array[StringName]) -> void:
+	GameState.set_carried(items)
+	GameState.in_stage = true
+	GameState.rebuild_team()
+	phase = Phase.TRANSITION
+	await _fade_to(1.0)
+	player.set_physics_process(true)
 	_start_stage()
+
+
+## Menu trong màn hoặc hết bảng kết quả: tối dần rồi về màn chọn màn.
+func _back_to_map() -> void:
+	phase = Phase.TRANSITION
+	player.input_locked = true
+	touch.visible = false
+	CombatDirector.set_enemy_time_scale(1.0)
+	await _fade_to(1.0)
+	for c in level_root.get_children():
+		c.queue_free()
+	_open_map()
 
 
 # --- Dựng màn -------------------------------------------------------------
@@ -155,14 +258,8 @@ func _start_stage() -> void:
 		c.queue_free()
 	_drop = null
 	_pending_key = ""
-	if GameState.is_demo_finished():
-		phase = Phase.DONE
-		player.input_locked = true
-		_show_banner("ĐÃ ĐI HẾT %d TRÁI ĐẤT!\nThế giới cuối Điểm Không sẽ có ở bản sau." % WorldData.WORLDS.size(), 9999.0)
-		_fade_to(0.0)
-		return
 	var stage := GameState.current_stage()
-	layout = StageBuilder.build(stage, GameState.stage_index)
+	layout = StageBuilder.build(stage, int(stage.get("tier", GameState.stage_index)))
 	for o in layout["overlaps"]:
 		push_warning("Màn %s: bố cục chồng lấn — %s" % [stage["id"], o])
 	_build_level()
@@ -202,28 +299,7 @@ func _start_stage() -> void:
 	await _fade_to(0.0)
 	phase = Phase.TALK
 	await _story(stage["id"], "start")
-	# Chọn Rider chính trước khi vào màn (chỉ hỏi khi có từ 2 lựa chọn và không phải hồi sinh ở checkpoint).
-	var options := GameState.selectable_riders()
-	if options.size() >= 2 and GameState.checkpoint < 0:
-		phase = Phase.SELECT
-		player.set_physics_process(false)
-		touch.visible = false
-		var current := GameState.main_rider if options.has(GameState.main_rider) else GameState.world_rider()
-		var colors := {}
-		for id in options:
-			colors[id] = WorldData.rider_color(id)
-		_select.open(options, "CHỌN RIDER CHÍNH", "Màn %s · %s" % [stage["id"], stage["name"]], current, colors)
-		return
-	if options.size() == 1:
-		GameState.choose_main(options[0])
 	GameState.rebuild_team()
-	_begin_run()
-
-
-func _on_rider_chosen(id: StringName) -> void:
-	GameState.choose_main(id)
-	player.set_physics_process(true)
-	touch.visible = true
 	player.use_main_rider()
 	_begin_run()
 
@@ -239,6 +315,7 @@ func _begin_run() -> void:
 	var key := _key_item()
 	if not key.is_empty():
 		text += "\nQuái có thể rơi: %s" % key["name"]
+	text += "\nDiệt hết quái để qua màn"
 	if player.can_henshin():
 		text += "\nNộ đầy · bấm BIẾN THÂN (I) để biến thân"
 	_show_banner(text, 3.5)
@@ -328,6 +405,7 @@ func _physics_process(delta: float) -> void:
 	_update_camera(delta)
 	_spawn_ahead()
 	_despawn_far()
+	_keep_in_arena()
 	_check_player_position()
 
 
@@ -341,16 +419,20 @@ func _process(delta: float) -> void:
 		_banner_timer -= delta
 		if _banner_timer <= 0.0:
 			banner.text = ""
+	_goal_nag = maxf(_goal_nag - delta, 0.0)
 	if _restarting:
+		return
+	if phase in [Phase.RUN, Phase.GOAL_FIGHT, Phase.PICKUP] and Input.is_action_just_pressed("menu"):
+		_back_to_map()
 		return
 	match phase:
 		Phase.GOAL_FIGHT:
-			if _enemies_in_view() == 0:
+			if _enemies_left() == 0:
 				_goal_cleared()
 		Phase.RESULT:
 			_phase_timer -= delta
 			if _phase_timer <= 0.0:
-				_go_next_stage()
+				_back_to_map()
 
 
 ## Khung nhìn hiện tại của camera (tọa độ thế giới).
@@ -359,13 +441,12 @@ func view_rect() -> Rect2:
 	return Rect2(c - Vector2(HALF_W, HALF_H), Vector2(HALF_W, HALF_H) * 2.0)
 
 
-## Số quái còn sống trong khung nhìn (nhóm canh giữ / trùm). Quái ngoài khung nhìn không tính.
-func _enemies_in_view() -> int:
-	var view := view_rect().grow(40.0)
+## Số quái còn sống trên cả màn (đã thả ra). Phải về 0 mới qua màn.
+func _enemies_left() -> int:
 	var n := 0
 	for e in get_tree().get_nodes_in_group("enemies"):
 		var en := e as Enemy
-		if en and en.state != Enemy.State.DEAD and view.has_point(en.global_position):
+		if en and en.state != Enemy.State.DEAD:
 			n += 1
 	return n
 
@@ -459,8 +540,9 @@ func _spawn_ahead() -> void:
 		enemies.add_child(e)
 
 
-## Quái chạy ngang (runner) ra khỏi khung nhìn quá DESPAWN_MARGIN thì biến mất: chúng chỉ chạy lướt qua.
-## Quái đuổi đánh và lính bắn ở lại chỗ của chúng, người chơi quay lại vẫn gặp. Vật phẩm tự hết hạn (DROP_LIFETIME).
+## Quái chạy ngang (runner) ra khỏi khung nhìn quá DESPAWN_MARGIN thì quay đầu chạy về phía người chơi (phải diệt
+## hết quái mới qua màn nên không cho chúng biến mất). Quái đuổi đánh và lính bắn ở lại chỗ của chúng.
+## Vật phẩm tự hết hạn (DROP_LIFETIME).
 ## Chỗ thả quái không được lọt vào trong thùng / khối (thả ở mép màn hình, cao hơn sàn 40 px, mà chỗ đó có chồng
 ## thùng 2–3 tầng thì quái bị vật lý đẩy xuyên qua chồng thùng): đè lên vật cứng nào thì đặt lên nóc vật đó.
 func _free_spawn_pos(pos: Vector2) -> Vector2:
@@ -482,8 +564,23 @@ func _despawn_far() -> void:
 	for e in get_tree().get_nodes_in_group("enemies"):
 		var en := e as Enemy
 		if en and en.behavior == "runner" and en.state != Enemy.State.DEAD and not keep.has_point(en.global_position):
-			CombatDirector.release_attack_token(en)
-			en.queue_free()
+			en.run_dir = 1 if player.global_position.x > en.global_position.x else -1
+
+
+## Đấu trường trùm khóa camera và chặn người chơi bằng tường vô hình; tường không chặn quái, nên giữ quái
+## (cả trùm) trong khung nhìn, không thì trùm đi ra ngoài và người chơi không với tới được.
+func _keep_in_arena() -> void:
+	if not _arena_locked:
+		return
+	var view := view_rect()
+	for e in get_tree().get_nodes_in_group("enemies"):
+		var en := e as Enemy
+		if en == null or en.state == Enemy.State.DEAD:
+			continue
+		var x := clampf(en.global_position.x, view.position.x + 16.0, view.end.x - 16.0)
+		if x != en.global_position.x:
+			en.global_position.x = x
+			en.run_dir = 1 if x < view.get_center().x else -1
 
 
 func _check_player_position() -> void:
@@ -518,11 +615,18 @@ func _check_player_position() -> void:
 # --- Cuối màn -------------------------------------------------------------
 
 func _reach_goal() -> void:
+	var left := _enemies_left()
+	if left > 0:
+		if _goal_nag <= 0.0:
+			_goal_nag = 2.5
+			_show_banner("Còn %d quái · diệt hết mới qua màn!" % left, 2.0)
+		return
 	var stage := GameState.current_stage()
 	var type: int = stage["type"]
 	if type == WorldData.StageType.TRAINING:
 		var key := _key_item()
-		if key.is_empty():
+		# Item (vũ khí) chỉ rơi từ quái, không bắt buộc: lỡ thì chơi lại màn để nhặt.
+		if key.is_empty() or GameState.is_item(key["rider"], key["form"]):
 			_finish_stage()
 		else:
 			_place_goal_item(key, "Nhặt %s!" % key["name"])
@@ -595,6 +699,8 @@ func _charge_item() -> Dictionary:
 	for rider in GameState.equipped:
 		for form in GameState.drivers[String(rider)].get("forms", []):
 			var form_id := StringName(form)
+			if not GameState.form_usable(rider, form_id):
+				continue
 			options.append({"kind": "charge", "rider": rider, "form": form_id,
 				"name": "%s +%d nộ" % [WorldData.form_name(rider, form_id), int(CHARGE_RAGE)]})
 	return options.pick_random() if not options.is_empty() else {}
@@ -659,15 +765,27 @@ func _on_item_collected(item: Dictionary) -> void:
 	var unlocked := false
 	match item["kind"]:
 		"driver":
+			# Chưa có Rider nào (dạng người) thì biến thân ngay; đang dùng Rider khác thì Driver mới dùng ở màn sau.
+			var had_rider := GameState.main_rider != &"" and GameState.is_active(GameState.main_rider)
 			GameState.activate_driver(rider)
-			player.transform_into(rider, &"")
-			_show_banner("%s · BIẾN THÂN!" % item["name"], 2.0)
+			if had_rider:
+				_show_banner("Nhận %s · chọn Rider này ở màn sau" % item["name"], 2.5)
+			else:
+				player.transform_into(rider, &"")
+				_show_banner("%s · BIẾN THÂN!" % item["name"], 2.0)
 			unlocked = true
 		"form":
 			if GameState.unlock_form(rider, item["form"]):
-				player.transform_into(rider, item["form"])
-				_show_banner("%s · NỘ ĐẦY!" % item["name"], 2.0)
 				unlocked = true
+				if rider == GameState.main_rider:
+					# Item nhặt giữa màn dùng được ngay trong màn này.
+					if GameState.is_item(rider, item["form"]) and not GameState.carried_items.has(item["form"]):
+						GameState.carried_items.append(item["form"])
+					player.transform_into(rider, item["form"])
+					_show_banner("%s · NỘ ĐẦY!" % item["name"], 2.0)
+				else:
+					_show_banner("Nhặt %s · dùng cho %s ở màn sau" % [item["name"],
+						WorldData.WORLDS[WorldData.world_index_of(rider)]["rider_name"]], 2.5)
 		"charge":
 			player.add_rage(CHARGE_RAGE)
 			_show_banner("+%d NỘ" % int(CHARGE_RAGE), 1.0)
@@ -709,13 +827,6 @@ func _finish_stage() -> void:
 	_show_banner(_format_result(result), RESULT_TIME)
 	phase = Phase.RESULT
 	_phase_timer = RESULT_TIME
-
-
-## Hết bảng kết quả: màn hình tối dần rồi dựng màn kế (đổi nền trong lúc tối).
-func _go_next_stage() -> void:
-	phase = Phase.TRANSITION
-	await _fade_to(1.0)
-	_start_stage()
 
 
 func _fade_to(alpha: float) -> void:
@@ -797,7 +908,7 @@ func _format_result(r: Dictionary) -> String:
 	var level: int = r["level"]
 	if level > 0:
 		var unlocks: Array = world["unlocks"]
-		lines.append("%s Lv%d · %s" % [world["rider_name"], level, unlocks[level - 1]])
+		lines.append("%s Lv%d · %s" % [world["rider_name"], level, unlocks[mini(level, unlocks.size()) - 1]])
 	if r["form_name"] != "":
 		lines.append("Form: %s" % r["form_name"])
 	if r["obtained"] != &"":
@@ -813,6 +924,7 @@ func _make_enemy(kind: String, pos: Vector2) -> Enemy:
 		var boss: Dictionary = GameState.current_stage()["boss"]
 		e.level += GameState.BOSS_LEVEL_BONUS
 		e.scale_with_level = false
+		e.is_boss = true
 		e.display_name = boss["name"]
 		e.max_hp = boss["hp"]
 		e.attack_damage = boss["damage"]
@@ -906,9 +1018,27 @@ func _hud_text() -> String:
 		var key := _key_item()
 		if not key.is_empty():
 			lines.append("Tìm: %s" % key["name"])
+		var left := _enemies_left()
+		lines.append("Quái còn: %d%s" % [left, _nearest_left_hint() if left > 0 else ""])
 	if _combo >= 3:
 		lines.append("%d HIT!" % _combo)
 	return "\n".join(lines)
+
+
+## Hướng tới con quái còn sống gần nhất theo lộ trình: " · ◀ phía sau" / " · ▶ phía trước" / " · ở gần".
+func _nearest_left_hint() -> String:
+	var ps := player_s()
+	var best := INF
+	for e in get_tree().get_nodes_in_group("enemies"):
+		var en := e as Enemy
+		if en and en.state != Enemy.State.DEAD:
+			# Chiếu trên cả lộ trình: quái bị bỏ lại ở đoạn trước có thể nằm ngay dưới chân (lộ trình quay đầu).
+			var d := StageBuilder.project(layout, en.global_position) - ps
+			if absf(d) < absf(best):
+				best = d
+	if absf(best) < 120.0:
+		return " · ở gần"
+	return " · ◀ phía sau" if best < 0.0 else " · ▶ phía trước"
 
 
 func _form_text() -> String:
