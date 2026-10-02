@@ -60,8 +60,7 @@ func _init() -> void:
 ## Hiện màn chọn (lớp con gọi sau khi điền entries / index / picked).
 func _show() -> void:
 	index = clampi(index, 0, maxi(entries.size() - 1, 0))
-	position = Vector2.ZERO
-	size = get_viewport_rect().size
+	Screen.fit(self)   # khung 480×270 giữa màn hình, nền tràn ra cả màn hình máy
 	visible = true
 	_touching = false
 	_vel = 0.0
@@ -130,6 +129,7 @@ func _focus(instant := false) -> void:
 func _process(delta: float) -> void:
 	if not visible or entries.is_empty():
 		return
+	Screen.fit(self)
 	_t += delta
 	if not _touching:
 		if _easing:
@@ -172,7 +172,8 @@ func _input(event: InputEvent) -> void:
 		return
 	var drag := event as InputEventScreenDrag
 	if drag and _touching:
-		if not _dragged and drag.position.distance_to(_press_pos) > DRAG_START and _press_pos.y < PANEL.position.y:
+		if not _dragged and Screen.local(self, drag.position).distance_to(_press_pos) > DRAG_START \
+				and _press_pos.y < PANEL.position.y:
 			_dragged = true
 		if _dragged:
 			_scroll = clampf(_scroll - drag.relative.x, 0.0, _max_scroll())
@@ -187,7 +188,7 @@ func _input(event: InputEvent) -> void:
 	if touch.pressed:
 		_touching = true
 		_dragged = false
-		_press_pos = touch.position
+		_press_pos = Screen.local(self, touch.position)
 		_vel = 0.0
 		_easing = false
 		return
@@ -195,7 +196,7 @@ func _input(event: InputEvent) -> void:
 	if _dragged:
 		return
 	_vel = 0.0
-	_tap(touch.position)
+	_tap(Screen.local(self, touch.position))
 
 
 func _tap(p: Vector2) -> void:
@@ -223,11 +224,12 @@ func _figure_rect(i: int) -> Rect2:
 # --- Vẽ -----------------------------------------------------------------------
 
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), BG)
-	EarthMap.draw_stars(self, Rect2(Vector2.ZERO, size), _t, 50)
-	# Sàn sân khấu
-	draw_rect(Rect2(0, FEET + 2.0, size.x, PANEL.position.y - FEET - 2.0), Color(0.07, 0.05, 0.14))
-	draw_line(Vector2(0, FEET + 2.0), Vector2(size.x, FEET + 2.0), Color(0.3, 0.26, 0.5), 1.0)
+	var full := Screen.bleed(self)
+	draw_rect(full, BG)
+	EarthMap.draw_stars(self, full, _t, 50)
+	# Sàn sân khấu (trải hết bề ngang màn hình)
+	draw_rect(Rect2(full.position.x, FEET + 2.0, full.size.x, PANEL.position.y - FEET - 2.0), Color(0.07, 0.05, 0.14))
+	draw_line(Vector2(full.position.x, FEET + 2.0), Vector2(full.end.x, FEET + 2.0), Color(0.3, 0.26, 0.5), 1.0)
 	if entries.is_empty():
 		return
 	for i in entries.size():

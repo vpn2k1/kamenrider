@@ -48,18 +48,41 @@ const RIDER := {
 	"base": &"rabbit_tank",
 	"order": [&"rabbit_tank", &"gorilla_mond", &"hawk_gatling", &"ninnin_comic"],
 	"forms": {
+		# RabbitTank: kiếm khoan Drill Crusher (nút Chém). Vortex Finish: đồ thị x-y kẹp quái lại (choáng) rồi trượt theo
+		# đường cong đá tới.
 		&"rabbit_tank": {"name": "RabbitTank", "style": "brawler", "hp": 160.0, "armor": 28.0, "speed": 132.0,
-			"jump": 1.3, "atk": 1.05, "poise": 7.0, "final": "Vortex Finish"},
+			"jump": 1.3, "atk": 1.05, "poise": 7.0, "final": "Vortex Finish", "blade": {"look": "drill_crusher"},
+			"attacks": {"final": {"tags": [&"stun"]}},
+			"fx": {"hit": "spark", "swing": "slash", "final": "ring", "color": Color(1.0, 0.3, 0.3)}},
+		# GorillaMond: tay khỉ đột Sadoh Smash, nửa kim cương chắn đòn. Vortex Finish: dựng tường kim cương rồi đấm văng.
 		&"gorilla_mond": {"name": "GorillaMond", "style": "heavy", "hp": 205.0, "armor": 58.0, "speed": 82.0,
-			"jump": 0.85, "atk": 1.42, "poise": 19.0, "final": "Vortex Finish"},
+			"jump": 0.85, "atk": 1.42, "poise": 19.0, "final": "Vortex Finish", "guard": 0.5,
+			"attacks": {"final": {"knockback": Vector2(340, -140), "tags": [&"force"]}},
+			"fx": {"hit": "ring", "final": "ring", "color": Color(0.55, 0.9, 1.0)}},
+		# HawkGatling: cánh diều hâu (lượn), súng Hawk Gatlinger. Full Bullet: 5 loạt đạn trút xuống.
 		&"hawk_gatling": {"name": "HawkGatling", "style": "gunner", "hp": 140.0, "armor": 14.0, "speed": 125.0,
 			"jump": 1.35, "atk": 0.9, "poise": 4.0, "final": "Full Bullet",
-			"gun": {"damage": 4.5, "speed": 460.0, "cooldown": 0.16, "spread": 0.08, "radius": 2.5,
-				"color": Color(0.95, 0.8, 0.35), "life": 0.7}},
+			"gun": {"look": "hawk_gatlinger", "damage": 4.5, "speed": 460.0, "cooldown": 0.16, "spread": 0.08,
+				"radius": 2.5, "color": Color(0.95, 0.8, 0.35), "life": 0.7},
+			"attacks": {"final": {"hits": 5, "damage": 11.0}},
+			"fx": {"hit": "spark", "shot": "ball", "final": "ring", "glide": true, "color": Color(1.0, 0.6, 0.25)}},
+		# NinninComic: kiếm Yonkoma Ninpoutou, nhát kết và Kaen Giri chém ra lửa.
 		&"ninnin_comic": {"name": "NinninComic", "style": "blade", "hp": 138.0, "armor": 14.0, "speed": 170.0,
-			"jump": 1.3, "atk": 1.1, "poise": 6.0, "final": "Kaen Giri"},
+			"jump": 1.3, "atk": 1.1, "poise": 6.0, "final": "Kaen Giri", "blade": {"look": "ninpoutou"},
+			"attacks": {"slash_finish": {"tags": [&"burn"]}, "final": {"tags": [&"burn"]}},
+			"fx": {"hit": "fire", "swing": "slash", "final": "fire", "trail": true, "color": Color(0.75, 0.4, 1.0)}},
 	},
 	"lv5": {"name": "Genius", "final_mult": 1.5},
+	"final_fx": {"intro": "graph"},
+}
+
+## Giọng Build Driver (tools/gen_audio.py → audio/voice/build_<khóa>.wav), xem VOICE của w01_kuuga.gd.
+const VOICE := {
+	"henshin": ["belt", "Rabbit! Tank! Best Match! Are you ready?"],
+	"gorilla_mond": ["belt", "Gorilla! Diamond! Best Match! Kagayaki no destroyer!"],
+	"hawk_gatling": ["belt", "Taka! Gatling! Best Match! Tenkuu no abarenbou!"],
+	"ninnin_comic": ["belt", "Ninja! Comic! Best Match! Shinobi no entertainer!"],
+	"final": ["belt", "Ready go! Vortex Finish! Yeah!"],
 }
 
 const SPEAKERS := {

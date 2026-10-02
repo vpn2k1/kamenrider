@@ -40,6 +40,8 @@ extends Node2D
 ##     thoại "clear" → (trùm) bản đồ Chuỗi Trái Đất → bảng kết quả → về màn chọn màn (con trỏ ở màn kế).
 ##     Dựng màn mới thì ĐỔI NỀN theo màn (WorldData "bg"). Mỗi màn (kể cả chơi lại từ checkpoint) bắt đầu ở dạng
 ##     người, máu người đầy, nộ đầy: đã có Driver thì bấm Biến thân lúc nào cũng được.
+##   - Màn hình máy dài / vuông hơn 16:9 (Screen): camera thấy rộng / cao hơn (view_rect theo khung nhìn thật, quái
+##     thả ngoài mép màn hình thật), chữ trạng thái bám góc phải, banner ở giữa màn hình.
 ##   - Hội thoại (StoryData, DialogueBox): đầu màn ("start"), tới vạch đích màn Thức tỉnh / Trùm ("goal"),
 ##     vừa nhặt món chính ("key"), qua màn ("clear"); sau trùm thêm bản đồ Chuỗi Trái Đất.
 ##     Trong lúc thoại cả màn dừng lại (get_tree().paused), phase = TALK.
@@ -121,11 +123,15 @@ var _select: RiderSelect
 var _stage_select: StageSelect
 var _form_select: FormSelect
 var _item_select: ItemSelect
+var _boost_select: BoostSelect
+var _boost_given := false        ## màn chơi lại: đã rơi / nhặt vật phẩm Tăng sức mạnh của lượt này chưa
 var _goal_nag := 0.0               ## hẹn giờ nhắc "còn quái" ở vạch đích
 var _dialogue: DialogueBox
 var _fade: ColorRect               ## màn đen phủ khi chuyển màn
 var _time_tint: ColorRect          ## phủ xanh nhạt khi thời gian chậm lại (Clock Up, Axel)
 var _flash: ColorRect              ## chớp trắng khi tung Final Attack
+var _backdrop: FinisherBackdrop    ## phông tuyệt chiêu: ảnh lớn sau trận đánh khi tung Final
+var _cutin: SkillCutIn             ## dải cut-in mặt Rider + tên chiêu (Final), dải nhỏ khi đổi form
 var _far_ground: ColorRect         ## tô phần dưới ảnh nền xa (lộ ra khi xuống tầng thấp trong giếng)
 var _pending_key := ""             ## mã màn có thoại "key" đang chờ cảnh biến thân xong ("" = không có)
 var _immune_nag := 0.0             ## hẹn giờ banner giải thích quái đặc biệt
@@ -145,6 +151,11 @@ func _ready() -> void:
 	CombatDirector.shake_requested.connect(func(s: float) -> void: _shake = maxf(_shake, s))
 	CombatDirector.enemy_time_scale_changed.connect(_on_time_scale_changed)
 	CombatDirector.final_attack_started.connect(_on_final_attack)
+	CombatDirector.final_attack_landed.connect(func() -> void: _backdrop.impact())
+	CombatDirector.skill_used.connect(func(label: String, color: Color) -> void: _cutin.skill(label, color))
+	_backdrop = FinisherBackdrop.new()
+	add_child(_backdrop)
+	move_child(_backdrop, far_city.get_index() + 1)    # sau nền xa, trước địa hình / quái / người chơi
 	for i in 3:
 		var body := StaticBody2D.new()
 		body.collision_layer = WALL_LAYER
@@ -172,8 +183,12 @@ func _ready() -> void:
 	_item_select.visible = false
 	_item_select.done.connect(_on_items_done)
 	$HUD.add_child(_item_select)
+	_boost_select = BoostSelect.new()
+	$HUD.add_child(_boost_select)
 	_time_tint = _overlay(TIME_TINT)
 	_flash = _overlay(Color(1, 1, 1, 0))
+	_cutin = SkillCutIn.new()
+	$HUD.add_child(_cutin)
 	_fade = ColorRect.new()
 	_fade.color = Color.BLACK
 	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -181,6 +196,8 @@ func _ready() -> void:
 	$HUD.add_child(_fade)
 	_dialogue = DialogueBox.new()
 	$HUD.add_child(_dialogue)
+	_layout_hud()
+	get_viewport().size_changed.connect(_layout_hud)
 	_on_form_changed(&"")
 	if GameState.in_stage:
 		_start_stage()     # gục: tải lại thẳng vào màn, chơi tiếp từ checkpoint
@@ -298,6 +315,7 @@ func _start_stage() -> void:
 		c.queue_free()
 	_drop = null
 	_pending_key = ""
+	_boost_given = false
 	var stage := GameState.current_stage()
 	Sound.music(_stage_music(stage))
 	layout = StageBuilder.build(stage, int(stage.get("tier", GameState.stage_index)))
@@ -350,18 +368,11 @@ func _begin_run() -> void:
 	phase = Phase.RUN
 	player.input_locked = false
 	touch.visible = true
+	# Gọn: chỉ tên màn (màn EX thêm một dòng cách hạ quái đặc biệt). Món cần tìm đã có ở HUD ("Tìm: ...").
 	var text := "MÀN %s · %s" % [stage["id"], stage["name"]]
-	if stage.has("goal"):
-		text += "\n" + str(stage["goal"])
-	var key := _key_item()
-	if not key.is_empty():
-		text += "\nQuái có thể rơi: %s" % key["name"]
 	if stage.has("special"):
 		text += "\n" + _special_brief(stage["special"])
-	text += "\nDiệt hết quái để qua màn"
-	if player.can_henshin():
-		text += "\nNộ đầy · bấm BIẾN THÂN (I) để biến thân"
-	_show_banner(text, 5.5 if stage.has("special") else 3.5)
+	_show_banner(text, 3.5 if stage.has("special") else 2.0)
 
 
 ## Màn EX: loại quái đặc biệt, cách hạ, và form khắc chế đang mang (hoặc cảnh báo chưa mang).
@@ -504,10 +515,18 @@ func _process(delta: float) -> void:
 				_back_to_map()
 
 
-## Khung nhìn hiện tại của camera (tọa độ thế giới).
+## Khung nhìn hiện tại của camera (tọa độ thế giới), theo kích thước màn hình thật (máy 20:9 rộng hơn 480).
 func view_rect() -> Rect2:
 	var c := StageBuilder.path_point(layout, cam_s)
-	return Rect2(c - Vector2(HALF_W, HALF_H), Vector2(HALF_W, HALF_H) * 2.0)
+	var half := Screen.view(self) / 2.0
+	return Rect2(c - half, half * 2.0)
+
+
+## Chữ trạng thái bám góc phải, banner ở giữa màn hình (vị trí trong scene tính theo khung 480×270).
+func _layout_hud() -> void:
+	var e := Screen.extra(self)
+	status_label.position.x = 300.0 + e.x
+	banner.position = Vector2(60.0, 70.0) + e / 2.0
 
 
 ## Số quái còn sống trên cả màn (đã thả ra). Phải về 0 mới qua màn.
@@ -586,12 +605,13 @@ func _spawn_ahead() -> void:
 			var run_dir := -dir
 			match sp["side"]:
 				"ahead":
-					var x := view.get_center().x + dir * (HALF_W + 20.0 + i * 30.0)
+					var x := view.get_center().x + dir * (view.size.x / 2.0 + 20.0 + i * 30.0)
 					var limit: float = sp["limit"]
 					x = minf(x, limit - i * 16.0) if dir > 0 else maxf(x, limit + i * 16.0)
 					pos = Vector2(x, float(sp["floor"]) - 40.0)
 				"behind":
-					pos = Vector2(view.get_center().x - dir * (HALF_W + 20.0 + i * 30.0), float(sp["floor"]) - 40.0)
+					pos = Vector2(view.get_center().x - dir * (view.size.x / 2.0 + 20.0 + i * 30.0),
+						float(sp["floor"]) - 40.0)
 					run_dir = dir
 				_:
 					pos += Vector2(i * 24.0, 0.0)
@@ -732,10 +752,18 @@ func _goal_cleared() -> void:
 		_finish_stage()
 	elif stage["type"] == WorldData.StageType.AWAKEN:
 		var key := _key_item()
-		if key.is_empty():
-			_finish_stage()     # Driver đã rơi và được nhặt giữa màn
-		else:
+		if not key.is_empty():
 			_place_goal_item(key, "Nhặt Driver!")
+		elif not _boost_item().is_empty():
+			_place_goal_item(_boost_item(), "Nhặt Tăng sức mạnh!")
+		else:
+			_finish_stage()     # Driver đã rơi và được nhặt giữa màn
+	elif GameState.drivers.has(String(world.get("next_driver", &""))):
+		# Chơi lại màn trùm: Driver kế tiếp đã có rồi, không rơi lại; thay bằng Tăng sức mạnh (nếu lượt này chưa nhận).
+		if not _boost_item().is_empty():
+			_place_goal_item(_boost_item(), "Nhặt Tăng sức mạnh!")
+		else:
+			_finish_stage()
 	else:
 		_place_goal_item({"kind": "sealed", "rider": world["next_driver"], "form": &"",
 			"name": "%s (phong ấn)" % world["next_driver_name"]}, "Nhặt Driver!")
@@ -767,6 +795,17 @@ func _key_item() -> Dictionary:
 	return {}
 
 
+## Tăng sức mạnh: chỉ khi chơi lại màn đã qua (Driver / form / trang bị của màn đã nhặt rồi nên không rơi lại),
+## mỗi lượt chơi một lần, và đã có Rider để cộng. {} = không có.
+func _boost_item() -> Dictionary:
+	if _boost_given or not GameState.cleared_stages.has(str(GameState.current_stage()["id"])):
+		return {}
+	if GameState.main_rider == &"" or not GameState.is_active(GameState.main_rider):
+		return {}
+	return {"kind": "boost", "rider": GameState.world_rider(), "form": &"#boost",
+		"name": "Tăng sức mạnh +%d%%" % int(GameState.BOOST_STEP * 100.0)}
+
+
 ## Nạp nộ: chọn ngẫu nhiên một form đặc biệt đã có của các Rider trong đội hình. {} = chưa có form nào.
 func _charge_item() -> Dictionary:
 	var options: Array = []
@@ -784,6 +823,8 @@ func _on_enemy_died(enemy: Enemy) -> void:
 	if is_instance_valid(_drop) or not (phase == Phase.RUN or phase == Phase.GOAL_FIGHT):
 		return
 	var item := _key_item()
+	if item.is_empty():
+		item = _boost_item()      # chơi lại màn đã qua: món chính thay bằng Tăng sức mạnh
 	if not item.is_empty():
 		if randf() >= KEY_DROP_BASE + KEY_DROP_STEP * _key_misses:
 			_key_misses += 1
@@ -821,6 +862,8 @@ func _spawn_item(item: Dictionary, pos: Vector2, lifetime: float) -> void:
 			pickup.sealed = true
 		"form":
 			pickup.color = WorldData.rider_color(item["rider"]).lightened(0.3)
+		"boost":
+			pickup.color = Color(0.4, 1.0, 0.55)      # Tăng sức mạnh: viên kim cương xanh lục
 		_:
 			pickup.color = Color(1.0, 0.55, 0.2)
 	# Hình Driver giữ đúng cỡ pixel gốc; viên kim cương (form) phóng to cho dễ thấy, nạp nộ để nhỏ.
@@ -866,6 +909,8 @@ func _on_item_collected(item: Dictionary) -> void:
 		"charge":
 			player.add_rage(CHARGE_RAGE)
 			_show_banner("+%d NỘ" % int(CHARGE_RAGE), 1.0)
+		"boost":
+			await _choose_boost()
 	var at_goal := phase == Phase.PICKUP
 	var key_story := "%s:key" % stage_id
 	if unlocked and is_stage_key and GameState.story_enabled and not GameState.seen_story.has(key_story) \
@@ -885,6 +930,23 @@ func _stage_music(stage: Dictionary) -> String:
 	if stage["type"] == WorldData.StageType.BOSS:
 		return "boss_final" if GameState.world_index == WorldData.WORLDS.size() - 1 else "boss"
 	return "stage_%s" % GameState.current_world()["id"]
+
+
+## Dừng màn, hiện bảng chọn chỉ số; cộng +1% cho form đang dùng (dạng người thì cho form gốc của Rider chính).
+func _choose_boost() -> void:
+	_boost_given = true
+	var form: RiderForm = player.current_form
+	if form == null and not player.equipped.is_empty():
+		form = player.equipped[player.active_slot]
+	if form == null:
+		return
+	get_tree().paused = true
+	touch.visible = false
+	_boost_select.open(form)
+	var stat: String = await _boost_select.chosen
+	get_tree().paused = false
+	touch.visible = phase == Phase.RUN or phase == Phase.GOAL_FIGHT
+	_show_banner("%s +1%% · %s" % [GameState.BOOST_STATS[stat], form.display_name], 2.0)
 
 
 func _finish_stage() -> void:
@@ -1100,10 +1162,15 @@ func _on_time_scale_changed(value: float) -> void:
 	_time_tint.visible = value < 1.0
 
 
-func _on_final_attack(_rider_id: StringName, attack_name: String) -> void:
-	_show_banner(attack_name.to_upper(), 1.2)
+## Tung Final: khựng hình, phông tuyệt chiêu sau trận đánh, cut-in mặt Rider + tên chiêu, chớp trắng nhẹ.
+func _on_final_attack(rider_id: StringName, attack_name: String) -> void:
+	var fx := player.current_fx()
+	var mark := str(fx["signature"]) if str(fx["signature"]) != "" else str(fx["intro"])
+	_backdrop.play(rider_id, fx["color"], mark)
+	_cutin.final(attack_name, fx["color"], player.sprite, player.current_form.animation_prefix() + "_idle")
+	CombatDirector.hit_stop(0.16, 0.1)
 	_flash.visible = true
-	_flash.color = Color(1, 1, 1, 0.55)
+	_flash.color = Color(1, 1, 1, 0.35)
 	var tw := create_tween()
 	tw.tween_property(_flash, "color:a", 0.0, 0.25)
 	tw.tween_callback(func() -> void: _flash.visible = false)

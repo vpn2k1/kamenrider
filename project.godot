@@ -1,13 +1,22 @@
 ; Engine configuration file.
-; Mở bằng Godot 4.4 trở lên.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
-config/name="Kamen Rider Chrono Henshin (fan game)"
+config/name="VPN Chrono(fan game)"
 run/main_scene="res://scenes/ui/main_menu.tscn"
-config/features=PackedStringArray("4.4", "GL Compatibility")
+config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [autoload]
 
@@ -19,10 +28,10 @@ Sound="*res://scripts/autoload/sound.gd"
 
 window/size/viewport_width=480
 window/size/viewport_height=270
-window/size/window_width_override=1440
-window/size/window_height_override=810
-window/stretch/mode="viewport"
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 window/stretch/scale_mode="integer"
+window/handheld/orientation=4
 
 [input_devices]
 
@@ -43,7 +52,8 @@ pointing/emulate_touch_from_mouse=true
 
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-textures/canvas_textures/default_texture_filter=0
 textures/vram_compression/import_etc2_astc=true
+environment/defaults/default_clear_color=Color(0, 0, 0, 1)

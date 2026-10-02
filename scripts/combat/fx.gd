@@ -19,6 +19,7 @@ class_name Fx
 ##   taiko      huy hiệu trống Ongeki + sóng âm (Hibiki)             moon     trăng lưỡi liềm sau lưng (Kiva)
 ##   rings3     ba vòng Medal đỏ / vàng / lục phía trước (OOO)       rocket   lửa tên lửa phụt sau lưng (Fourze)
 ##   circle     vòng phép đỏ có ký tự (Wizard)
+##   graph      trục đồ thị x-y và đường cong parabol vẽ dần về phía trước (Build Vortex Finish)
 ##   hit_text   chữ "HIT!" vàng viền đen bật lên (Ex-Aid, như hiệu ứng game trong phim)
 ##   eye        con mắt Ghost khổng lồ sau lưng, viền gai lửa (Ghost Omega Drive)
 ##   tire       lốp xe đen vành bạc lăn vòng quanh Rider (Drive Tire Koukan)
@@ -26,12 +27,12 @@ class_name Fx
 ## Kiểu đạn (SHOTS, Projectile.style): ball, bolt (tia sét), fire (cầu lửa), arrow (mũi tên khí Pegasus).
 
 const KINDS := ["spark", "slash", "fire", "lightning", "sound", "wind", "ring", "tachyon", "feather",
-	"seal", "crest", "dragon", "pointer", "phi", "cards", "taiko", "moon", "rings3", "rocket", "circle", "crack", "fruit", "tire", "eye", "hit_text"]
+	"seal", "crest", "dragon", "pointer", "phi", "cards", "taiko", "moon", "rings3", "rocket", "circle", "crack", "fruit", "tire", "eye", "hit_text", "graph"]
 const SHOTS := ["ball", "bolt", "fire", "arrow"]
 const LIFE := {"spark": 0.18, "slash": 0.16, "fire": 0.35, "lightning": 0.22, "sound": 0.45, "wind": 0.3,
 	"ring": 0.35, "tachyon": 0.45, "feather": 0.7, "ghost": 0.22,
 	"seal": 0.9, "crest": 0.8, "dragon": 0.7, "pointer": 0.6, "phi": 0.8, "cards": 0.6, "taiko": 0.8, "moon": 0.8,
-	"rings3": 0.6, "rocket": 0.6, "circle": 0.7, "crack": 0.7, "fruit": 0.8, "tire": 0.7, "eye": 0.9, "hit_text": 0.7}
+	"rings3": 0.6, "rocket": 0.6, "circle": 0.7, "crack": 0.7, "fruit": 0.8, "tire": 0.7, "eye": 0.9, "hit_text": 0.7, "graph": 0.9}
 
 var kind := "spark"
 var color := Color.WHITE
@@ -288,6 +289,21 @@ func _draw() -> void:
 			var p := Vector2(-fs * 1.1, -26.0 * size - 10.0 * size * k)
 			draw_string_outline(font, p, "HIT!", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, int(3.0 * size), Color(0, 0, 0, a))
 			draw_string(font, p, "HIT!", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1.0, 0.92, 0.2, a))
+		"graph":                                  # trục x-y trắng, đường cong đi xuống phía trước vẽ dần (Vortex Finish)
+			draw_set_transform(Vector2.ZERO, 0.0, Vector2(dir, 1.0))
+			var o := Vector2(-6.0, 2.0) * size
+			var grow := minf(1.0, k * 2.5)
+			draw_line(o, o + Vector2(90.0 * grow, 0) * size, Color(1, 1, 1, a), 1.4 * size)
+			draw_line(o, o + Vector2(0, -60.0 * grow) * size, Color(1, 1, 1, a), 1.4 * size)
+			var pts := PackedVector2Array()
+			for i in int(24 * grow) + 1:
+				var u := i / 24.0
+				pts.append(o + Vector2(10.0 + 80.0 * u, -55.0 * (1.0 - u * u)) * size)
+			if pts.size() > 1:
+				draw_polyline(pts, col, 2.4 * size)
+			for i in 4:
+				var x := o.x + (20.0 + i * 20.0) * size * grow
+				draw_line(Vector2(x, o.y - 2.0 * size), Vector2(x, o.y + 2.0 * size), Color(1, 1, 1, a), 1.0 * size)
 		"feather":
 			for i in 3:
 				var p := Vector2(rng.randf_range(-8.0, 8.0) + sin(k * 6.0 + i) * 4.0, 14.0 * k + i * 3.0) * size

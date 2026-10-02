@@ -250,6 +250,10 @@ SFX = {
     # Ex-Aid: cắm Gashat "cạch", nhạc game 8-bit đi lên (arpeggio), tiếng "level up" hai nốt cao
     "henshin_ex_aid": lambda: seq(tone(0.04, 1500, vol=0.45), *[tone(0.06, note_hz(m), vol=0.3, duty=0.25) for m in (72, 76, 79, 84, 88)],
                                   tone(0.12, note_hz(91), vol=0.3, duty=0.125), tone(0.2, note_hz(96), vol=0.3, duty=0.125), gap=0.02),
+    # Build: lắc Fullbottle (xóc lạch cạch), quay tay quay Build Driver (tiếng ratchet nhanh dần), "Are you ready" hai nốt
+    "henshin_build": lambda: seq(*[noise(0.04, 0.5, lowpass=0.6, highpass=0.3) for _ in range(3)],
+                                 *[tone(0.025, 900 + 60 * k, vol=0.3, duty=0.125) for k in range(10)],
+                                 tone(0.15, note_hz(79), vol=0.3, duty=0.25), tone(0.25, note_hz(84), vol=0.3, duty=0.25), gap=0.02),
     "henshin_gaim": lambda: seq(tone(0.04, 2200, vol=0.45), noise(0.12, 0.6, lowpass=0.7, highpass=0.4),
                                 tone(0.7, 196, 220, wave_fn=saw, vol=0.3, vib=0.03, vib_rate=5, curve=0.4, attack=0.08), gap=0.06),
 }

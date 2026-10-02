@@ -119,9 +119,16 @@ Faiz Axel, Kabuto Hyper, Decade Kamen Ride: Kabuto, Drive Type Formula, Geats Bo
 | `rocket` | lửa tên lửa phụt sau lưng | `circle` | vòng phép đỏ có ký tự |
 | `crack` | khe nứt khóa kéo Helheim mở trên đầu | `tire` | lốp xe vành bạc lăn vòng quanh Rider |
 | `eye` | con mắt Ghost khổng lồ sau lưng, viền gai lửa | `hit_text` | chữ HIT! vàng viền đen bật lên |
-| `fruit` | lát trái cây khổng lồ chụp xuống rồi tách múi |  |  |
+| `graph` | trục đồ thị x-y và đường cong Vortex vẽ dần | `fruit` | lát trái cây khổng lồ chụp xuống rồi tách múi |
 
 Kiểu đạn: `ball` viên tròn · `bolt` tia sét · `fire` cầu lửa · `arrow` mũi tên khí. Mặc định (form không ghi `fx`): trúng `spark`, Final `ring`, đạn `ball`, màu `#ffd980`.
+
+### 0.7 Phông tuyệt chiêu và cut-in
+
+- **Tung Final** (`stage_run.gd` / `versus.gd` → `FinisherBackdrop`, `SkillCutIn`): khựng hình 0.16s, nền màn chơi tối 62%, ảnh `art/backdrops/<rider>.png` (320×180, PixelLab) hiện SAU địa hình / quái / Rider, phóng từ 118% về 100% rồi giữ 1.25s, mờ trong 0.35s. Đòn trúng: ảnh rung 0.3s và chớp màu form. Đồng thời dải cut-in chéo giữa màn hình: mặt Rider phóng to (cắt từ khung đứng yên của form) và tên chiêu.
+- Rider chưa có ảnh nền: tia sáng màu form toả từ tâm và dấu hiệu tuyệt chiêu (`signature` / `intro`) phóng to ×4 giữa phông.
+- Đã có ảnh nền: blade, build, decade, double, faiz, kabuto, kuuga, ooo, ryuki, wizard.
+- **Đổi form**: dấu hiệu tuyệt chiêu của form bùng ×1.4 quanh Rider và dải nhỏ trượt vào góc trái trên ghi tên form (`form_display_name()`).
 
 ## 1. Kamen Rider Kuuga · 2000
 
@@ -3657,6 +3664,8 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết. Chuỗi nút Chém: 3 nh
 - **Form rơi ở màn luyện tập:** 19-2 → **GorillaMond** · 19-3 → **HawkGatling** · 19-4 → **NinninComic**
 - **Thưởng theo cấp:** Lv1: RabbitTank (form gốc) → Lv2: sát thương +10%, máu +8% → Lv3: sát thương +20%, máu +16% → Lv4: sát thương +30%, máu +24% → Lv5: Genius Form: Final Attack x1.5
 - **Lv5 — Genius:** tên hiện kèm form, mọi Final ×1.5 và đổi tên thành "Genius <tên chiêu>"
+- **Dấu hiệu tuyệt chiêu chung (mọi form):** intro `graph` (trục đồ thị x-y và đường cong Vortex vẽ dần)
+- **Giọng đai / tiếng hô:** `final` "Ready go! Vortex Finish! Yeah!" · `gorilla_mond` "Gorilla! Diamond! Best Match! Kagayaki no destroyer!" · `hawk_gatling` "Taka! Gatling! Best Match! Tenkuu no abarenbou!" · `henshin` "Rabbit! Tank! Best Match! Are you ready?" · `ninnin_comic` "Ninja! Comic! Best Match! Shinobi no entertainer!"
 
 ### 19.1 RabbitTank  ·  _form gốc, nhận ở màn Thức tỉnh_
 
@@ -3664,13 +3673,17 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết. Chuỗi nút Chém: 3 nh
 |---|---|---|---|---|---|---|---|
 | 160 | 28 | 132 | ×1.3 | ×1.05 | 7 | — | Brawler (tay chân) |
 
-**Vũ khí:** Chỉ tay chân (không nút Chém, không súng).
+**Vũ khí:** Nút Chém: **Drill Crusher** (3 nhát + nhát kết, bảng đòn blade).
+
+**Kỹ năng riêng:** Final Attack: thêm `stun`.
 
 **Hiệu ứng hình ảnh:**
 
-- Màu hiệu ứng: `#ffd980`
+- Màu hiệu ứng: `#ff4d4d`
 - Đòn trúng: `spark` — tia va chạm toả ra
+- Vệt vung đòn: `slash` — vệt chém hình cung
 - Final Attack trúng: `ring` — sóng chấn động dẹt
+- Lúc tung Final (quanh Rider): `graph` — trục đồ thị x-y và đường cong Vortex vẽ dần
 
 <details><summary>Bảng đòn chi tiết (Lv1)</summary>
 
@@ -3678,18 +3691,20 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết. Chuỗi nút Chém: 3 nh
 |---|---|---|---|---|---|---|---|
 | Đánh (đòn thường) | 5 | 1 | 0.05 / 0.08 / 0.12 | 23 | (50, -20) | — | — |
 | Đánh (đòn kết chuỗi) | 12 | 1 | 0.12 / 0.1 / 0.3 | 27 | (180, -70) | `heavy` | — |
-| **Final Attack** | 60 | 1 | 0.5 / 0.25 / 0.4 | 30 | (260, -160) | `heavy` | lao tới 260, bật lên 120, không hủy được |
+| Chém (nhát thường) | 6 | 1 | 0.07 / 0.08 / 0.14 | 31 | (50, -20) | — | — |
+| Chém (nhát kết) | 14 | 1 | 0.14 / 0.1 / 0.3 | 36 | (190, -70) | `heavy` | — |
+| **Final Attack** | 60 | 1 | 0.5 / 0.25 / 0.4 | 30 | (260, -160) | `heavy` `stun` | lao tới 260, bật lên 120, không hủy được |
 
-Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
+Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết. Chuỗi nút Chém: 3 nhát + 1 nhát kết.
 
 </details>
 
 **Tuyệt chiêu — Vortex Finish** (Lv5: *Genius Vortex Finish*)
 
-- lao tới 260, bật lên 120 rồi tung đòn (tầm 30); 60 sát thương gốc; hất văng (260, -160).
-- Tag: `heavy` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
+- lao tới 260, bật lên 120 rồi tung đòn (tầm 30); 60 sát thương gốc; hất văng (260, -160); gây choáng 1.2s.
+- Tag: `heavy` `stun` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
 - Sát thương thực (chưa tính combo): **Lv1 ≈ 199** · **Lv5 ≈ 418** (đã gồm ×1.5 Lv5).
-- Hình ảnh: trúng quái nổ sóng chấn động dẹt (màu `#ffd980`); tiếng nạp *final_charge* + giọng `build_final`.
+- Hình ảnh: quanh Rider hiện trục đồ thị x-y và đường cong Vortex vẽ dần, trúng quái nổ sóng chấn động dẹt (màu `#ff4d4d`); tiếng nạp *final_charge* + giọng `build_final`.
 
 *Mô tả trong game (thoại lúc nhận form):*
 
@@ -3705,11 +3720,14 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
 
 **Vũ khí:** Chỉ tay chân (không nút Chém, không súng).
 
+**Kỹ năng riêng:** **Khiên** guard 0.5: đứng chắn chỉ nhận 50% sát thương từ phía trước. Final Attack: lực đẩy (340, -140), thêm `force`.
+
 **Hiệu ứng hình ảnh:**
 
-- Màu hiệu ứng: `#ffd980`
-- Đòn trúng: `spark` — tia va chạm toả ra
+- Màu hiệu ứng: `#8ce6ff`
+- Đòn trúng: `ring` — sóng chấn động dẹt
 - Final Attack trúng: `ring` — sóng chấn động dẹt
+- Lúc tung Final (quanh Rider): `graph` — trục đồ thị x-y và đường cong Vortex vẽ dần
 
 <details><summary>Bảng đòn chi tiết (Lv1)</summary>
 
@@ -3717,7 +3735,7 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
 |---|---|---|---|---|---|---|---|
 | Đánh (đòn thường) | 9 | 1 | 0.14 / 0.1 / 0.3 | 28 | (60, -20) | `heavy` | — |
 | Đánh (đòn kết chuỗi) | 25 | 1 | 0.24 / 0.12 / 0.45 | 32 | (240, -100) | `heavy` | — |
-| **Final Attack** | 70 | 1 | 0.55 / 0.2 / 0.5 | 35 | (300, -160) | `heavy` | không hủy được |
+| **Final Attack** | 70 | 1 | 0.55 / 0.2 / 0.5 | 35 | (340, -140) | `heavy` `force` | không hủy được |
 
 Chuỗi nút Đánh: 2 đòn thường + 1 đòn kết.
 
@@ -3725,10 +3743,10 @@ Chuỗi nút Đánh: 2 đòn thường + 1 đòn kết.
 
 **Tuyệt chiêu — Vortex Finish** (Lv5: *Genius Vortex Finish*)
 
-- đứng tại chỗ tung đòn (tầm 35); 70 sát thương gốc; hất văng (300, -160).
-- Tag: `heavy` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
+- đứng tại chỗ tung đòn (tầm 35); 70 sát thương gốc; hất văng (340, -140); gây đẩy cưỡng bức.
+- Tag: `heavy` `force` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
 - Sát thương thực (chưa tính combo): **Lv1 ≈ 314** · **Lv5 ≈ 660** (đã gồm ×1.5 Lv5).
-- Hình ảnh: trúng quái nổ sóng chấn động dẹt (màu `#ffd980`); tiếng nạp *final_charge* + giọng `build_final`.
+- Hình ảnh: quanh Rider hiện trục đồ thị x-y và đường cong Vortex vẽ dần, trúng quái nổ sóng chấn động dẹt (màu `#8ce6ff`); tiếng nạp *final_charge* + giọng `build_final`.
 
 *Mô tả trong game (thoại lúc nhận form):*
 
@@ -3740,13 +3758,17 @@ Chuỗi nút Đánh: 2 đòn thường + 1 đòn kết.
 |---|---|---|---|---|---|---|---|
 | 140 | 14 | 125 | ×1.35 | ×0.9 | 4 | 4/s | Gunner (bắn) |
 
-**Vũ khí:** Nút Bắn: **súng** — 4.5 sát thương/viên, hồi 0.16s, tốc độ 460, bay 0.7s, bán kính 2.5, đạn `ball` (viên đạn tròn).
+**Vũ khí:** Nút Bắn: **Hawk Gatlinger** — 4.5 sát thương/viên, hồi 0.16s, tốc độ 460, bay 0.7s, bán kính 2.5, đạn `ball` (viên đạn tròn).
+
+**Kỹ năng riêng:** Final Attack: 11 sát thương/nhịp, 5 nhịp.
 
 **Hiệu ứng hình ảnh:**
 
-- Màu hiệu ứng: `#ffd980`
+- Màu hiệu ứng: `#ff9940`
 - Đòn trúng: `spark` — tia va chạm toả ra
 - Final Attack trúng: `ring` — sóng chấn động dẹt
+- Lúc tung Final (quanh Rider): `graph` — trục đồ thị x-y và đường cong Vortex vẽ dần
+- **Lượn**: giữ Nhảy khi đang rơi → rơi chậm tối đa 45, rắc lông vũ
 
 <details><summary>Bảng đòn chi tiết (Lv1)</summary>
 
@@ -3754,7 +3776,7 @@ Chuỗi nút Đánh: 2 đòn thường + 1 đòn kết.
 |---|---|---|---|---|---|---|---|
 | Đánh (đòn thường) | 5 | 1 | 0.05 / 0.08 / 0.12 | 23 | (50, -20) | — | — |
 | Đánh (đòn kết chuỗi) | 12 | 1 | 0.12 / 0.1 / 0.3 | 27 | (180, -70) | `heavy` | — |
-| **Final Attack** | 50 | 1 | 0.6 / 0.1 / 0.4 | 180 | (200, -60) | `ranged` | không hủy được |
+| **Final Attack** | 11 | 5 | 0.6 / 0.1 / 0.4 | 180 | (200, -60) | `ranged` | không hủy được |
 
 Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
 
@@ -3762,10 +3784,10 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
 
 **Tuyệt chiêu — Full Bullet** (Lv5: *Genius Full Bullet*)
 
-- phát bắn tầm xa (vùng trúng dài 170, chạm tới 180 trước mặt); 50 sát thương gốc; hất văng (200, -60).
+- phát bắn tầm xa (vùng trúng dài 170, chạm tới 180 trước mặt); 5 nhịp × 11 = 55 sát thương gốc; hất văng (200, -60).
 - Tag: `ranged` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
-- Sát thương thực (chưa tính combo): **Lv1 ≈ 142** · **Lv5 ≈ 299** (đã gồm ×1.5 Lv5).
-- Hình ảnh: trúng quái nổ sóng chấn động dẹt (màu `#ffd980`); tiếng nạp *final_charge* + giọng `build_final`.
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 156** · **Lv5 ≈ 328** (đã gồm ×1.5 Lv5).
+- Hình ảnh: quanh Rider hiện trục đồ thị x-y và đường cong Vortex vẽ dần, trúng quái nổ sóng chấn động dẹt (màu `#ff9940`); tiếng nạp *final_charge* + giọng `build_final`.
 
 *Mô tả trong game (thoại lúc nhận form):*
 
@@ -3777,13 +3799,18 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
 |---|---|---|---|---|---|---|---|
 | 138 | 14 | 170 | ×1.3 | ×1.1 | 6 | 4/s | Blade (kiếm) |
 
-**Vũ khí:** Nút Chém: **kiếm (hình mặc định)** (3 nhát + nhát kết, bảng đòn blade).
+**Vũ khí:** Nút Chém: **Yonkoma Ninpoutou** (3 nhát + nhát kết, bảng đòn blade).
+
+**Kỹ năng riêng:** Final Attack: thêm `burn`. Chém (nhát kết): thêm `burn`.
 
 **Hiệu ứng hình ảnh:**
 
-- Màu hiệu ứng: `#ffd980`
-- Đòn trúng: `spark` — tia va chạm toả ra
-- Final Attack trúng: `ring` — sóng chấn động dẹt
+- Màu hiệu ứng: `#bf66ff`
+- Đòn trúng: `fire` — lửa bùng bốc lên
+- Vệt vung đòn: `slash` — vệt chém hình cung
+- Final Attack trúng: `fire` — lửa bùng bốc lên
+- Lúc tung Final (quanh Rider): `graph` — trục đồ thị x-y và đường cong Vortex vẽ dần
+- Để bóng mờ khi di chuyển (form tốc độ)
 
 <details><summary>Bảng đòn chi tiết (Lv1)</summary>
 
@@ -3792,8 +3819,8 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
 | Đánh (đòn thường) | 5 | 1 | 0.05 / 0.08 / 0.12 | 23 | (50, -20) | — | — |
 | Đánh (đòn kết chuỗi) | 12 | 1 | 0.12 / 0.1 / 0.3 | 27 | (180, -70) | `heavy` | — |
 | Chém (nhát thường) | 6 | 1 | 0.07 / 0.08 / 0.14 | 31 | (50, -20) | — | — |
-| Chém (nhát kết) | 14 | 1 | 0.14 / 0.1 / 0.3 | 36 | (190, -70) | `heavy` | — |
-| **Final Attack** | 65 | 1 | 0.5 / 0.22 / 0.45 | 46 | (260, -100) | `heavy` | lao tới 240, bật lên 60, không hủy được |
+| Chém (nhát kết) | 14 | 1 | 0.14 / 0.1 / 0.3 | 36 | (190, -70) | `heavy` `burn` | — |
+| **Final Attack** | 65 | 1 | 0.5 / 0.22 / 0.45 | 46 | (260, -100) | `heavy` `burn` | lao tới 240, bật lên 60, không hủy được |
 
 Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết. Chuỗi nút Chém: 3 nhát + 1 nhát kết.
 
@@ -3801,10 +3828,10 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết. Chuỗi nút Chém: 3 nh
 
 **Tuyệt chiêu — Kaen Giri** (Lv5: *Genius Kaen Giri*)
 
-- lao tới 240, bật lên 60 rồi tung đòn (tầm 46); 65 sát thương gốc; hất văng (260, -100).
-- Tag: `heavy` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
+- lao tới 240, bật lên 60 rồi tung đòn (tầm 46); 65 sát thương gốc; hất văng (260, -100); gây cháy 2s.
+- Tag: `heavy` `burn` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
 - Sát thương thực (chưa tính combo): **Lv1 ≈ 226** · **Lv5 ≈ 474** (đã gồm ×1.5 Lv5).
-- Hình ảnh: trúng quái nổ sóng chấn động dẹt (màu `#ffd980`); tiếng nạp *final_charge* + giọng `build_final`.
+- Hình ảnh: quanh Rider hiện trục đồ thị x-y và đường cong Vortex vẽ dần, trúng quái nổ lửa bùng bốc lên (màu `#bf66ff`); tiếng nạp *final_charge* + giọng `build_final`.
 
 *Mô tả trong game (thoại lúc nhận form):*
 
@@ -5191,9 +5218,9 @@ Chỉ số Lv1 chưa nhân sức mạnh thế hệ. *Final thực* = sát thươ
 | 18 | Ex-Aid | Sports Action Gamer Level 3 | form đặc biệt | 135 | 12 | 175 | 1.2 | 0.9 | lancer | ✓ |  | Shakariki Critical Strike | 131 | 276 |
 | 18 | Ex-Aid | Robot Action Gamer Level 3 | form đặc biệt | 205 | 55 | 84 | 0.85 | 1.42 | heavy |  |  | Gekitotsu Critical Strike | 302 | 635 |
 | 18 | Ex-Aid | Hunter Action Gamer Level 5 | form đặc biệt | 170 | 35 | 108 | 0.95 | 1.05 | gunner | ✓ | ✓ | Drago Knight Critical Strike | 160 | 335 |
-| 19 | Build | RabbitTank | form gốc | 160 | 28 | 132 | 1.3 | 1.05 | brawler |  |  | Vortex Finish | 199 | 418 |
+| 19 | Build | RabbitTank | form gốc | 160 | 28 | 132 | 1.3 | 1.05 | brawler |  | ✓ | Vortex Finish | 199 | 418 |
 | 19 | Build | GorillaMond | form đặc biệt | 205 | 58 | 82 | 0.85 | 1.42 | heavy |  |  | Vortex Finish | 314 | 660 |
-| 19 | Build | HawkGatling | form đặc biệt | 140 | 14 | 125 | 1.35 | 0.9 | gunner | ✓ |  | Full Bullet | 142 | 299 |
+| 19 | Build | HawkGatling | form đặc biệt | 140 | 14 | 125 | 1.35 | 0.9 | gunner | ✓ |  | Full Bullet | 156 | 328 |
 | 19 | Build | NinninComic | form đặc biệt | 138 | 14 | 170 | 1.3 | 1.1 | blade |  | ✓ | Kaen Giri | 226 | 474 |
 | 20 | Zi-O | Zi-O | form gốc | 160 | 25 | 130 | 1.05 | 1.05 | brawler |  |  | Time Break | 207 | 434 |
 | 20 | Zi-O | Build Armor | form đặc biệt | 140 | 15 | 165 | 1.25 | 0.95 | lancer |  |  | Vortex Time Break | 140 | 294 |

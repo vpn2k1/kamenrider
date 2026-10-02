@@ -3,7 +3,9 @@ extends Control
 ##   CHƠI    hành trình qua 27 thế giới (nhập tên → phần mở đầu nếu chưa xem → màn chơi, chọn thế giới / màn)
 ##   COMBAT  đấu cùng WiFi: 1 VS 1 hoặc ALL COMBAT 2–4 người (nhập tên → sảnh đấu scenes/versus/versus.tscn). Cần ít nhất một Rider đã kích hoạt
 ##           Driver ở hành trình; chưa có thì bấm vào chỉ hiện thông báo.
-## Cả hai đều qua màn nhập tên (NameEntry.mode cho biết đi tiếp vào đâu); tên đã đặt được điền sẵn.
+## Lần đầu (chưa đặt tên) cả hai qua màn nhập tên (NameEntry.mode cho biết đi tiếp vào đâu); đã đặt tên rồi (lưu trong
+## cài đặt, GameState.name_set) thì vào thẳng. Nút "✎ Tên: …" dưới hai nút để đổi tên.
+## Nền phủ kín màn hình máy (ảnh nền lặp theo bề ngang), hai nút luôn ở giữa màn hình.
 ## ▲ ▼ (hoặc W / S, ◀ ▶) chọn, Enter / Space / Đánh (J) / chạm để vào.
 
 const NAME_SCENE := "res://scenes/ui/name_entry.tscn"
@@ -21,24 +23,28 @@ func _ready() -> void:
 	Sound.music("map")
 	# Ảnh nền thấp hơn màn hình: phần trời phía trên tô bằng màu điểm trên cùng của ảnh.
 	var sky := ColorRect.new()
-	sky.size = VIEW
 	sky.color = BG_TEX.get_image().get_pixel(0, 0)
 	sky.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(sky)
+	sky.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	# Ảnh nền sát đáy, lặp theo bề ngang (máy 20:9 rộng hơn ảnh).
 	var bg := TextureRect.new()
 	bg.texture = BG_TEX
-	bg.position = Vector2((VIEW.x - BG_TEX.get_width()) / 2.0, VIEW.y - BG_TEX.get_height())
+	bg.stretch_mode = TextureRect.STRETCH_TILE
+	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
+	bg.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	bg.offset_top = -BG_TEX.get_height()
 	var dim := ColorRect.new()
-	dim.size = VIEW
 	dim.color = Color(0.03, 0.02, 0.08, 0.6)
 	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(dim)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 	var center := CenterContainer.new()
-	center.size = VIEW
 	add_child(center)
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
 	center.add_child(box)
@@ -52,6 +58,16 @@ func _ready() -> void:
 	box.add_child(_card("COMBAT", "1 VS 1 · ALL COMBAT 2–4 người cùng WiFi · %s" % ("%d Rider đã mở khoá" % riders if riders > 0
 		else "chưa mở: cần 1 Rider"), Color(0.2, 0.22, 0.55), NameEntry.Mode.VERSUS))
 	box.add_child(_label("▲ ▼ chọn · Enter / Đánh để vào", 7, Color(0.75, 0.75, 0.85)))
+	if GameState.name_set:
+		var rename := Button.new()
+		rename.text = "✎ Tên: %s · đổi tên" % GameState.player_name
+		rename.flat = true
+		rename.focus_mode = Control.FOCUS_NONE
+		rename.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		rename.add_theme_font_size_override("font_size", 8)
+		rename.add_theme_color_override("font_color", Color(0.75, 0.65, 1))
+		rename.pressed.connect(_rename)
+		box.add_child(rename)
 	_message = _label("", 8, Color(1, 0.55, 0.45))
 	_message.custom_minimum_size = Vector2(0, 12)
 	box.add_child(_message)
@@ -114,6 +130,15 @@ func _choose(mode: NameEntry.Mode) -> void:
 		_message.text = "Chưa có Rider nào! Vào CHƠI, nhặt Driver đầu tiên ở màn 1-1 để mở khoá Rider."
 		return
 	NameEntry.mode = mode
+	NameEntry.renaming = false
+	if GameState.name_set:
+		NameEntry.proceed(get_tree())   # tên đã lưu trong cài đặt: không hỏi lại
+	else:
+		get_tree().change_scene_to_file(NAME_SCENE)
+
+
+func _rename() -> void:
+	NameEntry.renaming = true
 	get_tree().change_scene_to_file(NAME_SCENE)
 
 

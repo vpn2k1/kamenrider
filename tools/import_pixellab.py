@@ -12,7 +12,7 @@ Việc script làm:
   3. Tạo thêm những gì PixelLab không làm (miễn phí):
        - 4 form Kuuga còn lại: đổi màu từ Mighty (Growing trắng, Dragon xanh, Pegasus lục, Titan tím)
        - Grongi hạng Me (nhanh) và hạng Go (giáp): đổi màu từ Grongi Zu
-       - Rider bộ gọn (DATA_RIDERS: Agito, Ryuki, Faiz, Blade, Hibiki, Kabuto, Den-O, Kiva, Decade, W, OOO, Fourze, Wizard, Gaim, Drive, Ghost, Ex-Aid): nhảy / cúi / né / tuyệt chiêu từ 5
+       - Rider bộ gọn (DATA_RIDERS: Agito, Ryuki, Faiz, Blade, Hibiki, Kabuto, Den-O, Kiva, Decade, W, OOO, Fourze, Wizard, Gaim, Drive, Ghost, Ex-Aid, Build): nhảy / cúi / né / tuyệt chiêu từ 5
          animation PixelLab, 3 form còn lại đổi màu hoặc vẽ thêm vũ khí từ form gốc. Blade trở đi làm bằng PixelEngine
          (tools/pixelengine.py pack → art/pixelengine/<tên>/, cùng cấu trúc thư mục PixelLab)
        - quái thế giới sau (EXTRA_ENEMIES): loại nhanh và loại giáp đổi màu từ loại thường
@@ -239,6 +239,23 @@ def FOURZE_TO(hue, sat, dim):
 def WIZARD_TO(hue, bright, sat=0.9):
     """Wizard: đá quý ruby đỏ ở mặt / áo sang màu Style."""
     return hue_rule(is_red_hsv, lambda h, s, v: (hue, s * sat, min(1.0, v * bright)))
+
+
+def BUILD_TO(red, blue):
+    """Build: nửa đỏ (thỏ) và nửa xanh lam (xe tăng) của RabbitTank sang hai màu Best Match khác. red / blue =
+    (hue, sat, bright) đích cho từng nửa."""
+    def rule(c, _in_head):
+        h, s, v = _hsv(c)
+        if s < 0.4 or v < 0.2:
+            return c
+        if h < 0.04 or h > 0.93:
+            t = red
+        elif 0.53 < h < 0.7:
+            t = blue
+        else:
+            return c
+        return _rgb(t[0], t[1], min(1.0, v * t[2]), c[3])
+    return rule
 
 
 def exaid_armor(frames, hue, sat, bright):
@@ -579,7 +596,20 @@ def add_weapon(frames, kind, band=(0.3, 0.62)):
             draw_circle(im, x + 2, y, 4.6, (20, 18, 22, 255), filled=True)
             draw_circle(im, x + 2, y, 3.8, (210, 50, 50, 255), filled=True)
             draw_line(im, x + 1, y - 2, x + 4, y - 2, (250, 200, 80, 255))
+        elif kind == "hawk_gatlinger":  # Hawk Gatlinger (Build HawkGatling): súng máy cam, ổ đạn tròn, nòng bạc chùm
+            draw_gun(im, x, y, (220, 120, 40, 255), (255, 190, 110, 255), (205, 210, 220, 255), 9)
+            draw_circle(im, x + 3, y + 3, 2.2, (60, 60, 70, 255), filled=True)
         # --- Vũ khí cận chiến (vẽ vào animation "slash"): lưỡi / cán chếch lên từ nắm tay
+        elif kind == "drill_crusher":  # Drill Crusher (Build RabbitTank): mũi khoan xanh lam xoắn bạc, chuôi đen
+            draw_line(im, x - 1, y + 2, x + 1, y, (20, 18, 22, 255), 2)
+            for i in range(12):
+                half = max(0, 2 - i // 4)
+                draw_line(im, x + 1 + i, y - 1 - i - half, x + 1 + i + half, y - 1 - i + half,
+                          (220, 225, 235, 255) if i % 3 == 1 else (60, 120, 230, 255))
+        elif kind == "ninpoutou":   # Yonkoma Ninpoutou (Build NinninComic): kiếm ninja thẳng tím, chuôi vàng
+            draw_line(im, x + 1, y, x + 13, y - 11, (150, 80, 220, 255), 2)
+            draw_line(im, x + 2, y - 2, x + 13, y - 12, (230, 220, 255, 255))
+            draw_line(im, x - 1, y + 2, x + 1, y, (240, 200, 60, 255), 2)
         elif kind == "gashacon_breaker":  # Gashacon Breaker Hammer (Ex-Aid): cán đen, đầu búa hồng có nút A / B
             draw_line(im, x - 2, y + 3, x + 7, y - 6, (30, 30, 36, 255), 2)
             for dy in range(-4, 3):
@@ -808,7 +838,7 @@ HENSHIN_STYLE = {"kuuga": "arcle", "agito": "agito", "ryuki": "mirror", "faiz": 
                  "hibiki": "onsa", "kabuto": "castoff", "den_o": "armor_in", "kiva": "chains", "decade": "decade",
                  "double": "wind", "ooo": "medals", "fourze": "steam", "wizard": "circle",
                  "gaim": "arms", "drive": "tire", "ghost": "parka",
-                 "ex_aid": "game"}
+                 "ex_aid": "game", "build": "snap"}
 
 
 def _reveal(human, rider, mask):
@@ -1076,6 +1106,31 @@ def henshin_styled(style, human_idle, rider_idle, accent):
                 _put(im, px_ + math.cos(a_) * 4, cy + math.sin(a_) * ry, acc)
                 if k % 6 == 0:
                     _put(im, px_ + math.cos(a_) * 2, cy + math.sin(a_) * (ry - 4), (255, 220, 120, 255))
+            frames.append(im)
+        tail()
+    elif style == "snap":           # Build: ống Snap Ride Builder dựng quanh người, hai nửa giáp đỏ / lam ép từ hai bên vào
+        red_half, blue_half = silhouette([r0], (230, 60, 60, 255))[0], silhouette([r0], (60, 110, 230, 255))[0]
+        mid_i = int(mid)
+        red_half = red_half.crop((mid_i, 0, red_half.width, red_half.height))
+        blue_half = blue_half.crop((0, 0, mid_i, blue_half.height))
+        for i in range(3):                                      # quay tay quay: ống dẫn hiện dần quanh người
+            im = H(i).copy()
+            for y in range(int(top), int(bot), 3):
+                if (y // 3) % 3 <= i:
+                    _put(im, left - 6, y, (200, 205, 215, 255))
+                    _put(im, right + 5, y, (200, 205, 215, 255))
+            frames.append(im)
+        for i in range(4):                                      # hai nửa giáp trượt từ hai bên ép vào
+            im = H(3 + i).copy()
+            off = int(16 * (1 - i / 3.0))
+            im.alpha_composite(blue_half, (-off, 0))
+            im.alpha_composite(red_half, (mid_i + off, 0))
+            frames.append(im)
+        for i in range(3):                                      # ép xong: Rider hiện ra, vạch sáng giữa hai nửa tắt dần
+            im = R(i).copy()
+            if i < 2:
+                for y in range(int(top), int(bot)):
+                    _put(im, mid, y, (255, 240, 150, 255))
             frames.append(im)
         tail()
     elif style == "game":           # Ex-Aid: màn hình chọn nhân vật dựng trước mặt, ô pixel lóe, tấm panel quét qua lộ Rider
@@ -1452,6 +1507,16 @@ DATA_RIDERS = {
         "robot": (lambda fr: add_weapon(exaid_armor(fr, 0.0, 0.8, 0.95), "robot_arm", HAND_BAND), (240, 80, 80, 255)),
         "hunter": (with_slash(lambda fr: exaid_armor(fr, 0.33, 0.75, 0.95), "drago_blade"), (110, 230, 90, 255)),
     }),
+    # Build: ảnh gốc RabbitTank sửa từ Decade bằng PixelLab Pro Flash edit, 5 animation bằng PixelLab animate_image. Mỗi Best
+    # Match đổi màu hai nửa (BUILD_TO): GorillaMond nâu / kim cương lam nhạt, HawkGatling cam / xám bạc, NinninComic tím /
+    # vàng. Drill Crusher / Ninpoutou ở "slash", Hawk Gatlinger là weapons/hawk_gatlinger.png lúc bắn.
+    "build": ("build", "w19_build", {
+        "rabbit_tank": (with_slash(None, "drill_crusher"), (255, 80, 80, 255)),
+        "gorilla_mond": (lambda fr: recolor(fr, BUILD_TO((0.07, 0.65, 0.7), (0.52, 0.35, 1.3))), (140, 220, 255, 255)),
+        "hawk_gatling": (lambda fr: recolor(fr, BUILD_TO((0.07, 0.85, 1.05), (0.6, 0.08, 1.1))), (255, 150, 60, 255)),
+        "ninnin_comic": (with_slash(lambda fr: recolor(fr, BUILD_TO((0.78, 0.65, 1.0), (0.14, 0.85, 1.25))), "ninpoutou"),
+                         (190, 110, 255, 255)),
+    }),
     # W có script riêng (double.gd): tiền tố "double_<soul><body>[xtreme]", 9 tổ hợp + CycloneJokerXtreme. Ảnh gốc
     # CycloneJoker sửa từ Decade bằng PixelLab Pro Flash edit; 9 tổ hợp còn lại đổi màu hai nửa (double_rule).
     "double": ("double", None, dict(
@@ -1525,7 +1590,7 @@ def build_data_riders(human_idle, cell):
     return sets
 
 
-GUN_LOOKS = ["tricker", "drago_gun", "gangun", "door_ju", "ichigo_kunai", "sonic_arrow", "wizargun", "booker_gun", "magnum", "hackgun", "gun", "onibi", "dengasher_gun", "basshaa_magnum",
+GUN_LOOKS = ["hawk_gatlinger", "tricker", "drago_gun", "gangun", "door_ju", "ichigo_kunai", "sonic_arrow", "wizargun", "booker_gun", "magnum", "hackgun", "gun", "onibi", "dengasher_gun", "basshaa_magnum",
              "pegasus_bowgun", "faiz_phone", "faiz_blaster"]   # súng hiện ở tay lúc bắn (RiderForm.gun_look)
 
 

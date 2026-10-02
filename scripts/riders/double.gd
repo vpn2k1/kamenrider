@@ -188,6 +188,10 @@ func animation_prefix() -> String:
 	return "double_" + combo_name().to_lower() + ("xtreme" if xtreme else "")
 
 
+func form_display_name() -> String:
+	return combo_name() + (" Xtreme" if xtreme else "")
+
+
 func final_attack_name() -> String:
 	if xtreme:
 		return "Xtreme Golden Extreme"

@@ -1,5 +1,6 @@
 extends Node2D
-## Bố trí các nút ảo trên màn hình (khung 480×270).
+## Bố trí các nút ảo trên màn hình (vị trí LAYOUT theo khung 480×270; máy dài / vuông hơn 16:9 thì nút nửa phải
+## dời theo mép phải, nút nửa dưới dời theo mép dưới của màn hình thật, xem Screen).
 ##   Góc trái:  D-pad ◀ ▶ ▲ ▼ (4 nút giống hệt nhau). ▲ = nhảy (giữ ▲ còn để ngắm lên khi có súng / W đổi nửa Body).
 ##              ▼ = cúi; bấm đúp ▼ trên bệ = xuống khỏi bệ.
 ##   Góc phải:  nút ĐÁNH to (đấm theo chuỗi rồi tự đá), Né.
@@ -54,3 +55,14 @@ func _ready() -> void:
 		b.player = player
 		add_child(b)
 		_buttons.append(b)
+	_layout()
+	get_viewport().size_changed.connect(_layout)
+
+
+## Nút bám mép gần nhất của màn hình thật.
+func _layout() -> void:
+	var e := Screen.extra(self)
+	for i in _buttons.size():
+		var p: Vector2 = LAYOUT[i][2]
+		_buttons[i].position = p + Vector2(e.x if p.x > Screen.DESIGN.x / 2.0 else 0.0,
+			e.y if p.y > Screen.DESIGN.y / 2.0 else 0.0)

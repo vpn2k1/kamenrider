@@ -15,6 +15,8 @@ signal fragments_changed(amount: int)
 signal form_unlocked(rider_id: StringName, form_id: StringName)
 
 const SAVE_PATH := "user://save.json"
+## Cài đặt người chơi (tên nhân vật), tách khỏi save tiến trình: save cũ / hỏng bị làm lại thì tên vẫn còn.
+const SETTINGS_PATH := "user://settings.cfg"
 const SAVE_VERSION := 4                ## 4: OOO có 9 màn (chỉ số màn thế giới 12 đổi)
 const MAX_LEVEL := 5
 const MAX_ITEMS := 2                    ## số item (vũ khí) mang vào một màn
@@ -75,12 +77,20 @@ var carried_items: Array[StringName] = []   ## item của Rider chính mang vào
 var carried_forms: Array[StringName] = []
 var worlds_cleared := 0
 var drivers := {}                       ## "kuuga" -> {"active": bool, "level": int, "forms": ["dragon", ...]}
+## Tăng sức mạnh khi chơi lại màn đã qua: "kuuga" -> {"dragon" -> {"atk": 3, ...}}, mỗi điểm +BOOST_STEP chỉ số đó
+## cho riêng form đó (RiderForm.bonus). Chỉ số: BOOST_STATS.
+var form_bonus := {}
+const BOOST_STEP := 0.01
+const BOOST_STATS := {"hp": "Máu", "atk": "Sát thương", "armor": "Giáp", "speed": "Tốc độ", "jump": "Sức nhảy",
+	"poise": "Trụ vững"}
 var main_rider: StringName = &""        ## Rider dùng trong màn, chọn trước mỗi màn; trong màn không đổi Rider
 var equipped: Array[StringName] = []    ## [Rider chính] (một Rider mỗi màn)
 var memory_fragments := 0
 var cleared_stages: Array[String] = []
 var rei_memories: Array[String] = []    ## ký ức ẩn của Rei đã nhặt → điều kiện Kết thúc thật
 var player_name := DEFAULT_PLAYER_NAME
+## Đã đặt tên (lưu trong SETTINGS_PATH): mở game lại thì vào thẳng, không qua màn nhập tên (đổi tên ở màn hình chính).
+var name_set := false
 ## Hội thoại đã xem (StoryData): "intro", "1-1:start", "world:kuuga"... Mỗi đoạn chỉ hiện một lần mỗi lượt chơi,
 ## gục rồi chơi lại từ checkpoint không bị lặp.
 var seen_story: Array[String] = []
@@ -102,6 +112,7 @@ var checkpoint := -1
 
 func _ready() -> void:
 	_setup_input()
+	load_settings()
 	if not DEBUG_FRESH_START:
 		load_game()
 
@@ -118,11 +129,13 @@ func use_test_profile() -> void:
 	carried_forms.clear()
 	worlds_cleared = 0
 	drivers = {}
+	form_bonus = {}
 	main_rider = &""
 	memory_fragments = 0
 	cleared_stages.clear()
 	rei_memories.clear()
 	player_name = DEFAULT_PLAYER_NAME
+	name_set = false
 	seen_story.clear()
 	checkpoint = -1
 	versus_rider = &""
@@ -136,7 +149,8 @@ func use_test_profile() -> void:
 func set_player_name(value: String) -> void:
 	var cleaned := value.strip_edges().left(MAX_NAME_LENGTH)
 	player_name = cleaned if not cleaned.is_empty() else DEFAULT_PLAYER_NAME
-	save_game()
+	name_set = true
+	save_settings()
 
 
 ## Lời thoại viết "{name}" ở chỗ gọi tên nhân vật chính, hàm này thay bằng tên người chơi đã đặt.
@@ -463,6 +477,27 @@ func add_fragments(amount: int) -> void:
 
 # --- Lưu / đọc -----------------------------------------------------------
 
+## Hệ số của chỉ số `stat` cho form `form` của Rider `rider`: 1 + BOOST_STEP × số lần đã cộng.
+func bonus_mult(rider: StringName, form: StringName, stat: String) -> float:
+	var forms: Dictionary = form_bonus.get(String(rider), {})
+	return 1.0 + BOOST_STEP * int((forms.get(String(form), {}) as Dictionary).get(stat, 0))
+
+
+func bonus_count(rider: StringName, form: StringName, stat: String) -> int:
+	var forms: Dictionary = form_bonus.get(String(rider), {})
+	return int((forms.get(String(form), {}) as Dictionary).get(stat, 0))
+
+
+## Cộng thêm BOOST_STEP vào chỉ số `stat` của form, lưu game.
+func add_bonus(rider: StringName, form: StringName, stat: String) -> void:
+	var forms: Dictionary = form_bonus.get(String(rider), {})
+	var stats: Dictionary = forms.get(String(form), {})
+	stats[stat] = int(stats.get(stat, 0)) + 1
+	forms[String(form)] = stats
+	form_bonus[String(rider)] = forms
+	save_game()
+
+
 func save_game() -> void:
 	if not persist:
 		return
@@ -474,11 +509,11 @@ func save_game() -> void:
 		"frontier_stage": frontier_stage,
 		"worlds_cleared": worlds_cleared,
 		"drivers": drivers,
+		"form_bonus": form_bonus,
 		"main_rider": str(main_rider),
 		"fragments": memory_fragments,
 		"cleared_stages": cleared_stages,
 		"rei_memories": rei_memories,
-		"player_name": player_name,
 		"seen_story": seen_story,
 		"versus": {"rider": str(versus_rider), "form": str(versus_form), "items": versus_items.map(func(f): return str(f))},
 	}
@@ -487,6 +522,23 @@ func save_game() -> void:
 		push_error("Không ghi được save: %s" % FileAccess.get_open_error())
 		return
 	file.store_string(JSON.stringify(data, "\t"))
+
+
+func save_settings() -> void:
+	if not persist:
+		return
+	var cfg := ConfigFile.new()
+	cfg.set_value("player", "name", player_name)
+	cfg.set_value("player", "name_set", name_set)
+	cfg.save(SETTINGS_PATH)
+
+
+func load_settings() -> void:
+	var cfg := ConfigFile.new()
+	if not persist or cfg.load(SETTINGS_PATH) != OK:
+		return
+	player_name = str(cfg.get_value("player", "name", DEFAULT_PLAYER_NAME))
+	name_set = bool(cfg.get_value("player", "name_set", false))
 
 
 func load_game() -> void:
@@ -505,6 +557,7 @@ func load_game() -> void:
 	frontier_stage = int(data.get("frontier_stage", 0))
 	worlds_cleared = int(data.get("worlds_cleared", 0))
 	drivers = data.get("drivers", {})
+	form_bonus = data.get("form_bonus", {})
 	main_rider = StringName(str(data.get("main_rider", "")))
 	memory_fragments = int(data.get("fragments", 0))
 	cleared_stages.clear()
@@ -513,7 +566,9 @@ func load_game() -> void:
 	rei_memories.clear()
 	for s in data.get("rei_memories", []):
 		rei_memories.append(str(s))
-	player_name = str(data.get("player_name", DEFAULT_PLAYER_NAME))
+	# Save trước khi có file cài đặt: lấy tên từ save sang cài đặt.
+	if not name_set and str(data.get("player_name", DEFAULT_PLAYER_NAME)) != DEFAULT_PLAYER_NAME:
+		set_player_name(str(data["player_name"]))
 	seen_story.clear()
 	for s in data.get("seen_story", []):
 		seen_story.append(str(s))

@@ -147,6 +147,10 @@ func animation_prefix() -> String:
 	return "faiz" if form == &"faiz" else "faiz_" + String(form)
 
 
+func form_display_name() -> String:
+	return str(FORMS[form]["name"])
+
+
 func final_attack_name() -> String:
 	return "Accel Crimson Smash" if is_axel() else "Crimson Smash"
 

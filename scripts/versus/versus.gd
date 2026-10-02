@@ -91,6 +91,8 @@ var camera: Camera2D
 var hud: VersusHud
 var touch: Node2D
 var _flash: ColorRect
+var _backdrop: FinisherBackdrop     ## phông tuyệt chiêu sau trận đánh (xem stage_run.gd)
+var _cutin: SkillCutIn
 var _menu_root: Control
 var _room_root: Control
 var _rider_select: RiderSelect
@@ -122,6 +124,12 @@ func _ready() -> void:
 	multiplayer.server_disconnected.connect(_on_server_lost)
 	CombatDirector.shake_requested.connect(_on_shake)
 	CombatDirector.final_attack_started.connect(_on_final_attack)
+	CombatDirector.final_attack_landed.connect(func() -> void:
+		if _backdrop:
+			_backdrop.impact())
+	CombatDirector.skill_used.connect(func(label: String, color: Color) -> void:
+		if _cutin and screen == Screen.MATCH:
+			_cutin.skill(label, color))
 	_build_arena()
 	_build_ui()
 	_show_menu("")
@@ -715,26 +723,36 @@ func _net_shot(pos: Vector2, vel: Vector2, radius: float, color: Color, pierce: 
 	p.global_position = pos
 
 
-func _on_final_attack(_rider_id: StringName, attack_name: String) -> void:
+func _on_final_attack(rider_id: StringName, attack_name: String) -> void:
 	if screen != Screen.MATCH:
 		return
-	_show_final(attack_name)
+	_show_final(attack_name, rider_id, me)
 	if lan.is_online():
-		_net_final.rpc(attack_name)
+		_net_final.rpc(attack_name, String(rider_id))
 
 
 @rpc("any_peer", "call_remote", "reliable")
-func _net_final(attack_name: String) -> void:
+func _net_final(attack_name: String, rider_id := "") -> void:
 	if screen == Screen.MATCH:
-		_show_final(attack_name)
+		_show_final(attack_name, StringName(rider_id), null)
 
 
-func _show_final(attack_name: String) -> void:
+## Tung Final: phông tuyệt chiêu + cut-in (đòn của máy kia: không có chân dung, màu theo màu Rider).
+func _show_final(attack_name: String, rider_id: StringName, who: Player) -> void:
 	if not _round_live:
 		return
-	_set_banner(attack_name.to_upper(), "", 1.2)
+	var color := WorldData.rider_color(rider_id)
+	var mark := ""
+	if who and who.current_form:
+		var fx := who.current_fx()
+		color = fx["color"]
+		mark = str(fx["signature"]) if str(fx["signature"]) != "" else str(fx["intro"])
+	_backdrop.play(rider_id, color, mark)
+	_cutin.final(attack_name, color, who.sprite if who else null,
+		who.current_form.animation_prefix() + "_idle" if who and who.current_form else "")
+	CombatDirector.hit_stop(0.16, 0.1)
 	_flash.visible = true
-	_flash.color = Color(1, 1, 1, 0.55)
+	_flash.color = Color(1, 1, 1, 0.35)
 	var tw := create_tween()
 	tw.tween_property(_flash, "color:a", 0.0, 0.25)
 	tw.tween_callback(func() -> void: _flash.visible = false)
@@ -888,23 +906,26 @@ func _build_arena() -> void:
 	sky.layer = -10
 	add_child(sky)
 	var sky_rect := ColorRect.new()
-	sky_rect.size = VIEW
 	sky_rect.color = BG_TEX.get_image().get_pixel(0, 0) * BG_TINT
 	sky.add_child(sky_rect)
+	sky_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)   # phủ cả màn hình máy (Screen)
 	var bg := Sprite2D.new()
 	bg.texture = BG_TEX
 	bg.centered = false
 	bg.modulate = BG_TINT
 	bg.position = Vector2((VIEW.x - BG_TEX.get_width()) / 2.0, GROUND_Y + 24.0 - BG_TEX.get_height())
 	add_child(bg)
+	_backdrop = FinisherBackdrop.new()     # sau nền, trước sàn đấu và nhân vật (thêm trước world)
+	add_child(_backdrop)
 
 	world = Node2D.new()
 	world.name = "World"
 	add_child(world)
-	# Nền đất, hai vách hai bên (không cho chạy ra khỏi màn hình) và trần (nhảy cao không bay mất).
+	# Nền đất, hai vách hai bên (không cho chạy ra khỏi khung 480) và trần (nhảy cao không bay mất).
+	# Mặt đất vẽ rộng / sâu hơn khung: máy 20:9 / tablet thấy rộng / cao hơn 480×270 (Screen).
 	_solid(Rect2(-40.0, GROUND_Y, VIEW.x + 80.0, 80.0))
-	_tiles(TOP_TEX, -40.0, GROUND_Y - 16.0, VIEW.x + 80.0, 32.0)
-	_tiles(FILL_TEX, -40.0, GROUND_Y + 16.0, VIEW.x + 80.0, 64.0)
+	_tiles(TOP_TEX, -240.0, GROUND_Y - 16.0, VIEW.x + 480.0, 32.0)
+	_tiles(FILL_TEX, -240.0, GROUND_Y + 16.0, VIEW.x + 480.0, 128.0)
 	_solid(Rect2(-40.0, -300.0, 40.0, 600.0))
 	_solid(Rect2(VIEW.x, -300.0, 40.0, 600.0))
 	_solid(Rect2(-40.0, -80.0, VIEW.x + 80.0, 40.0))
@@ -929,16 +950,18 @@ func _build_arena() -> void:
 	var layer := CanvasLayer.new()
 	add_child(layer)
 	hud = VersusHud.new()
-	hud.size = VIEW
 	hud.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hud.wins_needed = WINS_NEEDED
 	hud.visible = false
 	layer.add_child(hud)
+	hud.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_flash = ColorRect.new()
-	_flash.size = VIEW
 	_flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_flash.visible = false
 	layer.add_child(_flash)
+	_flash.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_cutin = SkillCutIn.new()
+	layer.add_child(_cutin)
 	touch = Node2D.new()
 	touch.set_script(TOUCH_SCRIPT)
 	touch.visible = false
@@ -972,12 +995,12 @@ func _build_ui() -> void:
 	layer.layer = 5
 	add_child(layer)
 	var ui := Control.new()
-	ui.size = VIEW
 	ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var theme := Theme.new()
 	theme.default_font_size = 8
 	ui.theme = theme
 	layer.add_child(ui)
+	ui.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 	# Sảnh
 	var box := _screen(ui)
@@ -1059,16 +1082,16 @@ func _build_ui() -> void:
 ## Một màn hình giao diện: nền tối phủ đấu trường + cột giữa. Trả về cột (VBoxContainer).
 func _screen(parent: Control) -> VBoxContainer:
 	var root := Control.new()
-	root.size = VIEW
 	root.visible = false
 	parent.add_child(root)
+	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var dim := ColorRect.new()
-	dim.size = VIEW
 	dim.color = Color(0.03, 0.02, 0.08, 0.78)
 	root.add_child(dim)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var center := CenterContainer.new()
-	center.size = VIEW
 	root.add_child(center)
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 5)
 	center.add_child(box)

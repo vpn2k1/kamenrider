@@ -241,6 +241,10 @@ func punch_count() -> int:
 	return 2 if _hand_style() in ["heavy", "gunner"] else 3
 
 
+func form_display_name() -> String:
+	return str(_stats().get("name", display_name))
+
+
 func final_attack_name() -> String:
 	var attack_name := str(_stats().get("final", "Rider Kick"))
 	if _lv5() and str(data["lv5"].get("name", "")) != "":

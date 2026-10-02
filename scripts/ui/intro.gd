@@ -8,6 +8,7 @@ extends Control
 ##   mission    : bản đồ Chuỗi Trái Đất (EarthMap), chặng đầu là Trái Đất Kuuga
 ## Sau cùng là thẻ tựa "CHRONO HENSHIN", bấm để vào màn 1-1.
 ## Esc / "BỎ QUA" lúc nào cũng được: nhảy tới thẻ tựa.
+## Vẽ theo khung 480×270 đặt giữa màn hình (Screen.fit), phần màn hình dư ngoài khung tô màu nền vũ trụ.
 
 const NEXT_SCENE := "res://scenes/levels/stage_run.tscn"
 const EARTH_TEX := preload("res://art/story/earth.png")
@@ -52,6 +53,8 @@ var _grongi: Array[AnimatedSprite2D] = []
 
 func _ready() -> void:
 	GameState.take_story("intro")
+	set_anchors_preset(Control.PRESET_TOP_LEFT)
+	Screen.fit(self)
 	_hero = AnimatedSprite2D.new()
 	_hero.sprite_frames = HERO_FRAMES
 	_hero.position = Vector2(92, STREET_Y - 34.0)
@@ -72,8 +75,8 @@ func _ready() -> void:
 	_fade = ColorRect.new()
 	_fade.color = Color.BLACK
 	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_fade.size = get_viewport_rect().size
 	add_child(_fade)
+	_fit_fade()
 	_run()
 
 
@@ -133,6 +136,8 @@ func _start_game() -> void:
 
 
 func _process(delta: float) -> void:
+	Screen.fit(self)
+	_fit_fade()
 	_t += delta
 	if _scene == "pen":
 		# Grongi chạy tới từ mép phải sau vài giây.
@@ -160,14 +165,22 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		_skip_all = true
 	var t := event as InputEventScreenTouch
-	if t and t.pressed and not _dialogue.is_open() and DialogueBox.SKIP.has_point(t.position):
+	if t and t.pressed and not _dialogue.is_open() and DialogueBox.SKIP.has_point(Screen.local(self, t.position)):
 		get_viewport().set_input_as_handled()
 		_skip_all = true
 
 
 # --- Vẽ các cảnh ---------------------------------------------------------
 
+## Màn đen chuyển cảnh phủ cả màn hình máy, không chỉ khung 480×270.
+func _fit_fade() -> void:
+	var full := Screen.bleed(self)
+	_fade.position = full.position
+	_fade.size = full.size
+
+
 func _draw() -> void:
+	draw_rect(Screen.bleed(self), Color(0.03, 0.02, 0.08))
 	var rect := Rect2(Vector2.ZERO, size)
 	match _scene:
 		"multiverse":

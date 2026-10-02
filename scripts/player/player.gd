@@ -207,7 +207,7 @@ func current_armor() -> float:
 
 
 func current_speed() -> float:
-	return (current_form.move_speed if current_form else human_speed) * speed_mult * Units.SCALE
+	return (current_form.move_speed * current_form.bonus("speed") if current_form else human_speed) * speed_mult * Units.SCALE
 
 
 # --- Tài nguyên -----------------------------------------------------------
@@ -298,7 +298,7 @@ func _state_normal(delta: float) -> void:
 		if Input.is_action_pressed("move_down") and _on_platform():
 			_drop_through()            # ↓ + nhảy trên bệ = xuống khỏi bệ (như Contra)
 			return
-		velocity.y = jump_velocity * Units.SCALE * (current_form.jump_mult if current_form else 1.0)
+		velocity.y = jump_velocity * Units.SCALE * (current_form.jump_mult * current_form.bonus("jump") if current_form else 1.0)
 		Sound.sfx("jump", 0.03, -4.0)
 	if Input.is_action_just_pressed("move_down") and is_on_floor():
 		# Bấm đúp ↓ trên bệ = xuống khỏi bệ (nút cảm ứng không bấm được ↓ cùng lúc với nhảy).
@@ -583,10 +583,12 @@ static func _weapon_texture(look: String) -> Texture2D:
 	return _weapon_textures[look]
 
 
+## Hướng bắn. Nút ▲ cảm ứng bấm cùng lúc "jump" và "move_up": đang giữ nhảy thì "move_up" là của nút nhảy, không
+## tính là ngắm lên (nếu không, nhảy mà bắn thì đạn bay thẳng lên trời). Ngắm lên bằng W / ↑ trên bàn phím.
 func _aim_dir() -> Vector2:
 	var x := Input.get_axis("move_left", "move_right")
 	var y := 0.0
-	if Input.is_action_pressed("move_up"):
+	if Input.is_action_pressed("move_up") and not Input.is_action_pressed("jump"):
 		y = -1.0
 	elif Input.is_action_pressed("move_down") and not is_on_floor():
 		y = 1.0
@@ -685,6 +687,11 @@ func on_form_changed(form: RiderForm) -> void:
 		return
 	Sound.sfx("form_change", 0.0)
 	Sound.voice("%s_%s" % [form.rider_id, form.current_form_id()])
+	if form == current_form:
+		var fx := current_fx()
+		var mark := str(fx["intro"]) if str(fx["intro"]) != "" else (str(fx["signature"]) if str(fx["signature"]) != "" else "ring")
+		Fx.spawn(get_parent(), global_position + Vector2(0, -28) * Units.SCALE, mark, fx["color"], facing, 1.4)
+		CombatDirector.skill_used.emit(form.form_display_name(), fx["color"])
 
 
 ## Qua màn: giải trừ biến thân. Chạy ngược cảnh biến thân của Rider đang mang (Rider chưa có sprite thì chỉ chớp
@@ -793,7 +800,7 @@ func take_hit(info: DamageInfo) -> bool:
 		if rider_hp <= 0.0:
 			_henshin_break()
 			return true
-		if info.damage < current_form.poise:
+		if info.damage < current_form.poise * current_form.bonus("poise"):
 			return true   # siêu giáp: đòn nhẹ không làm Rider khựng
 	else:
 		var dmg := info.damage * 100.0 / (100.0 + HUMAN_ARMOR) * mult
@@ -1118,6 +1125,7 @@ func _on_hit_landed(target: Node, info: DamageInfo) -> void:
 		var fx := current_fx()
 		var at := (target as Node2D).global_position + Vector2(-facing * 4.0, -34.0)
 		if info.has_tag(&"final"):
+			CombatDirector.final_attack_landed.emit()
 			Fx.spawn(get_parent(), at, str(fx["final"]), fx["color"], facing, 1.6)
 			if str(fx["signature"]) != "":   # dấu ấn trên quái (phong ấn Kuuga, Φ của Faiz...)
 				Fx.spawn(get_parent(), at, str(fx["signature"]), fx["color"], facing, 1.3)

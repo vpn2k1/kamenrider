@@ -201,7 +201,7 @@ static func base_shot() -> Dictionary:
 
 
 func modify_incoming_damage(info: DamageInfo) -> float:
-	return info.damage * 100.0 / (100.0 + armor)
+	return info.damage * 100.0 / (100.0 + armor * bonus("armor"))
 
 
 ## Chỉ số form hiện tại ở cấp hiện tại, cho màn chọn Rider (gọi trên bản mới tạo = form gốc).
@@ -212,7 +212,19 @@ func stat_summary() -> Dictionary:
 
 
 func get_max_hp() -> float:
-	return max_hp * (1.0 + HP_PER_LEVEL * (level - 1)) * power
+	return max_hp * (1.0 + HP_PER_LEVEL * (level - 1)) * power * bonus("hp")
+
+
+## Hệ số tăng sức mạnh của form đang dùng (GameState.form_bonus, nhận khi chơi lại màn đã qua). stat: GameState.BOOST_STATS.
+func bonus(stat: String) -> float:
+	return GameState.bonus_mult(rider_id, current_form_id(), stat)
+
+
+## Cộng một điểm tăng sức mạnh vào form đang dùng, giữ nguyên tỉ lệ máu.
+func add_bonus(stat: String) -> void:
+	var old_max := get_max_hp()
+	GameState.add_bonus(rider_id, current_form_id(), stat)
+	_notify_max_hp(old_max)
 
 
 ## Đổi form hoặc lên cấp làm máu tối đa thay đổi → báo Player giữ nguyên tỉ lệ máu hiện có.
@@ -236,12 +248,17 @@ func _on_level_changed() -> void:
 
 ## Mỗi cấp +10% sát thương, nhân sức mạnh thế hệ.
 func level_mult() -> float:
-	return (1.0 + 0.1 * (level - 1)) * power
+	return (1.0 + 0.1 * (level - 1)) * power * bonus("atk")
 
 
 ## Tiền tố tên animation trong SpriteFrames của Player, ví dụ "kuuga_mighty" → "kuuga_mighty_run".
 func animation_prefix() -> String:
 	return String(rider_id)
+
+
+## Tên form đang dùng cho dải cut-in khi đổi form ("Dragon Form", "Type Wild"...).
+func form_display_name() -> String:
+	return display_name
 
 
 func final_attack_name() -> String:

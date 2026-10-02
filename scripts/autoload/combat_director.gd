@@ -6,6 +6,8 @@ extends Node
 
 signal enemy_time_scale_changed(value: float)
 signal final_attack_started(rider_id: StringName, attack_name: String)
+signal final_attack_landed()                          ## đòn tuyệt chiêu trúng (phông tuyệt chiêu rung, chớp)
+signal skill_used(label: String, color: Color)         ## đổi form / kỹ năng: dải cut-in nhỏ trên HUD
 signal shake_requested(strength: float)
 
 const MAX_ATTACK_TOKENS := 2

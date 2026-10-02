@@ -124,6 +124,10 @@ func animation_prefix() -> String:
 	return "kuuga_" + String(form)
 
 
+func form_display_name() -> String:
+	return "%s Form" % FORMS[form]["name"]
+
+
 func final_attack_name() -> String:
 	var attack_name := "Mighty Kick"
 	match form:

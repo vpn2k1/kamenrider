@@ -142,6 +142,9 @@ func _process(_delta: float) -> void:
 			pick.assign(forms.filter(func(f): return _counters(GameState.main_rider, f, special)).slice(0, 1))
 		stage._form_select.pick(pick)
 		return
+	if stage._boost_select.visible:
+		stage._boost_select.pick("atk")      # chơi lại màn đã qua: chọn Tăng sức mạnh
+		return
 	if stage.phase == stage.Phase.ITEMS:
 		# Màn EX: item khắc chế đứng đầu (chỉ mang được GameState.MAX_ITEMS món).
 		var items: Array[StringName] = GameState.owned_items(GameState.main_rider)
@@ -188,6 +191,7 @@ func _process(_delta: float) -> void:
 
 
 ## CAMP_FROM="2-4": bắt đầu từ màn đó, với Driver / cấp / form như khi chơi tới đó.
+## CAMP_REPLAY=1: màn bắt đầu tính là đã qua (chơi lại): kiểm tra Driver / form không rơi lại, có Tăng sức mạnh.
 func _jump_to(stage_id: String) -> void:
 	if stage_id == "":
 		return
@@ -205,6 +209,10 @@ func _jump_to(stage_id: String) -> void:
 				GameState.frontier_world = w
 				GameState.frontier_stage = i
 				GameState.worlds_cleared = w
+				if OS.get_environment("CAMP_REPLAY") != "":
+					# Chơi lại màn đã qua: món chính của màn đã có, màn tính là đã qua (rơi Tăng sức mạnh thay thế).
+					_grant(w, i)
+					GameState.cleared_stages.append(str(stages[i]["id"]))
 				return
 			_grant(w, i)
 	push_warning("CAMP_FROM: không có màn %s" % stage_id)
@@ -322,7 +330,8 @@ func _end_stage(result: String) -> void:
 		_problems.append(_form_check)
 	if player.current_form != null:
 		_problems.append("qua màn mà chưa giải trừ biến thân (đang là %s)" % _form_name())
-	# Hội thoại: "start" và "clear" luôn phải hiện; "goal" ở màn trùm; "key" khi màn có món chính.
+	# Hội thoại: "start" và "clear" luôn phải hiện; "goal" ở màn trùm; "key" khi màn có món chính (chơi lại màn đã qua
+	# thì món chính không rơi lại nên không có "key").
 	var beats: Dictionary = WorldData.stories.get(_stage_id, {})
 	var seen: Array[String] = []
 	for beat in ["start", "goal", "key", "clear"]:
@@ -330,7 +339,7 @@ func _end_stage(result: String) -> void:
 			seen.append(beat)
 		elif beats.has(beat) and (beat == "start" or beat == "clear"
 				or (beat == "goal" and stage_data["type"] == WorldData.StageType.BOSS)
-				or (beat == "key" and (stage_data["type"] == WorldData.StageType.AWAKEN
+				or (beat == "key" and OS.get_environment("CAMP_REPLAY") == "" and (stage_data["type"] == WorldData.StageType.AWAKEN
 					or (form != &"" and GameState.has_form(rider, form))))):
 			_problems.append("không hiện hội thoại \"%s\"" % beat)
 	var world_id: String = WorldData.WORLDS[_world_of(_stage_id)]["id"]
@@ -802,5 +811,7 @@ func _finish() -> void:
 		var d: Dictionary = GameState.drivers[id]
 		drivers.append("%s Lv%d %s%s" % [id, int(d["level"]), "" if d["active"] else "(phong ấn) ", str(d.get("forms", []))])
 	print("  Driver: " + ", ".join(drivers))
+	if not GameState.form_bonus.is_empty():
+		print("  Tăng sức mạnh: %s" % GameState.form_bonus)
 	print("[camp] %s" % ("TẤT CẢ OK" if _bad_stages == 0 else "%d màn có vấn đề" % _bad_stages))
 	get_tree().quit(_bad_stages)

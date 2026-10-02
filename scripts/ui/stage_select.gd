@@ -15,6 +15,7 @@ class_name StageSelect
 ##     Ô cuối "EX" (màn đặc biệt, mở khi đã giải cứu thế giới): bảng bên phải ghi loại quái đặc biệt, khả năng cần mang
 ##     và các form người chơi đang có khắc chế được (RiderCaps, tính một lần mỗi khi đổi ô).
 ## Vẽ bằng _draw như RiderSelect để giữ nét pixel; khung bo tròn vẽ bằng StyleBoxFlat không khử răng cưa.
+## Bố cục theo khung 480×270 đặt giữa màn hình (Screen.fit); nền, sao và dải thế giới tràn ra cả màn hình máy.
 
 signal chosen(world: int, stage: int)
 
@@ -76,8 +77,7 @@ func open(world: int, stage: int) -> void:
 	_world = clampi(world, 0, _last_world())
 	_stage = stage if GameState.is_stage_unlocked(_world, stage) else 0
 	mode = Mode.WORLD
-	position = Vector2.ZERO
-	size = get_viewport_rect().size
+	Screen.fit(self)
 	visible = true
 	_touching = false
 	_vel = 0.0
@@ -144,6 +144,7 @@ func _focus(instant := false) -> void:
 func _process(delta: float) -> void:
 	if not visible:
 		return
+	Screen.fit(self)   # đổi cỡ cửa sổ / xoay máy
 	_t += delta
 	_notice_time = maxf(0.0, _notice_time - delta)
 	if not _touching:
@@ -244,7 +245,7 @@ func _input(event: InputEvent) -> void:
 		return
 	var drag := event as InputEventScreenDrag
 	if drag and _touching:
-		if not _dragged and drag.position.distance_to(_press_pos) > DRAG_START:
+		if not _dragged and Screen.local(self, drag.position).distance_to(_press_pos) > DRAG_START:
 			_dragged = true
 		if _dragged:
 			var d := drag.relative.x if mode == Mode.WORLD else drag.relative.y
@@ -261,7 +262,7 @@ func _input(event: InputEvent) -> void:
 	if touch.pressed:
 		_touching = true
 		_dragged = false
-		_press_pos = touch.position
+		_press_pos = Screen.local(self, touch.position)
 		_vel = 0.0
 		_easing = false
 		return
@@ -269,7 +270,7 @@ func _input(event: InputEvent) -> void:
 	if _dragged:
 		return
 	_vel = 0.0
-	_tap(touch.position)
+	_tap(Screen.local(self, touch.position))
 
 
 func _tap(p: Vector2) -> void:
@@ -332,8 +333,9 @@ func _cell_rect(s: int) -> Rect2:
 # --- Vẽ -----------------------------------------------------------------------
 
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), BG)
-	EarthMap.draw_stars(self, Rect2(Vector2.ZERO, size), _t, 60)
+	var full := Screen.bleed(self)
+	draw_rect(full, BG)
+	EarthMap.draw_stars(self, full, _t, 60)
 	if mode == Mode.WORLD:
 		_draw_worlds()
 	else:
@@ -352,11 +354,12 @@ func _draw_worlds() -> void:
 	_text(Vector2(0, 30), "Trái Đất đã giải cứu: %d / %d · kéo để xem" % [saved, _world_count()], 7,
 		Color(0.8, 0.8, 0.92), size.x)
 	var frontier := GameState.frontier_world
+	var full := Screen.bleed(self)   # dải thế giới trải hết bề ngang màn hình
 	# Đường nối: vàng giữa hai thế giới đã qua, xích tinh thể tím tới các thế giới chưa mở
 	for w in _world_count() - 1:
 		var a := _orb_pos(w)
 		var b := _orb_pos(w + 1)
-		if b.x < -SPACING or a.x > size.x + SPACING:
+		if b.x < full.position.x - SPACING or a.x > full.end.x + SPACING:
 			continue
 		if w + 1 <= frontier:
 			draw_line(a, b, GOLD.darkened(0.15), 3.0)
@@ -367,18 +370,18 @@ func _draw_worlds() -> void:
 				_diamond(p, 2.5, Color(SEAL, 0.45 + 0.35 * sin(_t * 3.0 + float(j + w * 3))))
 	for w in _world_count():
 		var p := _orb_pos(w)
-		if p.x < -ORB_R_SEL * 2.0 or p.x > size.x + ORB_R_SEL * 2.0:
+		if p.x < full.position.x - ORB_R_SEL * 2.0 or p.x > full.end.x + ORB_R_SEL * 2.0:
 			continue
 		_draw_orb(w, p)
 	# Mép trái / phải mờ dần và mũi tên báo còn thế giới
 	for i in 16:
 		var a := 0.9 * (1.0 - i / 16.0)
-		draw_rect(Rect2(i * 2, 40, 2, 100), Color(BG, a))
-		draw_rect(Rect2(size.x - 2 - i * 2, 40, 2, 100), Color(BG, a))
+		draw_rect(Rect2(full.position.x + i * 2, 40, 2, 100), Color(BG, a))
+		draw_rect(Rect2(full.end.x - 2 - i * 2, 40, 2, 100), Color(BG, a))
 	if _scroll > 1.0:
-		_text(Vector2(4, STRIP_Y + 4), "◀", 10, Color(GOLD, 0.6 + 0.4 * sin(_t * 4.0)), 16)
+		_text(Vector2(full.position.x + 4, STRIP_Y + 4), "◀", 10, Color(GOLD, 0.6 + 0.4 * sin(_t * 4.0)), 16)
 	if _scroll < _max_scroll() - 1.0:
-		_text(Vector2(size.x - 20, STRIP_Y + 4), "▶", 10, Color(GOLD, 0.6 + 0.4 * sin(_t * 4.0)), 16)
+		_text(Vector2(full.end.x - 20, STRIP_Y + 4), "▶", 10, Color(GOLD, 0.6 + 0.4 * sin(_t * 4.0)), 16)
 	_draw_world_info()
 	_text(Vector2(0, 230), "◀ ▶ / kéo: chọn thế giới · chạm lần nữa / Đánh / Enter: vào", 7, Color(0.7, 0.7, 0.8),
 		size.x)
@@ -456,8 +459,9 @@ func _draw_stages() -> void:
 			continue
 		_draw_cell(s, stages[s], r, col)
 	# Che phần lưới tràn ra ngoài khung (trên tiêu đề, dưới đáy màn hình) và làm mờ mép
-	draw_rect(Rect2(0, 0, size.x, GRID_VIEW.position.y), BG)
-	draw_rect(Rect2(0, GRID_VIEW.end.y, size.x, size.y - GRID_VIEW.end.y), BG)
+	var full := Screen.bleed(self)
+	draw_rect(Rect2(full.position.x, full.position.y, full.size.x, GRID_VIEW.position.y - full.position.y), BG)
+	draw_rect(Rect2(full.position.x, GRID_VIEW.end.y, full.size.x, full.end.y - GRID_VIEW.end.y), BG)
 	for i in 5:
 		var a := 0.85 * (1.0 - i / 5.0)
 		draw_rect(Rect2(GRID_VIEW.position.x, GRID_VIEW.position.y + i * 2, GRID_VIEW.size.x, 2), Color(BG, a))

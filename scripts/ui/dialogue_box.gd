@@ -8,6 +8,7 @@ class_name DialogueBox
 ## (PROCESS_MODE_ALWAYS). Sau câu cuối đợi 2 khung hình rồi mới chạy lại game, để phím vừa bấm không
 ## lọt thành cú đấm / cú nhảy.
 ## backdrop "map": vẽ bản đồ Chuỗi Trái Đất (EarthMap) phía sau khung thoại.
+## Khung 480×270 đặt giữa và sát đáy màn hình (Screen.fit); nằm trong Control khác (phần mở đầu) thì theo khung cha.
 
 signal finished
 
@@ -40,8 +41,7 @@ func _init() -> void:
 
 
 func _ready() -> void:
-	position = Vector2.ZERO
-	size = get_viewport_rect().size
+	_fit()
 	_label = Label.new()
 	_label.add_theme_font_size_override("font_size", FONT_SIZE)
 	_label.add_theme_constant_override("line_spacing", 2)
@@ -139,6 +139,7 @@ func _close() -> void:
 func _process(delta: float) -> void:
 	if not _open:
 		return
+	_fit()
 	_t += delta
 	var total := _total()
 	if _label.visible_characters >= 0 and _label.visible_characters < total:
@@ -161,10 +162,18 @@ func _input(event: InputEvent) -> void:
 		advance()
 	elif event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed:
 		get_viewport().set_input_as_handled()
-		if SKIP.has_point((event as InputEventScreenTouch).position):
+		if SKIP.has_point(Screen.local(self, (event as InputEventScreenTouch).position)):
 			skip()
 		else:
 			advance()
+
+
+func _fit() -> void:
+	if get_parent() is Control:
+		position = Vector2.ZERO
+		size = Screen.DESIGN
+	else:
+		Screen.fit(self, true)
 
 
 ## Số ký tự của câu đang hiện. Không dùng Label.get_total_character_count(): ngay sau khi đổi chữ nó có thể
@@ -193,6 +202,7 @@ func _draw() -> void:
 		return
 	var font := ThemeDB.fallback_font
 	if _backdrop == "map":
+		draw_rect(Screen.bleed(self), Color(0.03, 0.02, 0.08))
 		EarthMap.draw(self, Rect2(Vector2.ZERO, size), GameState.worlds_cleared, _t, _fresh)
 	var col: Color = _speaker.get("color", Color.WHITE)
 	draw_rect(BOX, Color(0.03, 0.02, 0.08, 0.94))
