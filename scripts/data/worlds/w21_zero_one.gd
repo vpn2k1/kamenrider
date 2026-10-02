@@ -14,9 +14,9 @@ const WORLD := {
 	"driver_name": "Hiden Zero-One Driver",
 	"color": Color(0.8, 1.0, 0.2),
 	"enemies": {
-		"basic": {"name": "Trilobite Magia", "color": Color(0.58, 0.52, 0.45)},
-		"fast": {"name": "Berotha Magia", "color": Color(0.9, 0.72, 0.3)},
-		"armored": {"name": "Dodo Magia", "color": Color(0.62, 0.3, 0.35)},
+		"basic": {"name": "Trilobite Magia", "color": Color(0.58, 0.52, 0.45), "sprite": "trilobite_magia"},
+		"fast": {"name": "Berotha Magia", "color": Color(0.9, 0.72, 0.3), "sprite": "berotha_magia"},
+		"armored": {"name": "Dodo Magia", "color": Color(0.62, 0.3, 0.35), "sprite": "dodo_magia"},
 	},
 	"unlocks": [
 		"Rising Hopper (form gốc)",

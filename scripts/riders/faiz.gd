@@ -4,7 +4,8 @@ extends RiderForm
 ##                     Nộ tụt 10/giây (đầy thanh = 10 giây), không có súng. Final = Accel Crimson Smash.
 ##   2-4 Blaster Form: máu 200, giáp 40, ATK x1.3, bắn bằng Faiz Blaster (đạn to, xuyên).
 ## Special (L) đổi form theo vòng Faiz → Axel → Blaster (các form đã mở).
-## Nút Đánh: 3 đấm + 1 đá (mọi form của Faiz).
+## Nút Đánh: 3 đấm + 1 đá (mọi form của Faiz). Súng chỉ hiện ở tay lúc bắn: Faiz Phone, Faiz Blaster.
+## Crimson Smash: mũi Pointer hình nón ghim quái lại trước cú đá (&"stun").
 
 ## Faiz: nhanh, đánh mạnh, có súng ngay từ form gốc, nhưng máu và giáp mỏng.
 const FORMS := {
@@ -32,6 +33,8 @@ func _init() -> void:
 func on_enter(p: Player) -> void:
 	super(p)
 	_apply_form()
+	if is_axel():
+		_set_axel_effects(true)
 
 
 func on_exit() -> void:
@@ -66,10 +69,11 @@ func _next_form() -> StringName:
 func _set_form(form_id: StringName) -> void:
 	if not FORMS.has(form_id) or form_id == form:
 		return
-	if is_axel():
+	# Form chưa gắn vào nhân vật (bản xem trước ở màn chọn form) thì không bật hiệu ứng Axel; on_enter bật lại.
+	if is_axel() and player:
 		_set_axel_effects(false)
 	form = form_id
-	if is_axel():
+	if is_axel() and player:
 		_set_axel_effects(true)
 	_apply_form()
 
@@ -77,14 +81,23 @@ func _set_form(form_id: StringName) -> void:
 ## Faiz Phone: loạt 3 viên hơi xòe. Blaster: đạn to, xuyên. Axel không bắn (lao vào đánh gần).
 ## Hiệu ứng: tia Photon Blood đỏ; Crimson Smash là chóp nón đỏ chụp lên quái rồi nổ (vòng chấn động).
 const FX := {
-	&"faiz":    {"hit": "spark", "final": "ring", "color": Color(1.0, 0.25, 0.25)},
-	&"axel":    {"hit": "spark", "final": "ring", "color": Color(1.0, 0.35, 0.3)},
-	&"blaster": {"hit": "ring", "final": "ring", "color": Color(1.0, 0.2, 0.2)},
+	&"faiz":    {"intro": "pointer", "signature": "phi", "hit": "spark", "final": "ring", "color": Color(1.0, 0.25, 0.25)},
+	&"axel":    {"intro": "pointer", "signature": "phi", "hit": "spark", "final": "ring", "color": Color(1.0, 0.35, 0.3)},
+	&"blaster": {"intro": "pointer", "signature": "phi", "hit": "ring", "final": "ring", "color": Color(1.0, 0.2, 0.2)},
 }
 
 
 func fx() -> Dictionary:
 	return FX.get(form, {})
+
+
+func gun_look() -> String:
+	match form:
+		&"faiz":
+			return "faiz_phone"
+		&"blaster":
+			return "faiz_blaster"
+	return ""
 
 
 func get_shot() -> Dictionary:
@@ -111,6 +124,8 @@ func update(delta: float) -> void:
 func _set_axel_effects(on: bool) -> void:
 	_last_shown = -1
 	CombatDirector.set_enemy_time_scale(AXEL_ENEMY_SCALE if on else 1.0)
+	if on:
+		Sound.sfx("clock_up", 0.0)
 	if player:
 		player.speed_mult = AXEL_SPEED_MULT if on else 1.0
 
@@ -149,8 +164,12 @@ func get_attack(kind: StringName, _chain: int) -> Dictionary:
 				return make_attack(16.0, 0.2, 0.08, 0.5, Vector2(40, 24), Vector2(20, -14), Vector2(60, -20),
 					_tags([]), {"hits": 5, "lunge": Vector2(200, 0), "no_cancel": true})
 			return make_attack(60.0, 0.5, 0.25, 0.4, Vector2(26, 20), Vector2(16, -12), Vector2(260, -160),
-				_tags([&"heavy"]), {"lunge": Vector2(260, -140), "no_cancel": true})
+				_tags([&"heavy", &"stun"]), {"lunge": Vector2(260, -140), "no_cancel": true})
 	return {}
+
+
+func special_tags() -> Array:
+	return [&"time"] if is_axel() else []
 
 
 func _tags(base: Array) -> Array:

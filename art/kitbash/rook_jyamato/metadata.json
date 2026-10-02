@@ -1,0 +1,78 @@
+{
+  "kitbash": {
+    "body": "jaguar_lord",
+    "head": [
+      "round",
+      "crown",
+      "visor"
+    ],
+    "tone": [
+      0.32,
+      0.45,
+      0.5
+    ],
+    "accent": [
+      0.08,
+      0.6,
+      0.85
+    ],
+    "eye": [
+      250,
+      220,
+      60
+    ]
+  },
+  "states": [
+    {
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "east": "Idle/rotations/east.png"
+        },
+        "animations": {
+          "run": {
+            "east": [
+              "Idle/animations/run/east/frame_000.png",
+              "Idle/animations/run/east/frame_001.png",
+              "Idle/animations/run/east/frame_002.png",
+              "Idle/animations/run/east/frame_003.png",
+              "Idle/animations/run/east/frame_004.png",
+              "Idle/animations/run/east/frame_005.png"
+            ]
+          },
+          "attack": {
+            "east": [
+              "Idle/animations/attack/east/frame_000.png",
+              "Idle/animations/attack/east/frame_001.png",
+              "Idle/animations/attack/east/frame_002.png",
+              "Idle/animations/attack/east/frame_003.png",
+              "Idle/animations/attack/east/frame_004.png",
+              "Idle/animations/attack/east/frame_005.png"
+            ]
+          },
+          "hurt": {
+            "east": [
+              "Idle/animations/hurt/east/frame_000.png",
+              "Idle/animations/hurt/east/frame_001.png",
+              "Idle/animations/hurt/east/frame_002.png",
+              "Idle/animations/hurt/east/frame_003.png",
+              "Idle/animations/hurt/east/frame_004.png",
+              "Idle/animations/hurt/east/frame_005.png"
+            ]
+          },
+          "die": {
+            "east": [
+              "Idle/animations/die/east/frame_000.png",
+              "Idle/animations/die/east/frame_001.png",
+              "Idle/animations/die/east/frame_002.png",
+              "Idle/animations/die/east/frame_003.png",
+              "Idle/animations/die/east/frame_004.png",
+              "Idle/animations/die/east/frame_005.png",
+              "Idle/animations/die/east/frame_006.png"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

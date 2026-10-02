@@ -6,13 +6,14 @@ config_version=5
 [application]
 
 config/name="Kamen Rider Chrono Henshin (fan game)"
-run/main_scene="res://scenes/ui/name_entry.tscn"
+run/main_scene="res://scenes/ui/main_menu.tscn"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 
 [autoload]
 
 GameState="*res://scripts/autoload/game_state.gd"
 CombatDirector="*res://scripts/autoload/combat_director.gd"
+Sound="*res://scripts/autoload/sound.gd"
 
 [display]
 
@@ -45,3 +46,4 @@ pointing/emulate_touch_from_mouse=true
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 textures/canvas_textures/default_texture_filter=0
+textures/vram_compression/import_etc2_astc=true

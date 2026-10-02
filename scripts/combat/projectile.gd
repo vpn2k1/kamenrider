@@ -18,6 +18,8 @@ var life := 1.0
 var source: Node = null
 var style := "ball"
 var hit_fx := ""
+## Bản sao để nhìn (chế độ đấu: đạn của đối thủ do máy đối thủ tính trúng). Chạm Hurtbox phe kia thì tan, không gây sát thương.
+var visual_only := false
 
 var _hit: Array = []
 
@@ -48,6 +50,10 @@ func _on_area_entered(area: Area2D) -> void:
 	if hurtbox == null or hurtbox.team == team or _hit.has(hurtbox):
 		return
 	_hit.append(hurtbox)
+	if visual_only:
+		if not pierce:
+			queue_free()
+		return
 	var dir := 1 if velocity.x >= 0.0 else -1
 	# Người bắn có thể đã chết khi đạn còn bay: khi đó bỏ source (hướng đẩy lùi lấy theo hướng đạn).
 	var src: Node = source if is_instance_valid(source) else null
@@ -58,6 +64,9 @@ func _on_area_entered(area: Area2D) -> void:
 		hit_landed.emit(hurtbox.get_parent(), info)
 		if not pierce:
 			queue_free()
+	elif info.blocked:
+		Fx.spawn(get_parent(), global_position, "spark", Color(0.75, 0.75, 0.8), -dir)
+		queue_free()
 
 
 func _on_body_entered(_body: Node2D) -> void:

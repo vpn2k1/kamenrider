@@ -14,9 +14,9 @@ const WORLD := {
 	"driver_name": "Kabuto Zecter",
 	"color": Color(1.0, 0.22, 0.25),
 	"enemies": {
-		"basic": {"name": "Salis Worm", "color": Color(0.45, 0.72, 0.32)},
-		"fast": {"name": "Musca Worm", "color": Color(0.55, 0.4, 0.8)},
-		"armored": {"name": "Cochlea Worm", "color": Color(0.62, 0.55, 0.4)},
+		"basic": {"name": "Salis Worm", "color": Color(0.45, 0.72, 0.32), "sprite": "salis_worm"},
+		"fast": {"name": "Musca Worm", "color": Color(0.55, 0.4, 0.8), "sprite": "musca_worm"},
+		"armored": {"name": "Cochlea Worm", "color": Color(0.62, 0.55, 0.4), "sprite": "cochlea_worm"},
 	},
 	"unlocks": [
 		"Rider Form (form gốc)",
@@ -55,6 +55,16 @@ const RIDER := {
 			"time_call": "HYPER CLOCK UP", "effect": "time"},
 	},
 	"lv5": {"name": "Perfect Zecter", "final_mult": 1.5},
+	"final_fx": {"intro": "tachyon"},
+}
+
+## Giọng đai / tiếng hô (tools/gen_audio.py → audio/voice/<rider>_<khóa>.wav): "henshin" lúc biến thân, khóa = id form
+## lúc đổi sang form đó, "final" lúc Final Attack. Mỗi dòng: [kiểu giọng, câu]
+## (kiểu giọng: belt / belt_deep / belt_bright / kivat / hero, xem VOICES trong gen_audio.py).
+const VOICE := {
+	"henshin": ["belt", "Henshin. Change, Beetle."],
+	"hyper": ["belt", "Hyper Cast Off. Change, Hyper Beetle. Hyper Clock Up."],
+	"final": ["belt", "One. Two. Three. Rider Kick."],
 }
 
 const SPEAKERS := {

@@ -14,9 +14,9 @@ const WORLD := {
 	"driver_name": "Den-O Belt",
 	"color": Color(1.0, 0.35, 0.5),
 	"enemies": {
-		"basic": {"name": "Mole Imagin", "color": Color(0.62, 0.5, 0.38)},
-		"fast": {"name": "Bat Imagin", "color": Color(0.5, 0.35, 0.62)},
-		"armored": {"name": "Rhino Imagin", "color": Color(0.5, 0.52, 0.56)},
+		"basic": {"name": "Mole Imagin", "color": Color(0.62, 0.5, 0.38), "sprite": "mole_imagin"},
+		"fast": {"name": "Bat Imagin", "color": Color(0.5, 0.35, 0.62), "sprite": "bat_imagin"},
+		"armored": {"name": "Rhino Imagin", "color": Color(0.5, 0.52, 0.56), "sprite": "rhino_imagin"},
 	},
 	"unlocks": [
 		"Sword Form (form gốc)",
@@ -49,17 +49,35 @@ const RIDER := {
 	"order": [&"sword", &"rod", &"ax", &"gun"],
 	"forms": {
 		&"sword": {"name": "Sword Form", "style": "blade", "hp": 165.0, "armor": 25.0, "speed": 130.0,
-			"jump": 1.05, "atk": 1.15, "poise": 9.0, "final": "Extreme Slash"},
+			"jump": 1.05, "atk": 1.15, "poise": 9.0, "final": "Extreme Slash", "blade": {"look": "dengasher_sword"},
+			"attacks": {"final": {"hits": 2, "damage": 34.0, "size": Vector2(70, 24), "offset": Vector2(34, -16)}},
+			"fx": {"hit": "spark", "swing": "slash", "final": "slash", "color": Color(1.0, 0.3, 0.3)}},
 		&"rod": {"name": "Rod Form", "style": "lancer", "hp": 145.0, "armor": 18.0, "speed": 150.0,
-			"jump": 1.15, "atk": 0.95, "poise": 5.0, "final": "Solid Attack"},
+			"jump": 1.15, "atk": 0.95, "poise": 5.0, "final": "Solid Attack", "blade": {"look": "dengasher_rod", "style": "lancer"}, "attacks": {"final": {"tags": [&"stun"]}},
+			"fx": {"hit": "spark", "swing": "slash", "final": "ring", "color": Color(0.35, 0.55, 1.0)}},
 		&"ax": {"name": "Ax Form", "style": "heavy", "hp": 210.0, "armor": 55.0, "speed": 82.0,
-			"jump": 0.85, "atk": 1.42, "poise": 20.0, "final": "Dynamic Chop"},
-		&"gun": {"name": "Gun Form", "style": "gunner", "hp": 138.0, "armor": 12.0, "speed": 135.0,
-			"jump": 1.1, "atk": 1.0, "poise": 5.0, "final": "Wild Shot",
+			"jump": 0.85, "atk": 1.42, "poise": 20.0, "final": "Dynamic Chop", "blade": {"look": "dengasher_axe", "style": "heavy"},
+			"attacks": {"final": {"knockback": Vector2(20, -340), "tags": [&"force"]}},
+			"fx": {"hit": "ring", "final": "ring", "color": Color(1.0, 0.85, 0.3)}},
+		&"gun": {"look": "dengasher_gun", "name": "Gun Form", "style": "gunner", "hp": 138.0, "armor": 12.0, "speed": 135.0,
+			"jump": 1.1, "atk": 1.0, "poise": 5.0, "final": "Wild Shot", "attacks": {"final": {"hits": 3, "damage": 18.0}},
+			"fx": {"hit": "spark", "shot": "ball", "final": "ring", "color": Color(0.7, 0.4, 1.0)},
 			"gun": {"damage": 6.0, "speed": 420.0, "cooldown": 0.22, "radius": 3.0, "color": Color(0.7, 0.4, 1.0),
 				"life": 0.9}},
 	},
 	"lv5": {"name": "Climax Form", "final_mult": 1.5},
+	"final_fx": {"signature": "slash"},
+}
+
+## Giọng đai / tiếng hô (tools/gen_audio.py → audio/voice/<rider>_<khóa>.wav): "henshin" lúc biến thân, khóa = id form
+## lúc đổi sang form đó, "final" lúc Final Attack. Mỗi dòng: [kiểu giọng, câu]
+## (kiểu giọng: belt / belt_deep / belt_bright / kivat / hero, xem VOICES trong gen_audio.py).
+const VOICE := {
+	"henshin": ["belt_bright", "Sword Form."],
+	"rod": ["belt_bright", "Rod Form."],
+	"ax": ["belt_bright", "Ax Form."],
+	"gun": ["belt_bright", "Gun Form."],
+	"final": ["belt_bright", "Full Charge."],
 }
 
 const SPEAKERS := {
@@ -86,7 +104,7 @@ const STORY := {
 		],
 		"clear": [
 			["ryotaro", "Imagin bám vào ký ức con người để quay về quá khứ. Ký ức chính là thời gian đấy."],
-			["pen", "Sword Form: kiếm DenGasher, chém ba nhát rồi phá giáp. Ba Imagin còn lại đang bị lũ quái nuốt mất."],
+			["pen", "Sword Form: bấm Chém để vung DenGasher, ba nhát rồi phá giáp. Extreme Slash phóng lưỡi kiếm bay. Ba Imagin còn lại bị quái nuốt."],
 		],
 	},
 	"2": {
@@ -94,7 +112,7 @@ const STORY := {
 			["ryotaro", "Bat Imagin lượn quanh bến sông. Urataros chắc ở gần đây, anh ấy thích chỗ có nước."],
 		],
 		"key": [
-			["narrator", "Một giọng nói ngọt xớt vang lên: Urataros nhập vào! Rod Form cầm cần câu dài, đánh xa hơn, nhẹ mà nhanh."],
+			["narrator", "Một giọng nói ngọt xớt vang lên: Urataros nhập vào! Rod Form chém bằng cần câu dài. Solid Attack quăng lưới trói quái."],
 			["hero", "Muốn bị tôi câu không?"],
 		],
 		"clear": [
@@ -106,7 +124,7 @@ const STORY := {
 			["ryotaro", "Rhino Imagin chiếm công trường, da dày như tường bê tông. Phải nhờ Kintaros thôi, anh ấy khỏe nhất bọn."],
 		],
 		"key": [
-			["narrator", "Tiếng bẻ cổ răng rắc: Kintaros nhập vào! Ax Form chậm, nhưng rìu bổ một nhát là giáp nào cũng vỡ."],
+			["narrator", "Tiếng bẻ cổ răng rắc: Kintaros nhập vào! Ax Form chậm, nhưng bổ rìu là giáp nào cũng vỡ, Dynamic Chop hất tung quái."],
 			["hero", "Sức mạnh của ta khiến ngươi phải khóc! Nước mắt thì lau bằng cái này!"],
 		],
 		"clear": [
@@ -118,7 +136,7 @@ const STORY := {
 			["pen", "Sa mạc thời gian, nơi tàu Den-Liner chạy qua. Imagin đông lắm, phải đứng xa mà quét. Mong là Ryutaros không dỗi."],
 		],
 		"key": [
-			["narrator", "{name} bỗng nhún nhảy theo điệu nhạc không ai nghe thấy: Ryutaros nhập vào! Gun Form bắn liên thanh, nhưng giáp mỏng."],
+			["narrator", "{name} nhún nhảy theo điệu nhạc không ai nghe thấy: Ryutaros nhập vào! Giữ nút Bắn để bắn liên thanh. Giáp mỏng."],
 			["hero", "Hạ ngươi được chứ? Ta không nghe trả lời đâu!"],
 		],
 		"clear": [

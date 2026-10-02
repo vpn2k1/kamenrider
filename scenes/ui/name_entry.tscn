@@ -65,3 +65,9 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 8
 text = "Bắt đầu (Enter)"
+
+[node name="BackButton" type="Button" parent="Center/Box"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 8
+text = "◀ Quay lại"

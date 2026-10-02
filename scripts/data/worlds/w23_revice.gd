@@ -14,9 +14,9 @@ const WORLD := {
 	"driver_name": "Revice Driver",
 	"color": Color(1.0, 0.42, 0.68),
 	"enemies": {
-		"basic": {"name": "Giffjunior", "color": Color(0.5, 0.45, 0.58)},
-		"fast": {"name": "Deadman", "color": Color(0.72, 0.3, 0.62)},
-		"armored": {"name": "Deadman giáp", "color": Color(0.45, 0.42, 0.5)},
+		"basic": {"name": "Giffjunior", "color": Color(0.5, 0.45, 0.58), "sprite": "giffjunior"},
+		"fast": {"name": "Deadman", "color": Color(0.72, 0.3, 0.62), "sprite": "deadman"},
+		"armored": {"name": "Deadman giáp", "color": Color(0.45, 0.42, 0.5), "sprite": "deadman_armored"},
 	},
 	"unlocks": [
 		"Rex Genome (form gốc)",

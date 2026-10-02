@@ -14,9 +14,9 @@ const WORLD := {
 	"driver_name": "Drive Driver",
 	"color": Color(0.95, 0.12, 0.15),
 	"enemies": {
-		"basic": {"name": "Roidmude Spider", "color": Color(0.6, 0.6, 0.66)},
-		"fast": {"name": "Roidmude Bat", "color": Color(0.55, 0.38, 0.8)},
-		"armored": {"name": "Roidmude Cobra", "color": Color(0.45, 0.62, 0.5)},
+		"basic": {"name": "Roidmude Spider", "color": Color(0.6, 0.6, 0.66), "sprite": "roidmude_spider"},
+		"fast": {"name": "Roidmude Bat", "color": Color(0.55, 0.38, 0.8), "sprite": "roidmude_bat"},
+		"armored": {"name": "Roidmude Cobra", "color": Color(0.45, 0.62, 0.5), "sprite": "roidmude_cobra"},
 	},
 	"unlocks": [
 		"Type Speed (form gốc)",
@@ -48,18 +48,40 @@ const RIDER := {
 	"base": &"speed",
 	"order": [&"speed", &"wild", &"technic", &"formula"],
 	"forms": {
+		# Type Speed: kiếm vô lăng Handle-Ken (nút Chém). SpeeDrop: Tridoron chạy vòng, Drive nảy đá liên tiếp 3 cú.
 		&"speed": {"name": "Type Speed", "style": "brawler", "hp": 155.0, "armor": 22.0, "speed": 140.0,
-			"jump": 1.05, "atk": 1.05, "poise": 7.0, "final": "SpeeDrop"},
+			"jump": 1.05, "atk": 1.05, "poise": 7.0, "final": "SpeeDrop", "blade": {"look": "handle_ken"},
+			"attacks": {"final": {"hits": 3, "damage": 20.0}},
+			"fx": {"hit": "spark", "swing": "slash", "final": "ring", "trail": true, "color": Color(1.0, 0.25, 0.25)}},
+		# Type Wild: mũi khoan Rumble Dump (nút Chém, đòn nặng). Full Throttle Wild: húc lao tới như xe tải, đẩy bay.
 		&"wild": {"name": "Type Wild", "style": "heavy", "hp": 205.0, "armor": 55.0, "speed": 85.0,
-			"jump": 0.85, "atk": 1.4, "poise": 18.0, "final": "Full Throttle: Wild"},
+			"jump": 0.85, "atk": 1.4, "poise": 18.0, "final": "Full Throttle: Wild",
+			"blade": {"look": "rumble_dump", "style": "heavy"},
+			"attacks": {"final": {"lunge": Vector2(220, 0), "tags": [&"force"]}},
+			"fx": {"hit": "ring", "swing": "slash", "final": "ring", "color": Color(0.8, 0.8, 0.88)}},
+		# Type Technic: súng cửa Door-Ju bắn chuẩn. Full Throttle Technic: loạt 3 phát chính xác ghim quái (choáng).
 		&"technic": {"name": "Type Technic", "style": "gunner", "hp": 145.0, "armor": 18.0, "speed": 118.0,
 			"jump": 1.0, "atk": 0.95, "poise": 5.0, "final": "Full Throttle: Technic",
-			"gun": {"damage": 7.5, "speed": 420.0, "cooldown": 0.32, "radius": 3.0,
-				"color": Color(0.35, 0.95, 0.45), "life": 0.9}},
+			"gun": {"look": "door_ju", "damage": 7.5, "speed": 420.0, "cooldown": 0.32, "radius": 3.0,
+				"color": Color(0.35, 0.95, 0.45), "life": 0.9},
+			"attacks": {"final": {"hits": 3, "damage": 18.0, "tags": [&"stun"]}},
+			"fx": {"hit": "spark", "shot": "ball", "final": "ring", "color": Color(0.35, 0.95, 0.45)}},
+		# Type Formula: tăng tốc thời gian (xem DataRider "effect").
 		&"formula": {"name": "Type Formula", "style": "lancer", "hp": 130.0, "armor": 10.0, "speed": 180.0,
-			"jump": 1.25, "atk": 0.95, "poise": 4.0, "effect": "time", "final": "Formula Drop"},
+			"jump": 1.25, "atk": 0.95, "poise": 4.0, "effect": "time", "time_call": "TYPE FORMULA", "final": "Formula Drop",
+			"fx": {"hit": "spark", "final": "ring", "trail": true, "color": Color(0.3, 0.55, 1.0)}},
 	},
 	"lv5": {"name": "Type Tridoron", "final_mult": 1.5},
+	"final_fx": {"intro": "tire"},
+}
+
+## Giọng Drive Driver (tools/gen_audio.py → audio/voice/drive_<khóa>.wav), xem VOICE của w01_kuuga.gd.
+const VOICE := {
+	"henshin": ["belt", "Drive! Type Speed!"],
+	"wild": ["belt", "Drive! Type Wild!"],
+	"technic": ["belt", "Drive! Type Technic!"],
+	"formula": ["belt", "Drive! Type Formula!"],
+	"final": ["belt", "Hissatsu! Full Throttle!"],
 }
 
 const SPEAKERS := {

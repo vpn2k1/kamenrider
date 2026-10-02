@@ -5,8 +5,9 @@ extends Node2D
 ##   - Màn chọn màn (StageSelect, chọn thế giới rồi chọn màn): sau mỗi màn và khi bấm Menu (Esc / P / nút ≡)
 ##     trong màn. Lần đầu chơi (chưa qua màn nào) vào thẳng 1-1, không qua màn chọn.
 ##     Màn mở dần (qua màn xa nhất thì mở màn kế), màn đã mở chơi lại được để luyện cấp và nhặt item.
-##   - Trước khi vào màn: chọn MỘT Rider (RiderSelect, khi có từ 2 Rider) rồi chọn item mang theo (ItemSelect,
-##     tối đa GameState.MAX_ITEMS, khi Rider đó đã nhặt item). Trong màn không đổi sang Rider khác.
+##   - Trước khi vào màn: chọn MỘT Rider (RiderSelect, khi có từ 2 Rider), MỘT form biến đổi (FormSelect, khi Rider
+##     đã nhặt form; form gốc = không mang) rồi item mang theo (ItemSelect, tối đa GameState.MAX_ITEMS, khi Rider đã
+##     nhặt item). Trong màn không đổi sang Rider khác; form nhặt giữa màn dùng được ngay.
 ##     Gục thì tải lại thẳng vào màn từ checkpoint (GameState.in_stage), không hỏi lại.
 ##   - Camera chạy trên đường gấp khúc của bố cục (vị trí là quãng đường cam_s) và đi theo người chơi CẢ HAI
 ##     CHIỀU: chạy ngược lại, leo ngược giếng tụt, rơi xuống giếng leo đều được. Camera nhìn trước CAMERA_LEAD
@@ -31,6 +32,10 @@ extends Node2D
 ##       Luyện tập  → qua màn (chưa nhặt được form của màn thì form rơi ở vạch đích, nhặt mới qua)
 ##       Thức tỉnh  → đánh nhóm quái canh giữ → chưa có Driver thì Driver rơi ra → nhặt
 ##       Trùm       → khóa camera ở đấu trường, đánh trùm → Driver thế giới kế rơi ra → nhặt
+##       EX         → đánh nhóm canh giữ cuối → qua màn (thưởng Mảnh Ký Ức lần đầu)
+##   - Màn EX (WorldData.StageType.CHALLENGE): quái đặc biệt (Enemy.SPECIALS) chỉ nhận đòn của form khắc chế.
+##     Đầu màn báo loại quái và form phù hợp đang có (RiderCaps); đánh sai cách thì banner giải thích (IMMUNE_NAG).
+##     Nạp nộ rơi nhiều hơn (CHALLENGE_CHARGE_CHANCE) vì form khắc chế tốn nộ.
 ##   - Qua màn (_finish_stage): khóa điều khiển, dọn quái / đạn còn lại, GIẢI TRỪ BIẾN THÂN về dạng người,
 ##     thoại "clear" → (trùm) bản đồ Chuỗi Trái Đất → bảng kết quả → về màn chọn màn (con trỏ ở màn kế).
 ##     Dựng màn mới thì ĐỔI NỀN theo màn (WorldData "bg"). Mỗi màn (kể cả chơi lại từ checkpoint) bắt đầu ở dạng
@@ -59,6 +64,17 @@ const KEY_DROP_STEP := 0.05
 const CHARGE_DROP_CHANCE := 0.08
 const CHARGE_RAGE := 40.0
 const DROP_LIFETIME := 10.0
+const CHALLENGE_CHARGE_CHANCE := 0.3   ## màn EX: tỉ lệ rơi nạp nộ mỗi quái
+const IMMUNE_NAG := 4.0                ## giây giữa hai lần banner "quái này chỉ trúng..."
+## Chỉ số cấp 1 của quái đặc biệt (Enemy.SPECIALS), hình lấy theo loại quái thường "art" của thế giới.
+const SPECIAL_ENEMIES := {
+	"flying": {"art": "fast", "name": "%s có cánh", "hp": 24.0, "speed": 70.0, "damage": 7.0, "windup": 0.35,
+		"interval": 2.4},
+	"giant": {"art": "armored", "name": "%s khổng lồ", "hp": 150.0, "speed": 34.0, "damage": 18.0, "windup": 0.6,
+		"poise": 9999.0, "knockback": Vector2(220, -100)},
+	"phantom": {"art": "fast", "name": "%s siêu tốc", "hp": 22.0, "speed": 120.0, "damage": 8.0, "windup": 0.25},
+	"spectral": {"art": "basic", "name": "Bóng ma %s", "hp": 34.0, "speed": 52.0, "damage": 9.0, "windup": 0.45},
+}
 const KEY_STORY_DELAY := 1.0     ## giây chờ cảnh biến thân xong rồi mới hiện thoại "key"
 const FADE_TIME := 0.45          ## màn hình tối dần / sáng dần khi chuyển màn
 const DEFAULT_BG := "res://art/backgrounds/shibuya_night.png"
@@ -66,7 +82,7 @@ const BG_TINT := Color(0.78, 0.78, 0.86)   ## nền xa tối bớt để cảnh 
 const HUMAN_COLOR := Color(0.9, 0.9, 0.9)   ## khối tạm dạng người
 const TIME_TINT := Color(0.35, 0.55, 1.0, 0.16)   ## thời gian chậm lại: thế giới ngả xanh
 
-enum Phase { SELECT, RUN, GOAL_FIGHT, PICKUP, RESULT, DONE, TALK, TRANSITION, MAP, ITEMS }
+enum Phase { SELECT, RUN, GOAL_FIGHT, PICKUP, RESULT, DONE, TALK, TRANSITION, MAP, ITEMS, FORMS }
 
 @onready var player: Player = $Player
 @onready var placeholder: Polygon2D = $Player/Placeholder
@@ -103,6 +119,7 @@ var _key_misses := 0               ## số quái đã hạ mà món chính chưa
 var _walls: Array[CollisionShape2D] = []   ## 3 tường vô hình: đầu màn + hai bên đấu trường trùm
 var _select: RiderSelect
 var _stage_select: StageSelect
+var _form_select: FormSelect
 var _item_select: ItemSelect
 var _goal_nag := 0.0               ## hẹn giờ nhắc "còn quái" ở vạch đích
 var _dialogue: DialogueBox
@@ -111,6 +128,7 @@ var _time_tint: ColorRect          ## phủ xanh nhạt khi thời gian chậm l
 var _flash: ColorRect              ## chớp trắng khi tung Final Attack
 var _far_ground: ColorRect         ## tô phần dưới ảnh nền xa (lộ ra khi xuống tầng thấp trong giếng)
 var _pending_key := ""             ## mã màn có thoại "key" đang chờ cảnh biến thân xong ("" = không có)
+var _immune_nag := 0.0             ## hẹn giờ banner giải thích quái đặc biệt
 
 
 func _ready() -> void:
@@ -145,6 +163,11 @@ func _ready() -> void:
 	_stage_select.visible = false
 	_stage_select.chosen.connect(_on_stage_chosen)
 	$HUD.add_child(_stage_select)
+	_form_select = FormSelect.new()
+	_form_select.visible = false
+	_form_select.hint = "Form biến đổi đổi bằng Kỹ năng (L), tốn nộ · form nhặt giữa màn vẫn dùng được ngay"
+	_form_select.done.connect(_on_form_chosen)
+	$HUD.add_child(_form_select)
 	_item_select = ItemSelect.new()
 	_item_select.visible = false
 	_item_select.done.connect(_on_items_done)
@@ -188,6 +211,7 @@ func _open_map(show_select := true) -> void:
 		_on_stage_chosen(w, st)
 		return
 	_stage_select.open(w, st)
+	Sound.music("map")
 	_fade_to(0.0)
 
 
@@ -205,11 +229,27 @@ func _on_stage_chosen(world: int, stage: int) -> void:
 		return
 	if options.size() == 1:
 		GameState.choose_main(options[0])
-	_open_items()
+	_open_forms()
 
 
 func _on_rider_chosen(id: StringName) -> void:
 	GameState.choose_main(id)
+	_open_forms()
+
+
+## Chọn form biến đổi mang vào màn (tối đa 1, như trận đấu). Rider chưa nhặt form nào thì bỏ qua.
+func _open_forms() -> void:
+	var rider := GameState.main_rider
+	var forms := GameState.owned_forms(rider) if rider != &"" else ([] as Array[StringName])
+	if forms.is_empty():
+		_on_form_chosen([] as Array[StringName])
+		return
+	phase = Phase.FORMS
+	_form_select.open(rider, forms, GameState.carried_forms.slice(0, 1))
+
+
+func _on_form_chosen(forms: Array[StringName]) -> void:
+	GameState.set_carried_form(forms[0] if not forms.is_empty() else &"")
 	_open_items()
 
 
@@ -259,6 +299,7 @@ func _start_stage() -> void:
 	_drop = null
 	_pending_key = ""
 	var stage := GameState.current_stage()
+	Sound.music(_stage_music(stage))
 	layout = StageBuilder.build(stage, int(stage.get("tier", GameState.stage_index)))
 	for o in layout["overlaps"]:
 		push_warning("Màn %s: bố cục chồng lấn — %s" % [stage["id"], o])
@@ -315,10 +356,37 @@ func _begin_run() -> void:
 	var key := _key_item()
 	if not key.is_empty():
 		text += "\nQuái có thể rơi: %s" % key["name"]
+	if stage.has("special"):
+		text += "\n" + _special_brief(stage["special"])
 	text += "\nDiệt hết quái để qua màn"
 	if player.can_henshin():
 		text += "\nNộ đầy · bấm BIẾN THÂN (I) để biến thân"
-	_show_banner(text, 3.5)
+	_show_banner(text, 5.5 if stage.has("special") else 3.5)
+
+
+## Màn EX: loại quái đặc biệt, cách hạ, và form khắc chế đang mang (hoặc cảnh báo chưa mang).
+func _special_brief(special: StringName) -> String:
+	var how := str(Enemy.SPECIALS[special]["how"])
+	var rider := GameState.main_rider
+	var mine: Array[String] = []
+	var probe := GameState.create_form(rider) if rider != &"" else null
+	if probe:
+		for f in RiderCaps.all_forms(rider):
+			# Dùng được trong màn này (form gốc, form / item mang theo) và khắc chế được
+			if probe.has_form(f) and RiderCaps.counters(rider, f).has(special):
+				mine.append(FigurePicker.form_label(rider, f))
+		probe.free()
+	if mine.is_empty():
+		return how + "\n⚠ Chưa mang form khắc chế! (Menu → chọn lại form / item)"
+	return how + "\nForm khắc chế: %s" % ", ".join(mine)
+
+
+## Quái đặc biệt bị đánh sai cách: banner giải thích, cách nhau IMMUNE_NAG giây.
+func _on_enemy_immune(special: StringName) -> void:
+	if _immune_nag > 0.0 or phase not in [Phase.RUN, Phase.GOAL_FIGHT]:
+		return
+	_immune_nag = IMMUNE_NAG
+	_show_banner(str(Enemy.SPECIALS[special]["how"]), 2.2)
 
 
 ## Nền xa và màu trời theo màn (WorldData "bg", "bg_tint"). Ảnh rộng 800 px (tools/gen_backgrounds.py) lặp nguyên
@@ -400,7 +468,7 @@ func _add_tiles(tex: Texture2D, x: float, y: float, w: float, h: float) -> void:
 # --- Vòng lặp -------------------------------------------------------------
 
 func _physics_process(delta: float) -> void:
-	if phase in [Phase.DONE, Phase.SELECT, Phase.TALK, Phase.TRANSITION] or layout.is_empty():
+	if phase in [Phase.DONE, Phase.SELECT, Phase.FORMS, Phase.ITEMS, Phase.TALK, Phase.TRANSITION] or layout.is_empty():
 		return
 	_update_camera(delta)
 	_spawn_ahead()
@@ -420,6 +488,7 @@ func _process(delta: float) -> void:
 		if _banner_timer <= 0.0:
 			banner.text = ""
 	_goal_nag = maxf(_goal_nag - delta, 0.0)
+	_immune_nag = maxf(_immune_nag - delta, 0.0)
 	if _restarting:
 		return
 	if phase in [Phase.RUN, Phase.GOAL_FIGHT, Phase.PICKUP] and Input.is_action_just_pressed("menu"):
@@ -639,7 +708,10 @@ func _reach_goal() -> void:
 		cam_s = layout["length"]
 		_update_camera()
 		await _story(stage["id"], "goal")
+		Sound.sfx("boss_appear", 0.0)
 		_show_banner("TRÙM: %s" % stage["boss"]["name"], 2.5)
+	elif type == WorldData.StageType.CHALLENGE:
+		_show_banner("Hạ nhóm canh giữ cuối!", 2.0)
 	else:
 		# Driver đã rơi và được nhặt giữa màn thì không nhắc "Driver nằm trên người nhóm canh giữ" nữa.
 		if not _key_item().is_empty():
@@ -656,7 +728,9 @@ func _reach_goal() -> void:
 func _goal_cleared() -> void:
 	var stage := GameState.current_stage()
 	var world := GameState.current_world()
-	if stage["type"] == WorldData.StageType.AWAKEN:
+	if stage["type"] == WorldData.StageType.CHALLENGE:
+		_finish_stage()
+	elif stage["type"] == WorldData.StageType.AWAKEN:
 		var key := _key_item()
 		if key.is_empty():
 			_finish_stage()     # Driver đã rơi và được nhặt giữa màn
@@ -717,6 +791,8 @@ func _on_enemy_died(enemy: Enemy) -> void:
 	else:
 		item = _charge_item()
 		var chance := CHARGE_DROP_CHANCE * (2.0 if enemy.traits.has(&"armored") else 1.0)
+		if GameState.current_stage()["type"] == WorldData.StageType.CHALLENGE:
+			chance = CHALLENGE_CHARGE_CHANCE
 		if item.is_empty() or randf() >= chance:
 			return
 	# Rơi tại chỗ quái gục, nằm trên chỗ đứng ngay bên dưới; bên dưới là vực thì dời về chỗ an toàn trong khung nhìn.
@@ -762,6 +838,7 @@ func _on_item_collected(item: Dictionary) -> void:
 	var stage := GameState.current_stage()
 	var stage_id: String = stage["id"]
 	var is_stage_key: bool = rider == GameState.world_rider() and (item["kind"] == "driver" or item["form"] == stage.get("form", &""))
+	Sound.sfx("pickup_key" if is_stage_key else "pickup", 0.0)
 	var unlocked := false
 	match item["kind"]:
 		"driver":
@@ -803,6 +880,13 @@ func _on_item_collected(item: Dictionary) -> void:
 		_finish_stage()
 
 
+## Nhạc nền của màn: màn Trùm dùng nhạc trùm (thế giới cuối: boss_final), màn khác dùng bài của thế giới.
+func _stage_music(stage: Dictionary) -> String:
+	if stage["type"] == WorldData.StageType.BOSS:
+		return "boss_final" if GameState.world_index == WorldData.WORLDS.size() - 1 else "boss"
+	return "stage_%s" % GameState.current_world()["id"]
+
+
 func _finish_stage() -> void:
 	phase = Phase.TALK
 	var stage := GameState.current_stage()
@@ -820,6 +904,7 @@ func _finish_stage() -> void:
 		while player.is_releasing():
 			await get_tree().physics_frame
 		await _wait(0.2)
+	Sound.music("clear")
 	await _story(stage["id"], "clear")
 	var result := GameState.complete_stage()
 	if stage["type"] == WorldData.StageType.BOSS and GameState.take_story("world:%s" % world["id"]):
@@ -913,6 +998,8 @@ func _format_result(r: Dictionary) -> String:
 		lines.append("Form: %s" % r["form_name"])
 	if r["obtained"] != &"":
 		lines.append("Nhận %s" % world["next_driver_name"])
+	if int(r.get("fragments", 0)) > 0:
+		lines.append("Thưởng màn EX: +%d Mảnh Ký Ức" % int(r["fragments"]))
 	return "\n".join(lines)
 
 
@@ -941,6 +1028,23 @@ func _make_enemy(kind: String, pos: Vector2) -> Enemy:
 			boss_traits.append(StringName(str(t)))
 		e.traits = boss_traits
 		color = boss["color"]
+	elif SPECIAL_ENEMIES.has(kind):
+		var sp: Dictionary = SPECIAL_ENEMIES[kind]
+		var info: Dictionary = GameState.current_world()["enemies"][sp["art"]]
+		e.display_name = str(sp["name"]) % info["name"]
+		e.sprite_prefix = info.get("sprite", "")
+		color = info["color"]
+		e.max_hp = sp["hp"]
+		e.move_speed = sp["speed"]
+		e.attack_damage = sp["damage"]
+		e.windup_time = sp["windup"]
+		e.poise = sp.get("poise", e.poise)
+		e.attack_knockback = sp.get("knockback", e.attack_knockback)
+		e.shoot_interval = sp.get("interval", e.shoot_interval)
+		e.fragment_reward = 10
+		var t: Array[StringName] = [StringName(kind)]
+		e.traits = t
+		e.immune_hit.connect(_on_enemy_immune)
 	else:
 		var info: Dictionary = GameState.current_world()["enemies"][kind]
 		e.display_name = info["name"]

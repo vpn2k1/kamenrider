@@ -4,9 +4,10 @@ extends RiderForm
 ##   Giữ ↑ + Special: đổi nửa Body (phải) Joker → Metal → Trigger
 ## Memory mở khi nhặt ở màn: 3-2 Heat & Metal · 3-3 Luna & Trigger · 3-4 Xtreme.
 ## Mọi tổ hợp khác CycloneJoker (và Xtreme) là form đặc biệt: tốn nộ theo thời gian.
-## Soul quyết định hiệu ứng: Cyclone nhanh + đẩy xa, Heat sát thương ×1.2, Luna tầm đánh ×1.5.
-## Body quyết định kiểu đánh: Joker tay chân, Metal gậy nặng (&"heavy"), Trigger cầm súng (bắn được, &"ranged").
-## Nút Đánh: Joker 3 đấm + 1 đá; Metal 2 đòn gậy + 1 đá; Trigger 2 phát bắn + 1 loạt 3 viên.
+## Soul quyết định hiệu ứng: Cyclone nhanh + đẩy xa, Heat sát thương ×1.2 và gây cháy, Luna tầm đánh ×1.5.
+## Body quyết định vũ khí: Joker tay chân, Metal gậy Metal Shaft (nút Chém: 2 đòn gậy nặng + 1 đòn kết, &"heavy"),
+## Trigger súng Trigger Magnum (nút Bắn). Nút Đánh luôn là tay không như Joker: 3 đấm + 1 đá.
+## Final Attack theo Body: Joker Extreme, Metal Branding, Trigger Full Burst.
 ## Xtreme = CycloneJokerXtreme: máu 190, ATK ×1.2.
 ## W nhảy cao hơn mọi Rider khác (×1.2), Cyclone chạy nhanh. Lv4 mở "Best Match" (CycloneJoker, HeatMetal, LunaTrigger): +15% sát thương.
 
@@ -125,12 +126,36 @@ func get_shot() -> Dictionary:
 	return shot
 
 
+## Hiệu ứng theo nửa Soul: Cyclone gió lục, Heat lửa đỏ, Luna ánh vàng. Final mở đầu bằng gió xoáy hai màu.
+func fx() -> Dictionary:
+	var hit: String = ["wind", "fire", "spark"][soul]
+	var color: Color = [Color(0.4, 1.0, 0.5), Color(1.0, 0.4, 0.25), Color(1.0, 0.9, 0.35)][soul]
+	return {"hit": hit, "final": "ring", "intro": "wind", "color": color}
+
+
 func special_label() -> String:
 	return "Đổi Memory"
 
 
 func punch_count() -> int:
-	return 3 if body == 0 else 2
+	return 3
+
+
+func has_blade() -> bool:
+	return body == 1 and not xtreme
+
+
+func slash_count() -> int:
+	return 2
+
+
+func gun_look() -> String:
+	return "magnum" if body == 2 else ""
+
+
+## Metal: gậy Metal Shaft nặng xuyên da quái khổng lồ.
+func special_tags() -> Array:
+	return [&"crush"] if body == 1 and not xtreme else []
 
 
 
@@ -178,7 +203,12 @@ func get_attack(kind: StringName, chain: int) -> Dictionary:
 	var data: Dictionary
 	if kind == &"swap_in":
 		data = make_attack(8.0, 0.0, 0.1, 0.15, Vector2(24, 14), Vector2(16, -12), Vector2(120, -60))
-	else:
+	elif kind == &"slash" or kind == &"slash_finish":
+		if not has_blade():
+			return {}
+		data = _metal(&"light" if kind == &"slash" else &"kick", chain)
+		data["anim"] = "slash"
+	elif kind == &"final":
 		match body:
 			1:
 				data = _metal(kind, chain)
@@ -186,6 +216,8 @@ func get_attack(kind: StringName, chain: int) -> Dictionary:
 				data = _trigger(kind, chain)
 			_:
 				data = _joker(kind, chain)
+	else:
+		data = _joker(kind, chain)
 	if data.is_empty():
 		return data
 	return _apply_soul(data)
@@ -195,6 +227,8 @@ func _apply_soul(data: Dictionary) -> Dictionary:
 	var base_tags: Array = data["tags"]
 	var tags := base_tags.duplicate()
 	tags.append(SOUL_TAGS[soul])
+	if soul == 1:
+		tags.append(&"burn")   # Heat: đòn nào cũng bốc lửa
 	data["tags"] = tags
 	if soul == 0:
 		var knockback: Vector2 = data["knockback"]

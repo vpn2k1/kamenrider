@@ -14,9 +14,9 @@ const WORLD := {
 	"driver_name": "Build Driver",
 	"color": Color(0.3, 0.6, 1.0),
 	"enemies": {
-		"basic": {"name": "Guardian", "color": Color(0.5, 0.6, 0.75)},
-		"fast": {"name": "Flying Smash", "color": Color(0.55, 0.85, 0.45)},
-		"armored": {"name": "Strong Smash", "color": Color(0.75, 0.45, 0.35)},
+		"basic": {"name": "Guardian", "color": Color(0.5, 0.6, 0.75), "sprite": "guardian"},
+		"fast": {"name": "Flying Smash", "color": Color(0.55, 0.85, 0.45), "sprite": "flying_smash"},
+		"armored": {"name": "Strong Smash", "color": Color(0.75, 0.45, 0.35), "sprite": "strong_smash"},
 	},
 	"unlocks": [
 		"RabbitTank (form gốc)",

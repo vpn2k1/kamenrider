@@ -14,9 +14,9 @@ const WORLD := {
 	"driver_name": "Ghost Driver",
 	"color": Color(1.0, 0.55, 0.1),
 	"enemies": {
-		"basic": {"name": "Gamma Command", "color": Color(0.55, 0.55, 0.62)},
-		"fast": {"name": "Katana Gamma", "color": Color(0.35, 0.6, 0.85)},
-		"armored": {"name": "Gamma Ultima", "color": Color(0.85, 0.82, 0.9)},
+		"basic": {"name": "Gamma Command", "color": Color(0.55, 0.55, 0.62), "sprite": "gamma_command"},
+		"fast": {"name": "Katana Gamma", "color": Color(0.35, 0.6, 0.85), "sprite": "katana_gamma"},
+		"armored": {"name": "Gamma Ultima", "color": Color(0.85, 0.82, 0.9), "sprite": "gamma_ultima"},
 	},
 	"unlocks": [
 		"Ore Damashii (form gốc)",
@@ -48,18 +48,41 @@ const RIDER := {
 	"base": &"ore",
 	"order": [&"ore", &"musashi", &"edison", &"newton"],
 	"forms": {
+		# Ore Damashii: Gan Gun Saber dạng kiếm (nút Chém). Là hồn ma nên lượn được (giữ Nhảy khi rơi).
 		&"ore": {"name": "Ore Damashii", "style": "brawler", "hp": 158.0, "armor": 24.0, "speed": 132.0,
-			"jump": 1.15, "atk": 1.05, "poise": 7.0, "final": "Omega Drive"},
+			"jump": 1.15, "atk": 1.05, "poise": 7.0, "final": "Omega Drive", "blade": {"look": "gangunsaber"},
+			"fx": {"hit": "spark", "swing": "slash", "final": "fire", "glide": true, "color": Color(1.0, 0.55, 0.15)}},
+		# Musashi Damashii: song kiếm Gan Gun Saber Nitoryu. Omega Slash: hai nhát chéo liên tiếp.
 		&"musashi": {"name": "Musashi Damashii", "style": "blade", "hp": 165.0, "armor": 26.0, "speed": 122.0,
-			"jump": 1.0, "atk": 1.25, "poise": 11.0, "final": "Omega Slash"},
+			"jump": 1.0, "atk": 1.25, "poise": 11.0, "final": "Omega Slash", "blade": {"look": "nito"},
+			"attacks": {"final": {"hits": 2, "damage": 34.0}},
+			"fx": {"hit": "spark", "swing": "slash", "final": "slash", "color": Color(1.0, 0.25, 0.2)}},
+		# Edison Damashii: Gan Gun Saber dạng súng bắn tia điện xuyên, điện lan sang quái gần.
 		&"edison": {"name": "Edison Damashii", "style": "gunner", "hp": 145.0, "armor": 15.0, "speed": 118.0,
 			"jump": 1.0, "atk": 0.95, "poise": 5.0, "final": "Omega Shoot",
-			"gun": {"damage": 7.0, "speed": 400.0, "cooldown": 0.34, "radius": 3.0, "color": Color(1.0, 0.92, 0.35),
-				"pierce": true, "life": 0.85}},
+			"gun": {"look": "gangun", "tags": [&"shock"], "damage": 7.0, "speed": 400.0, "cooldown": 0.34, "radius": 3.0,
+				"color": Color(1.0, 0.92, 0.35), "pierce": true, "life": 0.85},
+			"attacks": {"final": {"tags": [&"shock"]}},
+			"fx": {"hit": "lightning", "shot": "bolt", "final": "lightning", "color": Color(1.0, 0.92, 0.35)}},
+		# Newton Damashii: tay trái đẩy, tay phải hút. Đòn kết đẩy văng; Omega Drive hút cả vùng về rồi ghim lại.
 		&"newton": {"name": "Newton Damashii", "style": "heavy", "hp": 200.0, "armor": 52.0, "speed": 85.0,
-			"jump": 0.85, "atk": 1.4, "poise": 18.0, "final": "Omega Drive"},
+			"jump": 0.85, "atk": 1.4, "poise": 18.0, "final": "Omega Drive",
+			"attacks": {"kick": {"knockback": Vector2(260, -40), "tags": [&"force"]},
+				"final": {"size": Vector2(140, 40), "offset": Vector2(40, -14), "knockback": Vector2(-200, -40),
+					"tags": [&"force", &"stun"]}},
+			"fx": {"hit": "ring", "final": "ring", "color": Color(0.35, 0.55, 1.0)}},
 	},
 	"lv5": {"name": "Mugen", "final_mult": 1.5},
+	"final_fx": {"intro": "eye"},
+}
+
+## Giọng Ghost Driver (tools/gen_audio.py → audio/voice/ghost_<khóa>.wav), xem VOICE của w01_kuuga.gd.
+const VOICE := {
+	"henshin": ["belt", "Kaigan! Ore! Let's go! Kakugo! Gho-Gho-Gho-Ghost!"],
+	"musashi": ["belt", "Kaigan! Musashi! Kettou! Zubatto! Chouken-gou!"],
+	"edison": ["belt", "Kaigan! Edison! Hirameki! Hatsumei! Hatsumei-ou!"],
+	"newton": ["belt", "Kaigan! Newton! Ringo ga rakka! Hikiyoseru gekka!"],
+	"final": ["belt", "Dai Kaigan! Omega Drive!"],
 }
 
 const SPEAKERS := {

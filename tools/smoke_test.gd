@@ -28,6 +28,7 @@ var _seen_items: Array = []
 func _ready() -> void:
 	# Hội thoại dừng màn chơi (get_tree().paused); bot vẫn chạy để bấm qua thoại.
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	GameState.use_test_profile()   # tiến trình trống, không đè save thật
 	if "--showcase" in OS.get_cmdline_user_args():
 		total_frames = 2700
 		GameState.activate_driver(&"kuuga")
@@ -50,9 +51,22 @@ func _process(_delta: float) -> void:
 	if stage._dialogue.is_open():
 		stage._dialogue.advance()
 		return
+	if stage.phase == stage.Phase.MAP:
+		if stage._stage_select.visible:
+			_log("màn chọn màn: chọn %d-%d" % [GameState.frontier_world + 1, GameState.frontier_stage + 1])
+			stage._stage_select.pick(GameState.frontier_world, GameState.frontier_stage)
+		return
 	if stage.phase == stage.Phase.SELECT:
 		_log("màn chọn Rider: chọn %s" % GameState.selectable_riders()[0])
 		stage._select.pick(GameState.selectable_riders()[0])
+		return
+	if stage.phase == stage.Phase.FORMS:
+		var forms := GameState.owned_forms(GameState.main_rider)
+		_log("màn chọn form: chọn %s" % forms[forms.size() - 1])
+		stage._form_select.pick(forms.slice(forms.size() - 1))
+		return
+	if stage.phase == stage.Phase.ITEMS:
+		stage._item_select.pick(GameState.owned_items(GameState.main_rider))
 		return
 	_drive()
 	_milestones()
@@ -181,14 +195,14 @@ func _milestones() -> void:
 		2000:
 			_log("→ %s (mong đợi form gốc)" % _form_name())
 		2100:
-			_log("kích hoạt Faiz + W, đổi Rider")
+			_log("kích hoạt Faiz + W, dùng W (mỗi màn một Rider: Đổi Rider không làm gì)")
 			GameState.activate_driver(&"faiz")
 			GameState.set_level(&"faiz", 4)
 			GameState.unlock_form(&"faiz", &"axel")
 			GameState.activate_driver(&"double")
 			GameState.set_level(&"double", 3)
 			GameState.unlock_form(&"double", &"heat_metal")
-			GameState.choose_main(&"double")   # đội hình: W (chính) ⇄ Kuuga (Rider của thế giới 1)
+			GameState.choose_main(&"double")   # đội hình: chỉ W
 			player.use_main_rider()
 		2160:
 			player.try_swap()

@@ -14,9 +14,9 @@ const WORLD := {
 	"driver_name": "Gamer Driver",
 	"color": Color(1.0, 0.42, 0.78),
 	"enemies": {
-		"basic": {"name": "Bugster Virus", "color": Color(1.0, 0.6, 0.2)},
-		"fast": {"name": "Charlie Bugster", "color": Color(0.95, 0.85, 0.3)},
-		"armored": {"name": "Gatton Bugster", "color": Color(0.55, 0.6, 0.72)},
+		"basic": {"name": "Bugster Virus", "color": Color(1.0, 0.6, 0.2), "sprite": "bugster_virus"},
+		"fast": {"name": "Charlie Bugster", "color": Color(0.95, 0.85, 0.3), "sprite": "charlie_bugster"},
+		"armored": {"name": "Gatton Bugster", "color": Color(0.55, 0.6, 0.72), "sprite": "gatton_bugster"},
 	},
 	"unlocks": [
 		"Action Gamer Level 2 (form gốc)",
@@ -48,18 +48,45 @@ const RIDER := {
 	"base": &"action_gamer",
 	"order": [&"action_gamer", &"sports", &"robot", &"hunter"],
 	"forms": {
+		# Level 2: búa Gashacon Breaker (nút Chém). Mighty Critical Strike: 3 cú đá liên hoàn, mỗi cú hiện chữ HIT!
 		&"action_gamer": {"name": "Action Gamer Level 2", "style": "brawler", "hp": 155.0, "armor": 22.0,
-			"speed": 135.0, "jump": 1.25, "atk": 1.05, "poise": 7.0, "final": "Mighty Critical Strike"},
+			"speed": 135.0, "jump": 1.25, "atk": 1.05, "poise": 7.0, "final": "Mighty Critical Strike",
+			"blade": {"look": "gashacon_breaker"},
+			"attacks": {"final": {"hits": 3, "damage": 22.0}},
+			"fx": {"hit": "spark", "swing": "slash", "final": "ring", "color": Color(1.0, 0.35, 0.75)}},
+		# Sports Level 3: ném bánh xe Tricker (nút Bắn, xuyên). Shakariki Critical Strike: loạt bánh xe quét rộng.
 		&"sports": {"name": "Sports Action Gamer Level 3", "style": "lancer", "hp": 135.0, "armor": 12.0,
-			"speed": 175.0, "jump": 1.2, "atk": 0.9, "poise": 4.0, "final": "Shakariki Critical Strike"},
+			"speed": 175.0, "jump": 1.2, "atk": 0.9, "poise": 4.0, "final": "Shakariki Critical Strike",
+			"gun": {"look": "tricker", "damage": 5.0, "speed": 300.0, "cooldown": 0.45, "radius": 4.5, "pierce": true,
+				"color": Color(0.35, 0.9, 0.85), "life": 0.7},
+			"attacks": {"final": {"hits": 3, "damage": 16.0, "size": Vector2(70, 30), "offset": Vector2(40, -16)}},
+			"fx": {"hit": "spark", "shot": "ball", "final": "ring", "trail": true, "color": Color(0.35, 0.9, 0.85)}},
+		# Robot Level 3: tay robot khổng lồ. Đòn kết và Gekitotsu Critical Strike lao tới đấm văng.
 		&"robot": {"name": "Robot Action Gamer Level 3", "style": "heavy", "hp": 205.0, "armor": 55.0,
-			"speed": 84.0, "jump": 0.85, "atk": 1.42, "poise": 19.0, "final": "Gekitotsu Critical Strike"},
+			"speed": 84.0, "jump": 0.85, "atk": 1.42, "poise": 19.0, "final": "Gekitotsu Critical Strike",
+			"attacks": {"kick": {"knockback": Vector2(280, -60), "tags": [&"force"]},
+				"final": {"lunge": Vector2(200, 0), "knockback": Vector2(360, -120), "tags": [&"force"]}},
+			"fx": {"hit": "ring", "final": "ring", "color": Color(0.95, 0.3, 0.3)}},
+		# Hunter Level 5: tay súng rồng phun lửa (nút Bắn, gây cháy), tay kiếm rồng (nút Chém).
 		&"hunter": {"name": "Hunter Action Gamer Level 5", "style": "gunner", "hp": 170.0, "armor": 35.0,
 			"speed": 108.0, "jump": 0.95, "atk": 1.05, "poise": 9.0, "final": "Drago Knight Critical Strike",
-			"gun": {"damage": 8.0, "speed": 340.0, "cooldown": 0.38, "radius": 4.0, "color": Color(1.0, 0.5, 0.15),
-				"life": 0.7}},
+			"blade": {"look": "drago_blade"},
+			"gun": {"look": "drago_gun", "tags": [&"burn"], "damage": 8.0, "speed": 340.0, "cooldown": 0.38, "radius": 4.0,
+				"color": Color(1.0, 0.5, 0.15), "life": 0.7},
+			"attacks": {"final": {"tags": [&"burn"]}},
+			"fx": {"hit": "fire", "swing": "slash", "shot": "fire", "final": "fire", "color": Color(0.4, 0.9, 0.35)}},
 	},
 	"lv5": {"name": "Muteki Gamer", "final_mult": 1.5},
+	"final_fx": {"signature": "hit_text"},
+}
+
+## Giọng Gamer Driver (tools/gen_audio.py → audio/voice/ex_aid_<khóa>.wav), xem VOICE của w01_kuuga.gd.
+const VOICE := {
+	"henshin": ["belt_bright", "Level up! Mighty jump! Mighty kick! Mighty Action X!"],
+	"sports": ["belt_bright", "Level up! Shakariki Sports!"],
+	"robot": ["belt_bright", "Level up! Buttobi punch! Gekitotsu Robots!"],
+	"hunter": ["belt_bright", "Level up! Drago Knight Hunter Z!"],
+	"final": ["belt_bright", "Kimewaza! Mighty Critical Strike!"],
 }
 
 const SPEAKERS := {

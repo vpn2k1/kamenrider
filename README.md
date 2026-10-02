@@ -11,9 +11,21 @@ Game 2D pixel đánh quái, đi qua chuỗi các thế giới Kamen Rider. Quái
 
 1. Cài Godot 4.4+ (bản Standard). Trên macOS: `brew install --cask godot`.
 2. Mở Godot → **Import** → chọn `project.godot` trong thư mục này.
-3. Bấm **F5**. Đặt tên nhân vật → **phần mở đầu** (6 cảnh + thẻ tựa; Esc / "BỎ QUA" để bỏ qua) → màn 1-1.
+3. Bấm **F5**. Màn hình chính có 2 lựa chọn: **CHƠI** (hành trình qua các thế giới) và **COMBAT** (đấu 2 người cùng WiFi, xem mục dưới); cả hai đều qua màn đặt tên (◀ Quay lại / Esc để về màn hình chính). CHƠI: đặt tên nhân vật → **phần mở đầu** (6 cảnh + thẻ tựa; Esc / "BỎ QUA" để bỏ qua) → lần đầu chơi vào thẳng **màn 1-1** (thế giới Kuuga); các lần sau là **màn chọn thế giới → chọn màn**.
 
-**27 thế giới theo năm phát sóng**, chơi liền mạch 135 màn: Kuuga (2000) → Agito → Ryuki → Faiz → Blade → Hibiki → Kabuto → Den-O → Kiva → Decade → W (2009) → OOO → Fourze → Wizard → Gaim → Drive → Ghost → Ex-Aid → Build → Zi-O → Zero-One → Saber → Revice → Geats → Gotchard → Gavv → Zeztz (2025). Mã màn "4-1" = thế giới 4 (Faiz), màn 1. Mỗi thế giới 5 màn: Thức tỉnh (quái rơi Driver), 3 màn luyện tập (mỗi màn quái rơi một form), trùm (rơi Driver của thế giới kế tiếp; thế giới 27 rơi Chrono Driver). Mỗi màn là một **lộ trình kiểu Contra / Contra 2** gồm nhiều đoạn: chạy sang phải, **chạy ngược sang trái**, **leo giếng lên** (bệ zig-zag), **tụt giếng xuống**. **Camera đi theo cả hai chiều**: chạy ngược lại, leo ngược giếng đều được; chỉ bị chặn ở đầu màn (sau điểm xuất phát), cuối màn và hai bên đấu trường trùm. Quái đã xuất hiện ở lại chỗ của nó, quay lại vẫn gặp. Trên đường có vực, bệ, **thùng và bậc khối để nhảy lên** (khối chặn được đạn), cột đá giữa vực rộng. Quái chạy ào từ mép màn hình rồi dừng lại đánh khi tới gần, lính bắn đứng gác; tối đa 2 quái đánh cùng lúc, đánh xong nghỉ 1 giây để nhường lượt. Tới vạch đích ở cuối lộ trình thì qua màn (màn Thức tỉnh: đánh nhóm canh giữ; màn trùm: đấu trường khóa camera). Lộ trình từng màn nằm ở `"route"` trong `WorldData`, bảng đầy đủ ở GDD mục 3.14.
+**Chạy trên web:** xuất bản web rồi mở http://localhost:8060 (lần đầu cài template: Godot → **Editor → Manage Export Templates → Download and Install**):
+
+```bash
+mkdir -p export/web && godot --headless --path . --export-release "Web" export/web/index.html && python3 -m http.server 8060 -d export/web
+```
+
+**27 thế giới theo năm phát sóng**, chơi liền mạch 135 màn: Kuuga (2000) → Agito → Ryuki → Faiz → Blade → Hibiki → Kabuto → Den-O → Kiva → Decade → W (2009) → OOO → Fourze → Wizard → Gaim → Drive → Ghost → Ex-Aid → Build → Zi-O → Zero-One → Saber → Revice → Geats → Gotchard → Gavv → Zeztz (2025). Mã màn "4-1" = thế giới 4 (Faiz), màn 1. Mỗi thế giới 5 màn: Thức tỉnh (quái rơi Driver), 3 màn luyện tập (mỗi màn quái rơi một form), trùm (rơi Driver của thế giới kế tiếp; thế giới 27 rơi Chrono Driver). Mỗi màn là một **lộ trình kiểu Contra / Contra 2** gồm nhiều đoạn: chạy sang phải, **chạy ngược sang trái**, **leo giếng lên** (bệ zig-zag), **tụt giếng xuống**. **Camera đi theo cả hai chiều**: chạy ngược lại, leo ngược giếng đều được; chỉ bị chặn ở đầu màn (sau điểm xuất phát), cuối màn và hai bên đấu trường trùm. Quái đã xuất hiện ở lại chỗ của nó, quay lại vẫn gặp. Trên đường có vực, bệ, **thùng và bậc khối để nhảy lên** (khối chặn được đạn), cột đá giữa vực rộng. Quái chạy ào từ mép màn hình rồi dừng lại đánh khi tới gần, lính bắn đứng gác; tối đa 2 quái đánh cùng lúc, đánh xong nghỉ 1 giây để nhường lượt. **Phải diệt hết quái** rồi tới vạch đích ở cuối lộ trình mới qua màn (HUD ghi số quái còn lại và hướng tới con gần nhất; quái chạy ngang ra khỏi màn hình sẽ quay lại chứ không biến mất). Màn Thức tỉnh: đánh nhóm canh giữ; màn trùm: đấu trường khóa camera, quái không ra khỏi đấu trường được. Lộ trình từng màn nằm ở `"route"` trong `WorldData`, bảng đầy đủ ở GDD mục 3.14.
+
+**Chọn màn, Rider, item:**
+- **Màn chọn màn** hiện sau mỗi màn và khi bấm **Menu** (Esc / P / nút ≡ bên trái thanh máu) trong màn; lần đầu chơi (chưa qua màn nào) thì vào thẳng 1-1. Hai bước: **chọn thế giới** (mỗi hàng một thế giới đã mở, 5 ô nhỏ cho biết màn đã qua; chỉ mới mở một thế giới thì bỏ qua bước này) rồi **chọn màn** của thế giới đó (5 ô màn; Esc / nút "◀ THẾ GIỚI" để quay lại); màn mở dần (qua màn xa nhất thì mở màn kế), màn đã mở **chơi lại được** để luyện cấp và nhặt item còn thiếu. Ô màn ghi món quái rơi (Driver / form / item, ✓ nếu đã có).
+- Trước khi vào màn chọn **một Rider** (khi có từ 2 Rider), trong màn **không đổi sang Rider khác** (bỏ phím / nút Đổi Rider). Rồi chọn **tối đa 2 item** của Rider đó để mang theo.
+- **Item** là form chỉ gồm vũ khí / lá bài / đòn (`"item": true` trong RIDER): Ryuki Sword / Strike / Guard Vent, Blade Mach Jaguar / Thunder Deer, Hibiki Onibi / Kaentsuzumi. Quái ở màn có item đó rơi ra (không bắt buộc, lỡ thì chơi lại màn); vào màn bằng nút Kỹ năng (L) như form, item không mang thì không dùng được; nhặt giữa màn thì dùng được ngay. Form đổi ngoại hình thật (Kuuga, Agito, Faiz, Blade Jack, Hibiki Kurenai, Kabuto Hyper) vẫn rơi ở màn cố định như cũ.
+- Nhặt Driver / form / item của **Rider khác** Rider đang dùng thì chỉ mở khóa, dùng ở màn sau.
 
 **Luật chính:**
 - **Chỉ form có súng mới bắn được** (ví dụ Kuuga Pegasus, Faiz, W nửa Trigger, Ryuki Strike Vent, Den-O Gun Form...). Dạng người và các form khác phải đánh gần.
@@ -34,7 +46,7 @@ Game 2D pixel đánh quái, đi qua chuỗi các thế giới Kamen Rider. Quái
 
 Bảng Rider, form, trùm của cả 27 thế giới: GDD mục 2.8.
 
-Rơi vực mất 25% máu rồi hồi sinh ở chỗ đứng an toàn trong màn hình. Gục thì chơi lại từ checkpoint gần nhất; cấp và Driver đã có vẫn giữ nguyên. Mỗi lần mở game đều bắt đầu lại từ 1-1. Muốn dùng file save thì đặt `GameState.DEBUG_FRESH_START = false`.
+Rơi vực mất 25% máu rồi hồi sinh ở chỗ đứng an toàn trong màn hình. Gục thì chơi lại từ checkpoint gần nhất; cấp và Driver đã có vẫn giữ nguyên. **Tiến trình được lưu trên máy** (`user://save.json`; bản web lưu trong trình duyệt): Driver, cấp, form và item đã nhặt, màn đã qua, bộ đã chọn cho COMBAT. Nhặt Driver / form / item giữa màn là lưu ngay, tắt game giữa chừng cũng không mất. Muốn mỗi lần mở game đều chơi lại từ 1-1 thì đặt `GameState.DEBUG_FRESH_START = true`. Các bot test chạy với tiến trình trống riêng (`GameState.use_test_profile()`), không đọc cũng không ghi đè save thật.
 
 Bật **Debug → Visible Collision Shapes** trong editor để thấy hitbox khi chơi.
 
@@ -42,33 +54,59 @@ Bật **Debug → Visible Collision Shapes** trong editor để thấy hitbox kh
 |---|---|
 | A / D | Di chuyển (camera theo cả hai chiều) |
 | W (giữ) | Ngắm lên (form có súng): W bắn thẳng lên, W + A/D bắn chéo |
-| H (giữ) | **Bắn** liên tục, chỉ khi form có súng |
+| H (giữ) | **Bắn** liên tục, chỉ khi form có súng (súng chỉ hiện ở tay lúc bắn) |
+| K | **Chém**, chỉ khi form có kiếm / vũ khí cận chiến (vũ khí chỉ hiện khi chém) |
 | S (giữ) | Cúi / thủ thế: đứng yên, thân thấp lại (đạn cao bay qua), đòn cận chiến chỉ còn 40%, không bị đẩy lùi |
 | Space | Nhảy. Đứng trên bệ thì S + Space (hoặc bấm đúp S) để xuống |
-| J | **Đánh**: bấm liên tục để đấm theo chuỗi, đủ số đòn thì tự ra **cú đá** kết thúc (sát thương cao hơn, đẩy xa, phá giáp). Dạng người và form thường: 3 đấm + 1 đá; Titan, W Metal: 2 đòn + 1 đá; Pegasus, W Trigger: 2 phát + 1 phát nạp mạnh. Ngừng bấm thì chuỗi về đầu |
+| J | **Đánh**: bấm liên tục để đấm theo chuỗi, đủ số đòn thì tự ra **cú đá** kết thúc (sát thương cao hơn, đẩy xa, phá giáp). Nút Đánh luôn là tay không. Dạng người và form thường: 3 đấm + 1 đá; form nặng (Titan, Land...): 2 đòn + 1 đá; Kuuga Pegasus: 2 phát + 1 phát nạp mạnh. Ngừng bấm thì chuỗi về đầu |
 | L | **Đổi form** theo vòng các form đã nhặt (W: đổi nửa trái, giữ W + L đổi nửa phải). Vào form đặc biệt cần ≥ 20 nộ và tốn 10; về form gốc thì miễn phí |
 | Shift | Né (hồi 0.6 giây, bất tử với đòn cận chiến, **không** tránh được đạn) |
 | I | Biến thân vào form gốc (cần nộ đầy và đã có Driver, không mất nộ) |
-| O | Đổi Rider: đổi qua lại giữa **Rider chính** và **Rider của thế giới** đang chơi (khi đã nhặt Driver của nó); Rider mới vào ở form gốc |
+| Esc / P | Menu: về màn chọn màn (bỏ màn đang chơi) |
 | U | Final Attack (cần ≥ 50 nộ, đốt hết nộ; ở form đặc biệt thì đánh xong về form gốc) |
 
 **Hội thoại:** Đánh (J) / Enter / Space / chạm để hiện hết câu rồi sang câu kế; Esc hoặc "BỎ QUA" để bỏ cả đoạn. Trong lúc thoại cả màn dừng lại. Hội thoại hiện ở đầu màn, lúc gặp trùm, lúc nhặt Driver / form của màn và lúc qua màn; sau mỗi trùm có **bản đồ Chuỗi Trái Đất** cho thấy Trái Đất vừa giải cứu và chặng tiếp theo. Mỗi đoạn chỉ hiện một lần mỗi lượt chơi.
 
 **Nút trên màn hình** (bấm chuột hoặc chạm):
 - **Góc trái:** D-pad ◀ ▶ ▲ ▼, 4 nút cùng cỡ. **▲ = nhảy** (giữ ▲ còn để ngắm lên khi có súng, và để W đổi nửa phải). **▼ = cúi**, bấm đúp ▼ trên bệ = xuống khỏi bệ.
-- **Góc phải:** nút **Đánh** to (đấm theo chuỗi rồi tự đá) và Né. Chỉ hiện khi dùng được: **Biến thân / Tuyệt chiêu**, Đổi form, Đổi Rider, Bắn (form có súng).
+- **Góc phải:** nút **Đánh** to (đấm theo chuỗi rồi tự đá) và Né. Chỉ hiện khi dùng được: **Biến thân / Tuyệt chiêu**, Đổi form, Bắn (form có súng).
+- **Góc trên trái, bên trái thanh máu:** nút **≡ Menu** về màn chọn màn.
 - Mỗi nút có chữ ngắn bên dưới và vòng hồi chiêu, mờ đi khi thiếu nộ; nút Biến thân / Tuyệt chiêu phát sáng khi dùng được. Biểu tượng vẽ bằng `tools/gen_ui_icons.py`; tile thùng gỗ và vách thép vẽ bằng `tools/gen_tiles.py`.
 
-**Chọn Rider chính:** trước mỗi màn (khi đã có từ 2 Rider) hiện màn chọn: mỗi thẻ có cấp, lối chơi, 5 thanh chỉ số (Máu · Giáp · Tốc độ · Sức đánh · Nhảy), số form, và dấu ★ cho Rider của thế giới (form của màn chỉ rơi cho Rider này). ◀ ▶ hoặc chạm thẻ để chọn, Đánh / Enter / "VÀO MÀN" để vào. Đội hình trong màn = Rider chính + Rider của thế giới. Mỗi Rider một kiểu (ví dụ **Kuuga** bền, **Faiz** nhanh và có súng, **W** nhảy cao). Có nhiều Rider thì 3 thẻ hiện một lúc, ◀ ▶ để cuộn; mỗi thẻ ghi thêm "Sức mạnh ×N" theo thế hệ.
+**Chọn Rider:** sau khi chọn màn (khi đã có từ 2 Rider) hiện màn chọn: mỗi thẻ có cấp, lối chơi, 5 thanh chỉ số (Máu · Giáp · Tốc độ · Sức đánh · Nhảy), số form, và dấu ★ cho Rider của thế giới (form / item của màn là của Rider này). ◀ ▶ hoặc chạm thẻ để chọn, Đánh / Enter / "CHỌN" để chọn, rồi tới màn chọn item. Mỗi màn một Rider. Mỗi Rider một kiểu (ví dụ **Kuuga** bền, **Faiz** nhanh và có súng, **W** nhảy cao). Có nhiều Rider thì 3 thẻ hiện một lúc, ◀ ▶ để cuộn; mỗi thẻ ghi thêm "Sức mạnh ×N" theo thế hệ.
 
 **Thanh NỘ:** màu cam. Ở dạng Rider có vạch trắng đánh dấu mức Final Attack (50). Ở form đặc biệt thanh chuyển tím và hiện số giây còn lại; dưới 25% thì nháy đỏ. Chi tiết ở mục 3.8 của GDD.
 
-Thế giới 1–3 (Kuuga, Agito, Ryuki) đã có hình thật cho Rider, quái và trùm; Faiz có hình Rider (quái thế giới 4 chưa có). Rider và quái các thế giới khác vẫn là **khối màu** theo màu nhận diện của Rider (`"color"` trong file thế giới):
+Thế giới 1–3 (Kuuga, Agito, Ryuki) đã có hình thật cho Rider, quái và trùm; Faiz có hình Rider. Quái thường của thế giới 4–27 là quái ghép (`tools/kitbash.py`); trùm thế giới 4 trở đi chưa có hình. Phần chưa có hình vẫn là **khối màu** theo màu nhận diện của Rider (`"color"` trong file thế giới):
 - **Quái thế giới 1:** Grongi tím = thường, xanh lục = nhanh (né đòn, dùng Faiz Axel), nâu đồng = giáp (dùng Kuuga Titan / W Metal / Final Attack). Trùm là Daguba.
 - **Quái thế giới 2:** Jaguar Lord vàng = thường, Crow Lord xanh đen = nhanh, Tortoise Lord xanh rêu = giáp. Trùm là Overlord of Darkness.
 - **Quái thế giới 3:** Sheerghost xám bạc = thường, Raydragoon xanh ngọc = nhanh, Metalgelas nâu đồng = giáp. Trùm là Kamen Rider Odin.
-- Mở game sẽ vào màn hình **nhập tên nhân vật** trước.
+- Mở game sẽ vào **màn hình chính** (CHƠI / COMBAT), rồi tới màn **nhập tên nhân vật**.
 - **Vật phẩm rơi ra:** hình Driver của thế giới = Driver để kích hoạt · kim cương màu của Rider = form mới · kim cương cam, nhỏ = nạp nộ · hình Driver nhuộm xanh = Driver của thế giới kế tiếp (còn phong ấn). Hình Driver nằm ở `art/items/drivers/<id Rider>.png` (64×40, vẽ bằng lệnh pixel của PixelLab, không tốn lượt); thiếu hình thì hiện kim cương như cũ.
+
+## Đấu qua WiFi: 1 VS 1 và ALL COMBAT
+
+Ở màn hình chính chọn **COMBAT** (cần mở khoá ít nhất 1 Rider ở CHƠI, tức nhặt Driver đầu tiên ở màn 1-1; chưa có thì bấm vào chỉ hiện thông báo), đặt tên (tên hiện trong phòng đấu) rồi **Vào sảnh đấu**. Hai máy phải cùng một mạng WiFi. Ở sảnh, "◀ QUAY LẠI" / Esc về màn hình chính.
+
+1. **Máy A tạo phòng**, chọn một trong hai kiểu. Màn hình hiện IP của máy (vd `192.168.1.5`).
+   - **TẠO PHÒNG 1 VS 1**: đúng 2 người.
+   - **TẠO PHÒNG ALL COMBAT**: hỗn chiến 2–4 người, ai cũng đánh được tất cả. Gục thì nằm xem tới hết hiệp, **người cuối cùng còn đứng thắng hiệp**. Trên đầu mỗi nhân vật có bảng tên P1–P4 theo màu, HUD xếp các ô máu thành một hàng trên cùng.
+2. **Các máy khác:** phòng của máy A tự hiện trong danh sách "Phòng trong mạng WiFi" (kèm kiểu phòng và số người, vd "ALL COMBAT 2/4"), bấm vào để vào. Không thấy thì gõ IP của máy A rồi bấm **VÀO**.
+3. Mỗi người bấm **CHỌN RIDER**, gồm 3 bước (**hai người chọn trùng Rider cũng được**):
+   - **Rider**: chỉ các Rider đã mở khoá ở CHƠI, với cấp và sức mạnh như ở hành trình.
+   - **Form biến đổi**: tối đa 1 form đã nhặt được (Kuuga Dragon, W HeatMetal...), hoặc không chọn thì chỉ có form gốc. Rider chưa nhặt form nào thì bỏ qua bước này.
+   - **Vũ khí**: mang tối đa 2 item đã nhặt (Ryuki Sword Vent, Blade Mach Jaguar...) hoặc không mang. Rider chưa có item thì bỏ qua.
+
+   Trong trận chỉ đổi được sang form / vũ khí đã chọn (nút Kỹ năng L, tốn nộ như ở hành trình). Bộ đã chọn được lưu: lần sau vào phòng tự chọn sẵn, muốn đổi thì bấm CHỌN RIDER.
+4. Chủ phòng bấm **BẮT ĐẦU** khi đủ người (1 VS 1: 2 người; ALL COMBAT: từ 2 người) và ai cũng đã chọn. Thắng 2 hiệp là thắng trận. Có người thoát giữa trận thì tính như gục; còn dưới 2 người thì mọi người về phòng. Mỗi hiệp bắt đầu ở dạng người, nộ đầy: bấm **Biến thân (I)**. Luật như màn thường: máu Rider về 0 thì vỡ giáp về dạng người, máu người về 0 là thua hiệp. Phím và nút cảm ứng giữ nguyên. Bấm **Menu hai lần** để bỏ trận. Đấu xong mọi người quay về phòng: đấu lại hoặc đổi Rider.
+
+**Bản nào tạo phòng được:** kết nối bằng WebSocket (cổng TCP 24990, tìm phòng bằng UDP broadcast cổng 24991). Bản cài trên máy tính (chạy từ Godot bằng F5, hoặc xuất bản macOS / Windows / Linux / Android) tạo phòng, tìm phòng và vào phòng được. **Bản web (trình duyệt) chỉ VÀO phòng được, bằng cách gõ IP**: trình duyệt không mở server, không nghe UDP, và trang mở qua `https://` thì không kết nối được tới `ws://`. Lần đầu tạo phòng, macOS / Windows có thể hỏi cho phép kết nối đến: chọn Cho phép. Wi-Fi công cộng / khách sạn thường chặn các máy nói chuyện với nhau.
+
+Test tự động: các tiến trình Godot trên cùng máy, một tạo phòng, các máy khác tìm phòng qua broadcast (hoặc 127.0.0.1) rồi vào, bot tự đánh hết trận; in kết quả và số đòn trúng mỗi bên thấy. `RIDERS="faiz double"` để đổi Rider; 3–4 Rider (vd `RIDERS="kuuga ryuki faiz double"`) thì chạy phòng ALL COMBAT; `VERBOSE=--verbose` để in vị trí / trạng thái mỗi 2 giây:
+
+```bash
+sh tools/run_versus.sh
+```
 
 ## Kiểm tra tự động
 
@@ -124,12 +162,20 @@ scripts/
                                điểm ra quái, checkpoint, đường camera) + kiểm tra các đoạn không đè lên nhau
   levels/stage_run.gd          màn chơi cuộn ngang: camera, thả quái, rơi vực, vạch đích, trùm
   combat/projectile.gd         đạn của người chơi và quái
-  ui/rider_select.gd           màn chọn Rider chính trước mỗi màn (thẻ + thanh chỉ số)
+  ui/stage_select.gd           màn chọn màn (thế giới × 5 màn, mở dần, chơi lại được)
+  ui/rider_select.gd           màn chọn Rider dùng trong màn (thẻ + thanh chỉ số)
+  ui/item_select.gd            chọn tối đa 2 item mang vào màn
   ui/touch_controls.gd         nút cảm ứng: D-pad góc trái, Đánh + kỹ năng góc phải
+  ui/main_menu.gd              màn hình chính: CHƠI (hành trình) / COMBAT (đấu 2 người)
+  ui/name_entry.gd             đặt tên, rồi vào hành trình hoặc sảnh đấu theo lựa chọn ở màn hình chính
   ui/intro.gd                  phần mở đầu: các cảnh vẽ bằng code + thoại, thẻ tựa
   ui/dialogue_box.gd           khung thoại: chân dung, tên, chữ chạy, bỏ qua; dừng game khi thoại
   ui/earth_map.gd              bản đồ Chuỗi Trái Đất (intro và sau mỗi trùm)
-scenes/                        player.tscn, enemy.tscn, levels/stage_run.tscn, ui/name_entry.tscn, ui/intro.tscn
+  versus/versus.gd             đấu qua WiFi (1 VS 1 / ALL COMBAT 2–4 người): sảnh, phòng, chọn Rider, đấu trường, đồng bộ mạng, hiệp đấu
+  versus/versus_lan.gd         kết nối WebSocket (chủ phòng là server) + tìm phòng bằng UDP broadcast
+  versus/versus_hud.gd         thanh máu / nộ từng người chơi (tới 4 ô), số hiệp thắng, chữ lớn giữa màn hình
+scenes/                        player.tscn, enemy.tscn, levels/stage_run.tscn, ui/main_menu.tscn, ui/name_entry.tscn, ui/intro.tscn,
+                               versus/versus.tscn
 ```
 
 **Thêm một thế giới mới** (đặc tả đầy đủ: `docs/WORLD_FILES.md`, file mẫu `scripts/data/worlds/w02_agito.gd`):
@@ -147,15 +193,22 @@ python3 tools/import_pixellab.py --download
 
 Script tải nhân vật từ PixelLab (ID trong `art/pixellab/characters.json`) rồi ghi `art/characters/player_frames.tres` và `art/characters/enemy_frames.tres`. Nó tự tạo thêm, không tốn lượt PixelLab: 4 form Kuuga đổi màu từ Mighty, Grongi hạng Me và Go đổi màu từ Grongi Zu, cảnh biến hình, né và vỡ giáp.
 
-**Rider bộ gọn** (Agito, Ryuki, Faiz, Blade, Hibiki, Kabuto; bảng `DATA_RIDERS` trong script): PixelLab chỉ làm 5 animation (đứng, chạy, đấm, đá, bị đánh), mỗi Rider tốn 6 lượt kể cả tạo hình. Nhảy lấy frame chạy, cúi nén từ tư thế đứng, tuyệt chiêu là cú đá thêm lửa theo màu form. 3 form còn lại làm từ form gốc: Agito đổi màu giáp vàng (Storm xanh, Flame đỏ, Trinity nửa xanh nửa đỏ), Ryuki vẽ thêm kiếm / đầu rồng / khiên cho Sword, Strike, Guard Vent, Faiz đổi màu cho Axel và Blaster. Form theo nguyên tác: lá bài / đòn / khả năng giữ nguyên ngoại hình (Blade Mach Jaguar, Thunder Deer), form đổi ngoại hình thì đổi màu (Blade Jack Form giáp vàng, Hibiki Kurenai đỏ toàn thân), Hibiki Onibi và Kaentsuzumi chỉ rút dùi trống / trống ra khi đấm. Kabuto chỉ có Rider Form và Hyper Form; Hyper Form có hình riêng (`art/pixelengine/kabuto_hyper/`, khai báo bằng phần tử thứ ba của form trong `DATA_RIDERS`). Tốc độ đòn khớp kiểu đòn (`"style"`) của form trong file thế giới. Tiền tố animation là `<rider>_<form>` (ví dụ `agito_storm_run`).
+**Rider bộ gọn** (Agito, Ryuki, Faiz, Blade, Hibiki, Kabuto, Den-O, Kiva; bảng `DATA_RIDERS` trong script): PixelLab chỉ làm 5 animation (đứng, chạy, đấm, đá, bị đánh), mỗi Rider tốn 6 lượt kể cả tạo hình. Nhảy lấy frame chạy, cúi nén từ tư thế đứng, tuyệt chiêu là cú đá thêm lửa theo màu form. 3 form còn lại làm từ form gốc: Agito đổi màu giáp vàng (Storm xanh, Flame đỏ, Trinity nửa xanh nửa đỏ), Ryuki vẽ thêm kiếm / đầu rồng / khiên cho Sword, Strike, Guard Vent, Faiz đổi màu cho Axel và Blaster. Form theo nguyên tác: lá bài / đòn / khả năng giữ nguyên ngoại hình (Blade Mach Jaguar, Thunder Deer), form đổi ngoại hình thì đổi màu (Blade Jack Form giáp vàng, Hibiki Kurenai đỏ toàn thân), Hibiki Onibi và Kaentsuzumi chỉ rút dùi trống / trống ra khi đấm. Kabuto chỉ có Rider Form và Hyper Form; Hyper Form có hình riêng (`art/pixelengine/kabuto_hyper/`, khai báo bằng phần tử thứ ba của form trong `DATA_RIDERS`). Den-O mỗi form là một Imagin nhập vào nên cả 4 form đều có hình riêng: Sword (`art/pixelengine/den_o/`), Rod mặt nạ mai rùa xanh, Ax vàng, Gun rồng tím (`den_o_rod`, `den_o_ax`, `den_o_gun`). Kiva: Kiva Form ảnh gốc PixelEngine + 5 animation PixelLab (5 lượt); Garulu, Basshaa, Dogga đổi màu mắt và giáp nửa trên sang lam / lục / tím (`kiva_rule`), thắt lưng Kivat và chân giữ nguyên. Tốc độ đòn khớp kiểu đòn (`"style"`) của form trong file thế giới. Tiền tố animation là `<rider>_<form>` (ví dụ `agito_storm_run`).
 
 **Hiệu ứng đánh** (`scripts/combat/fx.gd`): vẽ bằng code, không tốn lượt. Mỗi form chọn hiệu ứng theo nguyên tác qua `"fx"` trong RIDER (Kuuga, Faiz: hằng `FX` trong script): `hit` khi trúng, `swing` khi vung (vệt chém, gió), `shot` kiểu đạn (cầu, tia sét, cầu lửa, mũi tên khí), `final` khi Final Attack trúng, `color`, `trail` (bóng mờ), `glide` (giữ Nhảy để lượn, Blade Jack Form). Ví dụ: Hibiki đánh ra sóng âm thanh tẩy, Blade Thunder Deer bắn tia sét, Kabuto Rider Kick bắn hạt tachyon. Form `"effect": "time"` (Clock Up, Hyper Clock Up, Faiz Axel): quái đi **và cử động** chậm còn 15%, Rider chạy **và ra đòn** nhanh ×1.6 kèm bóng mờ, màn hình ngả xanh, hiện `"time_call"`. Final Attack: chớp trắng + tên tuyệt chiêu.
 
 **Quái bộ gọn** (bảng `EXTRA_ENEMIES`): một loại quái thường làm bằng PixelLab (tạo + chạy, đánh, bị đánh, gục = 5 lượt), loại nhanh và loại giáp đổi màu từ nó. Trùm tốn 4 lượt (không có animation gục, dùng lại bị đánh). Khóa `"sprite"` của quái và trùm trong file thế giới trỏ tới tên bộ hình.
 
+**Quái ghép** (`tools/kitbash.py`, không tốn credit AI): quái thường PixelLab cùng mẫu dáng `mannequin` nên tư thế từng frame gần giống nhau. Script lấy animation thân của một trong 3 quái (Jaguar Lord lực lưỡng, Sheerghost mảnh, Grongi có cánh), dò vị trí và góc nghiêng của đầu ở từng frame, thay bằng đầu mới, rồi đổi màu cả con (màu nền + màu nhấn cho phần lông / trang sức vàng, giữ viền tối và độ sáng; Fangire có kiểu kính màu). Đầu mới hoặc cắt từ hình tĩnh có sẵn (sói Orphnoch, mèo Jaguar Lord, dơi Grongi, sọ Masquerade, mặt nạ Faiz), hoặc vẽ bằng code từ các mảnh `PARTS` (đầu tròn + mõm, mỏ, sừng, gạc, râu, mắt kép, vỏ ốc, mũ...). Frame dò không ra (nằm gục) giữ đầu cũ, chỉ đổi màu. Bảng `KITBASH` trong script có 72 quái cho thế giới 4–27 (thường / nhanh / giáp theo nguyên tác: Darkroach, Salis Worm, Mole Imagin, Spider Fangire, Masquerade Dopant, Waste Yummy...); kết quả ở `art/kitbash/<tên>/` cùng cấu trúc PixelLab, khai báo trong `EXTRA_ENEMIES` với `{}`, khóa `"sprite"` trong file thế giới:
+
+```
+python3 tools/kitbash.py --preview <thư_mục>
+python3 tools/import_pixellab.py
+```
+
 Lưu ý khi tạo animation mới: dùng animation mẫu (template) và chỉ hướng `east`, mỗi animation 1 lượt. Không chỉ hướng thì PixelLab làm cả 4 hướng, tốn gấp 4. Gói miễn phí chỉ chạy một việc mỗi lần.
 
-**PixelEngine** (Blade, Hibiki, Kabuto, Kabuto Hyper): `tools/pixelengine.py` gọi API [PixelEngine](https://pixelengine.ai/docs/api-reference), key đặt trong `.env` (mẫu `.env.example`, không commit). Một Rider tốn khoảng 74 credit: tạo hình 6 (`image --model oai_gpt25_low --ref <sprite mẫu>`, ra ~92 px nên phải thu về khung 68×68) + 5 animation 68 khi gửi gộp (`animate` 20 cho animation đầu, `batch` 20 + 12 mỗi animation thêm). Ảnh trả về có nền đặc (`--matte`, mặc định hồng), `pack` xoá nền, vá sừng / mào mà AI vẽ thiếu ở frame đánh (dò vị trí đầu theo ảnh gốc; `--crest-min 0.7` cho sừng to như Kabuto Hyper) rồi xếp vào `art/pixelengine/<tên>/` cùng cấu trúc PixelLab để `import_pixellab.py` đọc như thường. `fit --height 60` khi nhân vật có sừng cao để thân giữ cùng cỡ:
+**PixelEngine** (Blade, Hibiki, Kabuto, Kabuto Hyper, Ryuki theo nguyên tác `art/pixelengine/ryuki_canon/`: chạy làm bằng PixelEngine, 4 animation còn lại bằng PixelLab `animate_image` từ cùng ảnh gốc, cắt về 64×64 để mỗi animation tốn 1 lượt; Den-O: ảnh gốc Sword Form bằng PixelEngine, 3 form kia sửa từ ảnh đó bằng PixelLab `edit_image_pro_flash` (5 lượt mỗi ảnh 68×68), cả 5 animation mỗi form bằng PixelLab `animate_image` (1 lượt mỗi animation 68×68), tổng 35 lượt cho 4 form): `tools/pixelengine.py` gọi API [PixelEngine](https://pixelengine.ai/docs/api-reference), key đặt trong `.env` (mẫu `.env.example`, không commit). Một Rider tốn khoảng 74 credit: tạo hình 6 (`image --model oai_gpt25_low --ref <sprite mẫu>`, ra ~92 px nên phải thu về khung 68×68) + 5 animation 68 khi gửi gộp (`animate` 20 cho animation đầu, `batch` 20 + 12 mỗi animation thêm). Ảnh trả về có nền đặc (`--matte`, mặc định hồng), `pack` xoá nền, vá sừng / mào mà AI vẽ thiếu ở frame đánh (dò vị trí đầu theo ảnh gốc; `--crest-min 0.7` cho sừng to như Kabuto Hyper) rồi xếp vào `art/pixelengine/<tên>/` cùng cấu trúc PixelLab để `import_pixellab.py` đọc như thường. `fit --height 60` khi nhân vật có sừng cao để thân giữ cùng cỡ:
 
 ```bash
 python3 tools/pixelengine.py balance
@@ -166,6 +219,6 @@ python3 tools/import_pixellab.py
 
 Nhân vật PixelLab cao khoảng 60 px nên game chạy ở 480×270. Mọi thông số thiết kế (tầm đánh, tốc độ…) được nhân với `Units.SCALE = 1.8` (`scripts/core/units.gd`).
 
-W, quái thế giới 4 và các thế giới sau chưa có hình, sẽ hiện khối màu tạm. `tools/gen_sprites.py` vẽ sprite bằng code làm bản dự phòng (ghi vào `art/characters/procedural/`).
+W và trùm từ thế giới 4 trở đi chưa có hình, sẽ hiện khối màu tạm. `tools/gen_sprites.py` vẽ sprite bằng code làm bản dự phòng (ghi vào `art/characters/procedural/`).
 
 **Hình phần truyện:** `python3 tools/gen_story_art.py` vẽ chân dung khung thoại (`art/ui/portraits/`, cắt đầu từ sprite PixelLab đã tải và đổi màu cho các Echo Rider; Void và Pen vẽ bằng hình khối) cùng hành tinh và dáng Void (`art/story/`). Không tốn lượt PixelLab.

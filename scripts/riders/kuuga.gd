@@ -4,7 +4,10 @@ extends RiderForm
 ##   1-3 Pegasus (cầm Pegasus Bowgun: form duy nhất của Kuuga bắn được, đòn &"ranged")
 ##   1-4 Titan   (chậm, rất cứng, đòn &"heavy" phá giáp)
 ## Special (L) đổi form theo vòng Mighty → Dragon → Pegasus → Titan (các form đã mở).
-## Nút Đánh: Mighty / Dragon 3 đấm + 1 đá; Titan 2 đòn + 1 đá; Pegasus 2 phát bắn + 1 phát nạp mạnh.
+## Nút Đánh luôn là tay không: Mighty / Dragon / Pegasus 3 đấm + 1 đá; Titan 2 đòn nặng + 1 đá.
+## Vũ khí chỉ hiện khi dùng: Dragon Rod (nút Chém, 3 nhát quét gió + nhát kết đẩy bay), Titan Sword (nút Chém, 2 nhát
+## nặng + nhát kết), Pegasus Bowgun (nút Bắn, hiện ở tay lúc bắn).
+## Kỹ năng: Mighty Kick khắc dấu phong ấn bốc cháy (&"burn"); Calamity Titan đâm kiếm phong ấn làm choáng (&"stun").
 ## Lv5 Rising: mọi Final Attack x1.5.
 
 const FORMS := {
@@ -63,10 +66,10 @@ func _set_form(form_id: StringName) -> void:
 ## Hiệu ứng theo nguyên tác: Mighty Kick khắc dấu phong ấn bốc cháy trên quái; Dragon Rod quét gió;
 ## Pegasus Bowgun bắn mũi tên khí; Titan Sword chém nặng dội sóng chấn động.
 const FX := {
-	&"mighty":  {"hit": "spark", "final": "fire", "color": Color(1.0, 0.45, 0.3)},
-	&"dragon":  {"hit": "wind", "swing": "wind", "color": Color(0.4, 0.6, 1.0)},
-	&"pegasus": {"hit": "spark", "shot": "arrow", "color": Color(0.45, 0.95, 0.5)},
-	&"titan":   {"hit": "ring", "swing": "slash", "color": Color(0.75, 0.45, 1.0)},
+	&"mighty":  {"signature": "seal", "hit": "spark", "final": "fire", "color": Color(1.0, 0.45, 0.3)},
+	&"dragon":  {"signature": "seal", "hit": "wind", "swing": "wind", "color": Color(0.4, 0.6, 1.0)},
+	&"pegasus": {"signature": "seal", "hit": "spark", "shot": "arrow", "color": Color(0.45, 0.95, 0.5)},
+	&"titan":   {"signature": "seal", "hit": "ring", "swing": "slash", "color": Color(0.75, 0.45, 1.0)},
 }
 
 
@@ -98,7 +101,23 @@ func _apply_form() -> void:
 
 
 func punch_count() -> int:
-	return 2 if form == &"titan" or form == &"pegasus" else 3
+	return 2 if form == &"titan" else 3
+
+
+func has_blade() -> bool:
+	return form == &"dragon" or form == &"titan"
+
+
+func slash_count() -> int:
+	return 2 if form == &"titan" else 3
+
+
+func gun_look() -> String:
+	return "pegasus_bowgun" if form == &"pegasus" else ""
+
+
+func special_tags() -> Array:
+	return [&"crush"] if form == &"titan" else []
 
 
 func animation_prefix() -> String:
@@ -123,15 +142,24 @@ func get_attack(kind: StringName, chain: int) -> Dictionary:
 	if kind == &"swap_in":
 		return make_attack(8.0, 0.0, 0.1, 0.15, Vector2(26, 14), Vector2(16, -12), Vector2(120, -60))
 	var data: Dictionary
-	match form:
-		&"dragon":
-			data = _dragon(kind, chain)
-		&"pegasus":
-			data = _pegasus(kind, chain)
-		&"titan":
-			data = _titan(kind, chain)
-		_:
-			data = _mighty(kind, chain)
+	if kind == &"slash" or kind == &"slash_finish":
+		if not has_blade():
+			return {}
+		var k := &"light" if kind == &"slash" else &"kick"
+		data = _dragon(k, chain) if form == &"dragon" else _titan_sword(k)
+		data["anim"] = "slash"
+	elif kind == &"final":
+		match form:
+			&"dragon":
+				data = _dragon(kind, chain)
+			&"pegasus":
+				data = _pegasus(kind, chain)
+			&"titan":
+				data = _titan(kind, chain)
+			_:
+				data = _mighty(kind, chain)
+	else:
+		data = _titan(kind, chain) if form == &"titan" else _mighty(kind, chain)   # tay không
 	if kind == &"final" and level >= RISING_LEVEL and not data.is_empty():
 		data["damage"] = float(data["damage"]) * RISING_FINAL_MULT
 	return data
@@ -145,7 +173,7 @@ func _mighty(kind: StringName, _chain: int) -> Dictionary:
 			return make_attack(12.0, 0.12, 0.1, 0.3, Vector2(22, 14), Vector2(16, -14), Vector2(180, -70), [&"heavy"])
 		&"final":
 			return make_attack(60.0, 0.5, 0.25, 0.4, Vector2(28, 20), Vector2(16, -12), Vector2(260, -160),
-				[&"heavy"], {"lunge": Vector2(260, -120), "no_cancel": true})
+				[&"heavy", &"burn"], {"lunge": Vector2(260, -120), "no_cancel": true})
 	return {}
 
 
@@ -154,7 +182,7 @@ func _dragon(kind: StringName, _chain: int) -> Dictionary:
 		&"light":
 			return make_attack(4.0, 0.04, 0.08, 0.1, Vector2(30, 10), Vector2(20, -14), Vector2(40, -20))
 		&"kick":
-			return make_attack(10.0, 0.1, 0.12, 0.25, Vector2(34, 12), Vector2(22, -14), Vector2(160, -60))
+			return make_attack(10.0, 0.1, 0.12, 0.25, Vector2(34, 12), Vector2(22, -14), Vector2(220, -80), [&"force"])
 		&"final":
 			return make_attack(45.0, 0.45, 0.2, 0.4, Vector2(40, 16), Vector2(24, -14), Vector2(240, -120),
 				[], {"lunge": Vector2(200, -200), "no_cancel": true})
@@ -182,5 +210,12 @@ func _titan(kind: StringName, _chain: int) -> Dictionary:
 			return make_attack(25.0, 0.24, 0.12, 0.45, Vector2(28, 18), Vector2(18, -14), Vector2(240, -100), [&"heavy"])
 		&"final":
 			return make_attack(70.0, 0.55, 0.2, 0.5, Vector2(34, 24), Vector2(18, -14), Vector2(300, -160),
-				[&"heavy"], {"no_cancel": true})
+				[&"heavy", &"stun"], {"no_cancel": true})
 	return {}
+
+
+## Titan Sword (nút Chém): tầm dài hơn tay, nặng, phá giáp.
+func _titan_sword(kind: StringName) -> Dictionary:
+	if kind == &"light":
+		return make_attack(11.0, 0.15, 0.1, 0.3, Vector2(32, 16), Vector2(22, -14), Vector2(70, -20), [&"heavy"])
+	return make_attack(28.0, 0.25, 0.12, 0.45, Vector2(36, 18), Vector2(24, -14), Vector2(260, -100), [&"heavy"])

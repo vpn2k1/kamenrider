@@ -14,9 +14,9 @@ const WORLD := {
 	"driver_name": "Sengoku Driver",
 	"color": Color(1.0, 0.55, 0.05),
 	"enemies": {
-		"basic": {"name": "Inves sơ cấp", "color": Color(0.5, 0.75, 0.35)},
-		"fast": {"name": "Komori Inves", "color": Color(0.7, 0.3, 0.35)},
-		"armored": {"name": "Shika Inves", "color": Color(0.62, 0.5, 0.35)},
+		"basic": {"name": "Inves sơ cấp", "color": Color(0.5, 0.75, 0.35), "sprite": "elementary_inves"},
+		"fast": {"name": "Komori Inves", "color": Color(0.7, 0.3, 0.35), "sprite": "komori_inves"},
+		"armored": {"name": "Shika Inves", "color": Color(0.62, 0.5, 0.35), "sprite": "shika_inves"},
 	},
 	"unlocks": [
 		"Orange Arms (form gốc)",
@@ -48,20 +48,44 @@ const RIDER := {
 	"base": &"orange",
 	"order": [&"orange", &"pine", &"ichigo", &"jimber_lemon"],
 	"forms": {
+		# Orange Arms: kiếm Daidaimaru (nút Chém). Naginata Musou Slicer nhốt quái trong lát cam (choáng).
 		&"orange": {"name": "Orange Arms", "style": "blade", "hp": 160.0, "armor": 25.0, "speed": 130.0,
-			"jump": 1.05, "atk": 1.1, "poise": 8.0, "final": "Naginata Musou Slicer"},
+			"jump": 1.05, "atk": 1.1, "poise": 8.0, "final": "Naginata Musou Slicer", "blade": {"look": "daidaimaru"},
+			"attacks": {"final": {"tags": [&"stun"]}},
+			"fx": {"hit": "spark", "swing": "slash", "final": "ring", "color": Color(1.0, 0.55, 0.1)}},
+		# Pine Arms: chùy xích Pine Iron (nút Chém, đòn nặng). Pine Squash ném chùy kéo quái về, nhốt trong quả dứa.
 		&"pine": {"name": "Pine Arms", "style": "heavy", "hp": 200.0, "armor": 55.0, "speed": 85.0,
-			"jump": 0.85, "atk": 1.4, "poise": 18.0, "final": "Pine Squash"},
+			"jump": 0.85, "atk": 1.4, "poise": 18.0, "final": "Pine Squash", "blade": {"look": "pine_iron", "style": "heavy"},
+			"attacks": {"final": {"size": Vector2(90, 22), "offset": Vector2(50, -14), "knockback": Vector2(-120, -40),
+				"tags": [&"force", &"stun"]}},
+			"fx": {"hit": "ring", "swing": "slash", "final": "ring", "color": Color(0.95, 0.8, 0.25)}},
+		# Ichigo Arms: ném Ichigo Kunai (nút Bắn). Ichigo Squash bật cao, trút mưa kunai xuống vùng trước mặt.
 		&"ichigo": {"name": "Ichigo Arms", "style": "lancer", "hp": 132.0, "armor": 10.0, "speed": 175.0,
 			"jump": 1.3, "atk": 0.9, "poise": 4.0, "final": "Ichigo Squash",
-			"gun": {"damage": 3.5, "speed": 420.0, "cooldown": 0.4, "count": 2, "spread": 0.08, "radius": 2.5,
-				"color": Color(1.0, 0.3, 0.35), "life": 0.6}},
+			"gun": {"look": "ichigo_kunai", "damage": 3.5, "speed": 420.0, "cooldown": 0.4, "count": 2, "spread": 0.08,
+				"radius": 2.5, "color": Color(1.0, 0.3, 0.35), "life": 0.6},
+			"attacks": {"final": {"hits": 4, "damage": 13.0, "size": Vector2(80, 40), "offset": Vector2(50, -20)}},
+			"fx": {"hit": "spark", "shot": "arrow", "final": "ring", "trail": true, "color": Color(1.0, 0.3, 0.35)}},
+		# Jimber Lemon Arms: cung Sonic Arrow (nút Bắn, xuyên). Sonic Volley: mũi tên chanh xuyên dài, phá giáp, hất văng.
 		&"jimber_lemon": {"name": "Jimber Lemon Arms", "style": "gunner", "hp": 150.0, "armor": 20.0, "speed": 120.0,
 			"jump": 1.05, "atk": 1.0, "poise": 6.0, "final": "Sonic Volley",
-			"gun": {"damage": 7.5, "speed": 440.0, "cooldown": 0.45, "radius": 3.0, "pierce": true,
-				"color": Color(1.0, 0.92, 0.3), "life": 0.9}},
+			"gun": {"look": "sonic_arrow", "damage": 7.5, "speed": 440.0, "cooldown": 0.45, "radius": 3.0, "pierce": true,
+				"color": Color(1.0, 0.92, 0.3), "life": 0.9},
+			"attacks": {"final": {"damage": 58.0, "size": Vector2(230, 12), "offset": Vector2(120, -16),
+				"tags": [&"heavy", &"force"]}},
+			"fx": {"hit": "spark", "shot": "arrow", "final": "ring", "color": Color(1.0, 0.9, 0.3)}},
 	},
 	"lv5": {"name": "Kiwami Arms", "final_mult": 1.5},
+	"final_fx": {"intro": "crack", "signature": "fruit"},
+}
+
+## Giọng Sengoku Driver (tools/gen_audio.py → audio/voice/gaim_<khóa>.wav), xem VOICE của w01_kuuga.gd.
+const VOICE := {
+	"henshin": ["belt_deep", "Lock on! Soiya! Orange Arms! Hanamichi, on stage!"],
+	"pine": ["belt_deep", "Pine Arms! Funsai, destroy!"],
+	"ichigo": ["belt_deep", "Ichigo Arms! Shushutto spark!"],
+	"jimber_lemon": ["belt_deep", "Mix! Jimber Lemon! Ha-ha!"],
+	"final": ["belt_deep", "Soiya! Squash!"],
 }
 
 const SPEAKERS := {

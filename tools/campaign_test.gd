@@ -7,6 +7,9 @@ extends Node
 ##
 ## Chạy một đoạn: CAMP_FROM="4-1" (bắt đầu từ màn đó, có sẵn Driver / cấp / form như khi chơi tới đó) và
 ## CAMP_TO="6-B" (dừng sau màn đó). tools/run_campaign.sh chạy cả 27 thế giới thành nhiều phần song song.
+## Màn EX: CAMP_FROM="1-EX" CAMP_TO="27-EX" chơi lần lượt màn EX của từng thế giới (mỗi lần coi như đã giải cứu thế
+## giới đó: có Driver, Lv5, mọi form của thế giới). Bot mang form / item khắc chế quái đặc biệt của màn (RiderCaps),
+## gặp quái đặc biệt mà form đang dùng không khắc chế thì đổi form (Special) khi đủ nộ.
 ##
 ## Bot: chạy sang phải, đánh quái gần, bắn khi form có súng, nhảy qua vực, đi nhặt vật phẩm rơi,
 ## cúi khi đạn cao bay tới và nhảy khi đạn thấp bay tới, biến thân khi nộ đầy, đổi form khi đủ nộ,
@@ -61,10 +64,16 @@ var _hunting := false             ## đã tới vạch đích mà còn quái: s�
 var _hunt_best := INF            ## khoảng cách gần nhất tới quái đang săn
 var _hunt_since := 0
 var _hunt_prey: Node2D = null     ## quái đang săn (đổi con thì tính lại từ đầu)
+var _prey_since := 0              ## bắt đầu săn con hiện tại (săn quá 20 giây vẫn chưa hạ được thì dịch chuyển)
 var _hold := 0                    ## CAMP_SHOW: dừng ở mỗi màn chọn 90 khung hình để quay hình giao diện
 var _menu_tested := false         ## CAMP_MENU: bấm Menu một lần giữa màn, phải về màn chọn màn rồi chơi lại được
 var _warps := 0                   ## số lần dịch chuyển bot tới quái còn sót (bot không tự dẫn đường ngược được)
 var _report: Array[String] = []
+var _ex_world := -1               ## chế độ màn EX (CAMP_FROM="N-EX"): chỉ số thế giới của màn EX kế tiếp
+var _counter_cache := {}          ## "rider/form" -> RiderCaps.counters
+var _fight_target: Node2D = null  ## quái đang đứng đánh và máu của nó lần cuối giảm
+var _fight_hp := 0.0
+var _fight_since := 0
 var _bad_stages := 0
 
 var _seen_enemies := {}
@@ -105,25 +114,49 @@ func _process(_delta: float) -> void:
 	if stage._dialogue.is_open() or stage.phase == stage.Phase.TALK:
 		stage._dialogue.advance()
 		return
-	if stage.phase in [stage.Phase.MAP, stage.Phase.SELECT, stage.Phase.ITEMS] and OS.get_environment("CAMP_SHOW") != "":
+	if stage.phase in [stage.Phase.MAP, stage.Phase.SELECT, stage.Phase.FORMS, stage.Phase.ITEMS] and OS.get_environment("CAMP_SHOW") != "":
 		_hold += 1
 		if _hold < 90:
 			return
 		_hold = 0
 	if stage.phase == stage.Phase.MAP:
-		if GameState.is_demo_finished():
+		if _all_done():
 			_finish()
 		elif stage._stage_select.visible:
-			stage._stage_select.pick(GameState.frontier_world, GameState.frontier_stage)
+			if _ex_world >= 0:
+				_pick_ex()
+			else:
+				stage._stage_select.pick(GameState.frontier_world, GameState.frontier_stage)
 		return
 	if stage.phase == stage.Phase.SELECT:
 		_choose_rider()
 		return
+	if stage.phase == stage.Phase.FORMS:
+		# Mang form nhặt gần nhất (thường mạnh nhất); màn EX: form khắc chế quái đặc biệt (không có thì form gốc,
+		# khắc chế bằng item).
+		var forms := GameState.owned_forms(GameState.main_rider)
+		var pick: Array[StringName] = []
+		pick.assign(forms.slice(forms.size() - 1))
+		var special: StringName = GameState.current_stage().get("special", &"")
+		if special != &"":
+			pick.assign(forms.filter(func(f): return _counters(GameState.main_rider, f, special)).slice(0, 1))
+		stage._form_select.pick(pick)
+		return
 	if stage.phase == stage.Phase.ITEMS:
-		stage._item_select.pick(GameState.owned_items(GameState.main_rider))
+		# Màn EX: item khắc chế đứng đầu (chỉ mang được GameState.MAX_ITEMS món).
+		var items: Array[StringName] = GameState.owned_items(GameState.main_rider)
+		var special: StringName = GameState.current_stage().get("special", &"")
+		if special != &"":
+			var first: Array[StringName] = []
+			first.assign(items.filter(func(f): return _counters(GameState.main_rider, f, special)))
+			for f in items:
+				if not first.has(f):
+					first.append(f)
+			items = first
+		stage._item_select.pick(items)
 		return
 	_track_stage()
-	if GameState.is_demo_finished():
+	if _all_done():
 		_finish()
 		return
 	_track_nodes()
@@ -141,7 +174,8 @@ func _process(_delta: float) -> void:
 	if OS.get_environment("CAMP_DEBUG") != "" and frame % 60 == 0:
 		print("   t=%d %s phase=%d x=%d y=%d s=%d/%d cam_s=%d state=%d form=%s hp=%d quái=%d" % [frame / 60, GameState.current_stage()["id"],
 			stage.phase, int(player.global_position.x), int(player.global_position.y), int(stage.player_s()), int(stage.layout["length"]), int(stage.cam_s),
-			player.state, _form_name(), player.hp, get_tree().get_nodes_in_group("enemies").size()])
+			player.state, _form_name(), player.hp, get_tree().get_nodes_in_group("enemies").size()] + " nộ=%d phím=%s chạm=%s" % [int(player.rage), str(held),
+			_touching()])
 		if stage.phase == stage.Phase.GOAL_FIGHT or _route_done():
 			for e in get_tree().get_nodes_in_group("enemies"):
 				var en := e as Enemy
@@ -162,19 +196,60 @@ func _jump_to(stage_id: String) -> void:
 		var stages: Array = world["stages"]
 		for i in stages.size():
 			if stages[i]["id"] == stage_id:
+				if stages[i]["type"] == WorldData.StageType.CHALLENGE:
+					# Các màn chính của thế giới w đã được cấp ở vòng lặp. Có màn đã qua thì StageRun mở màn chọn màn
+					# (không vào thẳng màn xa nhất).
+					_ex_world = w
+					GameState.cleared_stages.append(str(stages[i - 1]["id"]))
+					return
 				GameState.frontier_world = w
 				GameState.frontier_stage = i
 				GameState.worlds_cleared = w
 				return
-			# Màn đã qua: Driver kích hoạt, lên cấp, form của màn đã nhặt, Driver thế giới kế phong ấn.
-			var rider: StringName = world["rider"]
-			GameState.activate_driver(rider)
-			GameState.set_level(rider, int(stages[i]["reward_level"]))
-			if stages[i].has("form"):
-				GameState.unlock_form(rider, stages[i]["form"])
-			if stages[i]["type"] == WorldData.StageType.BOSS:
-				GameState.obtain_driver(world["next_driver"])
+			_grant(w, i)
 	push_warning("CAMP_FROM: không có màn %s" % stage_id)
+
+
+## Coi như đã qua màn i của thế giới w: Driver kích hoạt, lên cấp, form của màn đã nhặt, Driver thế giới kế phong ấn.
+## Màn EX không thuộc chuỗi tiến trình nên bỏ qua.
+func _grant(w: int, i: int) -> void:
+	var world: Dictionary = WorldData.WORLDS[w]
+	var st: Dictionary = world["stages"][i]
+	if st["type"] == WorldData.StageType.CHALLENGE:
+		return
+	var rider: StringName = world["rider"]
+	GameState.activate_driver(rider)
+	GameState.set_level(rider, int(st["reward_level"]))
+	if st.has("form"):
+		GameState.unlock_form(rider, st["form"])
+	if st["type"] == WorldData.StageType.BOSS:
+		GameState.obtain_driver(world["next_driver"])
+
+
+## Chế độ EX: cấp mọi màn chính của thế giới (như đã giải cứu) rồi chọn màn EX của nó.
+func _pick_ex() -> void:
+	var world: Dictionary = WorldData.WORLDS[_ex_world]
+	for i in int(world["main_count"]):
+		_grant(_ex_world, i)
+	GameState.frontier_world = maxi(GameState.frontier_world, _ex_world + 1)
+	GameState.frontier_stage = 0
+	GameState.worlds_cleared = GameState.frontier_world
+	stage._stage_select.pick(_ex_world, int(world["main_count"]))
+
+
+## Hết việc: qua hết mọi thế giới (chế độ thường) hoặc hết màn EX (chế độ EX).
+func _all_done() -> bool:
+	if _ex_world >= 0:
+		return _ex_world >= WorldData.WORLDS.size()
+	return GameState.is_demo_finished()
+
+
+## Form `form_id` của Rider đang dùng hạ được loại quái đặc biệt `special` không (có lưu đệm).
+func _counters(rider: StringName, form_id: StringName, special: StringName) -> bool:
+	var key := "%s/%s" % [rider, form_id]
+	if not _counter_cache.has(key):
+		_counter_cache[key] = RiderCaps.counters(rider, form_id)
+	return (_counter_cache[key] as Array).has(special)
 
 
 # --- Theo dõi ---------------------------------------------------------------
@@ -184,9 +259,11 @@ func _track_stage() -> void:
 		var done_id := _stage_id
 		_end_stage("OK")
 		_stage_id = ""
+		if done_id.ends_with("-EX"):
+			_ex_world += 1
 		if done_id == OS.get_environment("CAMP_TO"):
 			_finish()
-	elif stage.phase == stage.Phase.RUN and _stage_id == "" and not GameState.is_demo_finished():
+	elif stage.phase == stage.Phase.RUN and _stage_id == "" and not _all_done():
 		_begin_stage(GameState.current_stage()["id"])
 
 
@@ -373,7 +450,18 @@ func _drive() -> void:
 	var close := target != null and absf(target.global_position.x - px) < 50.0 \
 		and absf(target.global_position.y - py) < 40.0
 	var stalled: bool = stage.phase == stage.Phase.RUN and _secs(frame - _stuck_since) > 6.0
-	if close and not stalled:
+	# Đứng đánh 5 giây mà quái không mất máu (đòn không với tới, quái đặc biệt chặn đòn): thôi đứng đánh, bước tới sát
+	# quái (xuống khỏi thùng, đổi độ cao) như người chơi thật.
+	if close and (target != _fight_target or (target as Enemy).hp < _fight_hp - 0.01):
+		_fight_target = target
+		_fight_hp = (target as Enemy).hp
+		_fight_since = frame
+	var futile := close and _secs(frame - _fight_since) > 5.0
+	if futile:
+		_move_to(target.global_position)
+		if _secs(frame - _fight_since) > 7.0:
+			_fight_since = frame   # thử đánh lại
+	elif close and not stalled:
 		_stuck_since = frame   # đang đánh: đứng yên không tính là kẹt
 		_hunt_since = frame
 		var want_dir := "move_right" if target.global_position.x > px else "move_left"
@@ -395,6 +483,7 @@ func _drive() -> void:
 			_hunt_prey = prey
 			_hunt_best = INF
 			_hunt_since = frame
+			_prey_since = frame
 		_move_to(_hunt_point(prey))
 		# Bot không tự leo ngược giếng / vòng qua khối được như người: săn 8 giây không tới gần hơn thì dịch chuyển
 		# tới cạnh quái (ghi số lần vào báo cáo, không tính là lỗi màn). Gần hơn tính theo lộ trình khi quái ở đoạn
@@ -404,8 +493,20 @@ func _drive() -> void:
 		if dist < _hunt_best - 20.0:
 			_hunt_best = dist
 			_hunt_since = frame
-		elif _secs(frame - _hunt_since) > 8.0:
-			player.global_position = prey.global_position + Vector2(-24.0 * signf(prey.global_position.x - px), -8.0)
+		elif _secs(frame - _hunt_since) > 8.0 or (_secs(frame - _prey_since) > 20.0 and dist > 80.0):
+			# Leo ngược giếng tụt: nhảy lên rơi xuống làm khoảng cách theo lộ trình lúc gần lúc xa, nên ngoài "8 giây
+			# không gần hơn" còn giới hạn tổng 20 giây cho một con.
+			_prey_since = frame
+			var to := prey.global_position + Vector2(-24.0 * signf(prey.global_position.x - px), -8.0)
+			# Quái (chỉ người chơi bị tường chặn) có thể đi ra sau tường vô hình đầu màn: dịch chuyển vào phía trong
+			# tường, không thì bot kẹt ngoài màn. Quái tự đuổi theo vào.
+			var wall: Rect2 = stage._start_wall
+			if wall.has_area() and to.y > wall.position.y and to.y < wall.end.y:
+				if wall.get_center().x > StageBuilder.path_point(stage.layout, 0.0).x:
+					to.x = minf(to.x, wall.position.x - 16.0)
+				else:
+					to.x = maxf(to.x, wall.end.x + 16.0)
+			player.global_position = to
 			player.velocity = Vector2.ZERO
 			# Camera nhảy theo luôn: không thì chỗ mới nằm ngoài khung nhìn cũ, StageRun tính là rơi vực và đưa
 			# người chơi về chỗ đứng cũ (dịch chuyển mãi không tới).
@@ -561,9 +662,33 @@ func _use_rage() -> void:
 	if boss != null and player.can_final() and absf(boss.global_position.x - player.global_position.x) < 60.0:
 		_press("final_attack")
 		return
+	# Màn EX: quái đặc biệt ở gần mà form đang dùng không hạ được → đổi form (vòng Special) tới form khắc chế.
+	var special := _special_near()
+	if special != &"":
+		if _counters(form.rider_id, form.current_form_id(), special):
+			return
+		if form.special_available() and (player.in_special_form() or player.rage >= 40.0):
+			_press("special")
+		return
 	if not player.in_special_form() and form.special_available() and player.rage >= 70.0:
 		_press("special")
 		return
+
+
+## Loại quái đặc biệt (Enemy.SPECIALS) gần nhất trong 260 px. &"" = không có.
+func _special_near() -> StringName:
+	var best := &""
+	var best_d := 260.0
+	for e in get_tree().get_nodes_in_group("enemies"):
+		var en := e as Enemy
+		if en == null or en.state == Enemy.State.DEAD:
+			continue
+		for t in en.traits:
+			var d := en.global_position.distance_to(player.global_position)
+			if Enemy.SPECIALS.has(t) and d < best_d:
+				best = t
+				best_d = d
+	return best
 
 
 ## "crouch": đạn cao đang bay tới, hoặc lính gần đó đang tụ đạn cao (ửng đỏ)
@@ -629,6 +754,17 @@ func _release_all() -> void:
 	for a in held:
 		Input.action_release(a)
 	held.clear()
+
+
+## CAMP_DEBUG: vật người chơi đang chạm (tên node cha của collider, vị trí).
+func _touching() -> String:
+	var out: Array[String] = []
+	for i in player.get_slide_collision_count():
+		var c := player.get_slide_collision(i)
+		var n := c.get_collider() as Node
+		out.append("%s/%s@%s" % [n.get_parent().name if n and n.get_parent() else "?", n.name if n else "?",
+			str(c.get_position().round())])
+	return ",".join(out)
 
 
 func _secs(frames: int) -> float:

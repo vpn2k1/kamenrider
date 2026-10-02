@@ -14,9 +14,9 @@ const WORLD := {
 	"driver_name": "Seiken Swordriver",
 	"color": Color(1.0, 0.3, 0.22),
 	"enemies": {
-		"basic": {"name": "Shimi", "color": Color(0.68, 0.62, 0.5)},
-		"fast": {"name": "Piranha Megid", "color": Color(0.35, 0.75, 0.8)},
-		"armored": {"name": "Golem Megid", "color": Color(0.6, 0.52, 0.42)},
+		"basic": {"name": "Shimi", "color": Color(0.68, 0.62, 0.5), "sprite": "shimi"},
+		"fast": {"name": "Piranha Megid", "color": Color(0.35, 0.75, 0.8), "sprite": "piranha_megid"},
+		"armored": {"name": "Golem Megid", "color": Color(0.6, 0.52, 0.42), "sprite": "golem_megid"},
 	},
 	"unlocks": [
 		"Brave Dragon (form gốc)",

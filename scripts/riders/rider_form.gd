@@ -7,7 +7,10 @@ class_name RiderForm
 ## mở khi nhặt được ở màn (GameState.unlock_form). Ở form đặc biệt, thanh nộ tụt dần theo
 ## rage_drain(); nộ về 0 thì Player đưa Rider về form gốc. Special (L) đổi form, xem try_special().
 ##
-## Súng: get_shot() trả {} = form không có súng (không bắn được). Chỉ form cầm súng mới ghi đè.
+## Súng: get_shot() trả {} = form không có súng (không bắn được). Chỉ form cầm súng mới ghi đè. Hình súng (gun_look)
+## chỉ hiện ở tay lúc bắn.
+## Kiếm / vũ khí cận chiến: has_blade() = có nút Chém. Nút Đánh luôn là đấm / đá tay không; nút Chém ra chuỗi
+## &"slash" (slash_count() nhát) rồi &"slash_finish", animation "slash" (hình có vũ khí, tools/import_pixellab.py).
 ##
 ## Dữ liệu một đòn đánh (Dictionary, tạo bằng make_attack):
 ##   damage, startup, active, recovery   — sát thương gốc và thời gian 3 pha (giây)
@@ -52,7 +55,7 @@ func update(delta: float) -> void:
 
 
 ## kind: &"light" (đòn đấm thứ chain trong chuỗi: 0, 1, 2...), &"kick" (cú đá kết thúc chuỗi),
-## &"swap_in", &"final".
+## &"slash" / &"slash_finish" (nút Chém, chỉ khi has_blade()), &"swap_in", &"final".
 func get_attack(_kind: StringName, _chain: int) -> Dictionary:
 	return {}
 
@@ -60,6 +63,35 @@ func get_attack(_kind: StringName, _chain: int) -> Dictionary:
 ## Số đòn &"light" trước cú đá kết thúc. Form thường 3, form nặng / bắn xa 2.
 func punch_count() -> int:
 	return 3
+
+
+## Form có kiếm / vũ khí cận chiến (hiện nút Chém).
+func has_blade() -> bool:
+	return false
+
+
+## Số nhát &"slash" trước nhát kết &"slash_finish".
+func slash_count() -> int:
+	return 3
+
+
+## Tiếng vung đòn (audio/sfx/) lúc ra đòn `kind`. "" = không phát (Final đã có tiếng nạp riêng).
+func swing_sfx(kind: StringName) -> String:
+	match kind:
+		&"light":
+			return "punch"
+		&"kick", &"swap_in":
+			return "kick"
+		&"slash":
+			return "slash"
+		&"slash_finish":
+			return "slash_heavy"
+	return ""
+
+
+## Tên hình súng trong art/characters/weapons/ hiện ở tay lúc bắn. "" = không vẽ súng.
+func gun_look() -> String:
+	return ""
 
 
 # --- Form ------------------------------------------------------------------
@@ -83,15 +115,19 @@ func rage_drain() -> float:
 	return RAGE_DRAIN
 
 
+## Form dùng được trong màn: form gốc, form đã mở, item thì phải đang mang theo (GameState.form_usable).
 func has_form(form_id: StringName) -> bool:
-	return form_id == base_form() or GameState.has_form(rider_id, form_id)
+	return form_id == base_form() or GameState.form_usable(rider_id, form_id)
 
 
 ## Đổi sang form `form_id` (gọi khi nhặt form, khi hết nộ, khi đổi Rider). Giữ nguyên tỉ lệ máu Rider.
 func set_form(form_id: StringName) -> void:
 	var old_max := get_max_hp()
+	var before := current_form_id()
 	_set_form(form_id)
 	_notify_max_hp(old_max)
+	if player and player.current_form == self and current_form_id() != before:
+		player.on_form_changed(self)
 
 
 func reset_to_base() -> void:
@@ -140,6 +176,13 @@ func get_shot() -> Dictionary:
 
 func has_gun() -> bool:
 	return not get_shot().is_empty()
+
+
+## Tag đặc tính của form, Player cộng vào MỌI đòn và đạn của form: &"crush" form nặng (Titan, Ax, Dogga, Metal...)
+## xuyên được da quái khổng lồ; &"time" form tăng tốc thời gian (Axel, Clock Up...) đánh trúng quái siêu tốc.
+## Xem Enemy.SPECIALS.
+func special_tags() -> Array:
+	return []
 
 
 ## Hiệu ứng của form hiện tại, ghi đè các khóa cần đổi so với Player.DEFAULT_FX:

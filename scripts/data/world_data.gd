@@ -2,32 +2,42 @@ extends RefCounted
 class_name WorldData
 ## Các thế giới Rider, xếp theo NĂM PHÁT SÓNG (FILES). Mỗi thế giới là một file trong scripts/data/worlds/
 ## (xem file mẫu w02_agito.gd), gồm các hằng:
-##   WORLD       : Rider, Driver, quái, 5 màn, trùm (bên dưới)
+##   WORLD       : Rider, Driver, quái, các màn (thường 5), trùm (bên dưới)
 ##   RIDER       : dữ liệu Rider cho DataRider (Kuuga / Faiz / W có script riêng thì để {})
 ##   SPEAKERS    : người nói riêng của thế giới (Echo Rider, trùm...), gộp vào StoryData.SPEAKERS
-##   STORY       : hội thoại theo màn, khóa "1".."4", "B" → nhịp "start" / "goal" / "key" / "clear"
+##   STORY       : hội thoại theo màn, khóa "1".."4" (hoặc tới "N-1"), "B" → nhịp "start" / "goal" / "key" / "clear"
 ##   WORLD_CLEAR : thoại trên bản đồ Chuỗi Trái Đất sau khi hạ trùm
 ##
-## Mọi thế giới dùng chung khuôn 5 màn:
+## Thế giới dùng chung khuôn 5 màn (bậc 0..4 = khóa "tier" bộ nạp điền):
 ##   X-1 Thức tỉnh : chơi bằng Rider cũ (thế giới 1: dạng người), quái rơi Driver → nhặt → biến thân form gốc, Lv1
 ##   X-2..X-4      : màn luyện tập, quái rơi một form ("form" / "form_name"; Rider ít form như Kabuto có màn
 ##                   không rơi form), qua màn Rider +1 cấp
 ##   X-B Trùm      : hạ trùm → Lv5 + rơi Driver của thế giới kế tiếp (còn phong ấn)
-## Bộ nạp tự điền: "id" màn ("4-1".."4-B" theo vị trí trong FILES), "type", "reward_level", "next_driver" /
+## Rider nhiều form (OOO) có thể có nhiều màn luyện tập hơn (X-2..X-8): các màn này chia đều vào bậc 1..3, nên cấp
+## thưởng, độ khó, lộ trình và đợt quái mặc định vẫn theo khuôn 5 màn (tier_of).
+## Bộ nạp tự điền: "id" màn ("4-1".."4-B" theo vị trí trong FILES), "type", "tier", "reward_level", "next_driver" /
 ## "next_driver_name" (Driver của file kế tiếp; thế giới cuối rơi Chrono Driver), "route" và "waves" mặc định
 ## nếu file không ghi, đường dẫn ảnh nền "bg", và nhân máu / sát thương trùm theo thế hệ.
 ##
 ## Khóa của một màn trong WORLD["stages"]:
 ##   "name"       tên màn                      "goal"      mục tiêu (màn Thức tỉnh)
-##   "form", "form_name"  form quái rơi ra ở màn (X-2..X-4)
+##   "form", "form_name"  form quái rơi ra ở màn luyện tập
 ##   "bg"         tên ảnh nền art/backgrounds/<bg>.png; "bg_theme" kiểu nền để tools/gen_backgrounds.py vẽ
 ##   "bg_tint"    màu phủ nền (tùy chọn)       "route", "waves"  (tùy chọn, xem StageBuilder)
 ##   "boss"       (X-B) {name, hp, damage, poise, speed, traits, color, sprite}: chỉ số ở thế giới 1,
 ##                bộ nạp nhân theo thế hệ (BOSS_HP_PER_WORLD, BOSS_DMG_PER_WORLD)
-## Loại quái trong "waves": "basic", "fast", "armored", "boss".
+## Loại quái trong "waves": "basic", "fast", "armored", "boss" và quái đặc biệt "flying", "giant", "phantom", "spectral"
+## (Enemy.SPECIALS, chỉ đòn đúng loại mới gây sát thương).
+##
+## Màn EX (StageType.CHALLENGE): mỗi thế giới có thêm một màn đặc biệt sau màn Trùm, id "<số>-EX", mở khi đã giải cứu
+## thế giới đó, không nằm trong chuỗi tiến trình (không mở màn kế, không lên cấp). Quái đặc biệt một loại
+## (CHALLENGE_THEMES theo thứ tự FILES, hoặc WORLD "challenge": {"special", "name", "waves", "route", "bg"} để ghi đè)
+## lẫn với quái thường (quái thường cho nộ để vào form khắc chế). Qua lần đầu thưởng GameState.CHALLENGE_FRAGMENTS.
+## Mỗi màn chỉ một loại quái đặc biệt vì mỗi màn chỉ mang được một form biến đổi (cộng item).
+## w["main_count"] = số màn chính (không tính EX).
 ## "sprite": tiền tố animation trong art/characters/enemy_frames.tres. Thiếu thì hiện khối màu tạm.
 
-enum StageType { AWAKEN, TRAINING, BOSS }
+enum StageType { AWAKEN, TRAINING, BOSS, CHALLENGE }
 
 ## Thứ tự năm phát sóng. Đổi thứ tự / chèn thế giới mới = sửa danh sách này (số màn và chuỗi Driver tự tính lại).
 const FILES := [
@@ -74,6 +84,19 @@ const DEFAULT_ROUTES := [
 	[["left", "up", "left"], ["left", "down", "right"], ["left", "down", "right", "down", "left"], ["right", "up", "left"]],
 	[["up", "right"], ["left"], ["right", "up", "right"], ["right"]],
 ]
+## Loại quái đặc biệt của màn EX từng thế giới (theo FILES), chọn theo form của chính Rider thế giới đó
+## (tools/special_caps.tscn kiểm Rider của thế giới có form / item khắc chế, và form gốc KHÔNG tự khắc chế được — phải đổi
+## form): Kuuga Titan, Agito Flame, Ryuki Strike Vent, Faiz Axel, Blade Thunder, Hibiki Kaentsuzumi, Kabuto Hyper,
+## Den-O Gun, Kiva Basshaa, Decade Kabuto, W Heat, OOO Tajador, Fourze Elek, Wizard Land, Gaim Pine, Drive Formula, Ghost Edison, Ex-Aid Sports, Build HawkGatling, Zi-O Ex-Aid Armor,
+## Zero-One Freezing Bear, Saber Dragonic Knight, Revice Mammoth, Geats Boost, Gotchard Venom Mariner, Gavv Chocodan,
+## Zeztz Gravity.
+const CHALLENGE_THEMES := [&"giant", &"spectral", &"flying", &"phantom", &"spectral", &"giant", &"phantom", &"flying",
+	&"flying", &"phantom", &"spectral", &"flying", &"spectral", &"giant", &"giant", &"phantom", &"spectral", &"flying",
+	&"flying", &"giant", &"giant", &"giant", &"giant", &"phantom", &"flying", &"flying", &"giant"]
+## Tên màn EX theo loại quái: %s = tên quái thường của thế giới ("basic").
+const CHALLENGE_NAMES := {&"flying": "EX: %s có cánh", &"giant": "EX: %s khổng lồ", &"phantom": "EX: %s siêu tốc",
+	&"spectral": "EX: Bóng ma %s"}
+const CHALLENGE_TIER := 3
 const DEFAULT_WAVES := [
 	[["basic", "basic", "basic"], ["basic", "armored", "basic"]],
 	[["basic", "basic", "fast"], ["basic", "basic", "basic"]],
@@ -91,6 +114,23 @@ static var speakers := {}      ## người nói của các thế giới
 static var WORLDS: Array = _build()
 
 
+## Bậc 0..4 của màn thứ `si` trong `count` màn: 0 Thức tỉnh, 4 Trùm, màn luyện tập chia đều vào 1..3.
+## Thế giới 5 màn: bậc = vị trí màn. OOO 9 màn: 0, 1, 1, 1, 2, 2, 3, 3, 4.
+static func tier_of(si: int, count: int) -> int:
+	if si == 0:
+		return 0
+	if si == count - 1:
+		return 4
+	return 1 + (si - 1) * 3 / maxi(count - 2, 1)
+
+
+
+static func _first_of_tier(tier: int, count: int) -> int:
+	for si in count:
+		if tier_of(si, count) == tier:
+			return si
+	return 0
+
 static func _build() -> Array:
 	var out: Array = []
 	for i in FILES.size():
@@ -105,12 +145,16 @@ static func _build() -> Array:
 			var suffix := "B" if si == src.size() - 1 else str(si + 1)
 			st["id"] = "%d-%s" % [n, suffix]
 			st["type"] = StageType.AWAKEN if si == 0 else (StageType.BOSS if suffix == "B" else StageType.TRAINING)
-			st["reward_level"] = si + 1
+			var tier := tier_of(si, src.size())
+			st["tier"] = tier
+			st["reward_level"] = tier + 1
 			if not st.has("route"):
-				var options: Array = DEFAULT_ROUTES[mini(si, DEFAULT_ROUTES.size() - 1)]
-				st["route"] = options[i % options.size()]
+				# Màn luyện tập thêm (trùng bậc với màn trước) lấy lộ trình kế tiếp trong danh sách để không lặp y hệt.
+				var options: Array = DEFAULT_ROUTES[tier]
+				var repeat := si - _first_of_tier(tier, src.size())
+				st["route"] = options[(i + repeat) % options.size()]
 			if not st.has("waves"):
-				st["waves"] = DEFAULT_WAVES[mini(si, DEFAULT_WAVES.size() - 1)]
+				st["waves"] = DEFAULT_WAVES[tier]
 			st["bg"] = "res://art/backgrounds/%s.png" % str(st.get("bg", "shibuya_night"))
 			if st["type"] == StageType.BOSS:
 				var boss: Dictionary = DEFAULT_BOSS.duplicate()
@@ -122,6 +166,8 @@ static func _build() -> Array:
 			if not beats.is_empty():
 				stories[st["id"]] = beats
 			stages.append(st)
+		w["main_count"] = stages.size()
+		stages.append(_challenge_stage(w, i, stages))
 		w["stages"] = stages
 		var rider: StringName = w["rider"]
 		world_of_rider[rider] = i
@@ -142,6 +188,37 @@ static func _build() -> Array:
 	return out
 
 
+## Màn EX của thế giới thứ i (đếm từ 0), dựng sau các màn chính (xem đầu file).
+static func _challenge_stage(w: Dictionary, i: int, stages: Array) -> Dictionary:
+	var over: Dictionary = w.get("challenge", {})
+	var special: StringName = over.get("special", CHALLENGE_THEMES[i % CHALLENGE_THEMES.size()])
+	var x := String(special)
+	var basic := str((w["enemies"] as Dictionary).get("basic", {}).get("name", "quái"))
+	var last_training: Dictionary = stages[maxi(stages.size() - 2, 0)]
+	var routes: Array = DEFAULT_ROUTES[CHALLENGE_TIER]
+	var st := {
+		"name": over.get("name", CHALLENGE_NAMES[special] % basic),
+		"special": special,
+		"route": over.get("route", routes[(i + 1) % routes.size()]),
+		# Quái thường cho nộ (đánh ở form gốc), quái đặc biệt phải đổi sang form khắc chế. Đợt cuối = nhóm canh giữ ở đích.
+		"waves": over.get("waves", [["basic", x, "basic"], ["fast", x, "armored"], [x, "basic", x]]),
+		"id": "%d-EX" % (i + 1),
+		"type": StageType.CHALLENGE,
+		"tier": CHALLENGE_TIER,
+		"reward_level": 0,
+		"bg": "res://art/backgrounds/%s.png" % str(over["bg"]) if over.has("bg") else last_training["bg"],
+	}
+	if last_training.has("bg_tint"):
+		st["bg_tint"] = last_training["bg_tint"]
+	return st
+
+
+## Màn EX (StageType.CHALLENGE) của thế giới w.
+static func challenge_of(w: int) -> Dictionary:
+	var stages: Array = WORLDS[w]["stages"]
+	return stages[stages.size() - 1]
+
+
 ## Tên hiển thị của một form đặc biệt (tra từ các màn có "form"). Không có thì trả về "".
 static func form_name(rider: StringName, form: StringName) -> String:
 	for world in WORLDS:
@@ -156,6 +233,12 @@ static func form_name(rider: StringName, form: StringName) -> String:
 ## Dữ liệu DataRider của Rider (rỗng nếu Rider có script riêng hoặc không có).
 static func rider_data(rider: StringName) -> Dictionary:
 	return riders.get(rider, {})
+
+
+## Form là item (vũ khí / lá bài / đòn, "item": true trong RIDER.forms): quái rơi, mang vào màn khi chọn.
+static func form_is_item(rider: StringName, form: StringName) -> bool:
+	var forms: Dictionary = rider_data(rider).get("forms", {})
+	return bool((forms.get(form, {}) as Dictionary).get("item", false))
 
 
 ## Chỉ số thế giới của Rider (-1 nếu không phải Rider của thế giới nào, ví dụ Chrono Driver).

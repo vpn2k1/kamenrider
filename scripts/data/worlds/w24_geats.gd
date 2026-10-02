@@ -14,9 +14,9 @@ const WORLD := {
 	"driver_name": "Desire Driver",
 	"color": Color(1.0, 0.92, 0.84),
 	"enemies": {
-		"basic": {"name": "Pawn Jyamato", "color": Color(0.45, 0.62, 0.32)},
-		"fast": {"name": "Knight Jyamato", "color": Color(0.55, 0.38, 0.8)},
-		"armored": {"name": "Rook Jyamato", "color": Color(0.5, 0.52, 0.42)},
+		"basic": {"name": "Pawn Jyamato", "color": Color(0.45, 0.62, 0.32), "sprite": "pawn_jyamato"},
+		"fast": {"name": "Knight Jyamato", "color": Color(0.55, 0.38, 0.8), "sprite": "knight_jyamato"},
+		"armored": {"name": "Rook Jyamato", "color": Color(0.5, 0.52, 0.42), "sprite": "rook_jyamato"},
 	},
 	"unlocks": [
 		"Magnum Form (form gốc)",

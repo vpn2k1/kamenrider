@@ -3,7 +3,9 @@ extends Node2D
 ##   Góc trái:  D-pad ◀ ▶ ▲ ▼ (4 nút giống hệt nhau). ▲ = nhảy (giữ ▲ còn để ngắm lên khi có súng / W đổi nửa Body).
 ##              ▼ = cúi; bấm đúp ▼ trên bệ = xuống khỏi bệ.
 ##   Góc phải:  nút ĐÁNH to (đấm theo chuỗi rồi tự đá), Né.
-##              Chỉ hiện khi dùng được: Bắn (form có súng), Kỹ năng (đổi form), Biến thân / Tuyệt chiêu, Đổi Rider.
+##              Chỉ hiện khi dùng được: Bắn (form có súng), Chém (form có kiếm), Kỹ năng (đổi form),
+##              Biến thân / Tuyệt chiêu.
+##   Góc trên trái, bên trái thanh máu: Menu (về màn chọn màn). Mỗi màn một Rider nên không có nút Đổi Rider.
 ## Gán `player` để các nút biết hồi chiêu và điều kiện dùng.
 
 const ICON_DIR := "res://art/ui/icons/"
@@ -23,8 +25,9 @@ const LAYOUT := [
 	["attack_light", "fist", Vector2(428, 226), 24.0, Color(1, 0.45, 0.4), false, "Đánh", ""],
 	["dodge", "dodge", Vector2(366, 248), 12.0, Color(0.5, 0.85, 1.0), false, "Né", ""],
 	["shoot", "shoot", Vector2(372, 198), 15.0, Color(1, 0.85, 0.3), false, "Bắn", ""],
+	["attack_slash", "slash", Vector2(382, 156), 15.0, Color(1, 0.6, 0.45), false, "Chém", ""],
 	["special", "skill", Vector2(430, 170), 15.0, Color(1, 0.85, 0.3), false, "Kỹ năng", ""],
-	["swap_rider", "swap", Vector2(376, 146), 13.0, Color(0.6, 1, 0.6), false, "Đổi Rider", ""],
+	["menu", "menu", Vector2(15, 14), 10.0, Color(0.85, 0.85, 0.95), false, "", ""],
 	["ultimate", "ultimate", Vector2(430, 122), 17.0, Color(1, 0.85, 0.3), true, "Biến thân", ""],
 ]
 

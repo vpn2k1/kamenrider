@@ -15,9 +15,9 @@ const WORLD := {
 	"driver_name": "Kivat-bat III",
 	"color": Color(0.95, 0.2, 0.38),
 	"enemies": {
-		"basic": {"name": "Spider Fangire", "color": Color(0.62, 0.35, 0.72)},
-		"fast": {"name": "Horse Fangire", "color": Color(0.72, 0.78, 0.92)},
-		"armored": {"name": "Moose Fangire", "color": Color(0.6, 0.48, 0.36)},
+		"basic": {"name": "Spider Fangire", "color": Color(0.62, 0.35, 0.72), "sprite": "spider_fangire"},
+		"fast": {"name": "Horse Fangire", "color": Color(0.72, 0.78, 0.92), "sprite": "horse_fangire"},
+		"armored": {"name": "Moose Fangire", "color": Color(0.6, 0.48, 0.36), "sprite": "moose_fangire"},
 	},
 	"unlocks": [
 		"Kiva Form (form gốc)",
@@ -50,17 +50,34 @@ const RIDER := {
 	"order": [&"kiva", &"garulu", &"basshaa", &"dogga"],
 	"forms": {
 		&"kiva": {"name": "Kiva Form", "style": "brawler", "hp": 160.0, "armor": 22.0, "speed": 135.0,
-			"jump": 1.15, "atk": 1.05, "poise": 7.0, "final": "Darkness Moon Break"},
+			"jump": 1.15, "atk": 1.05, "poise": 7.0, "final": "Darkness Moon Break", "attacks": {"final": {"tags": [&"stun"]}},
+			"fx": {"hit": "spark", "final": "ring", "color": Color(1.0, 0.3, 0.35)}},
 		&"garulu": {"name": "Garulu Form", "style": "blade", "hp": 140.0, "armor": 15.0, "speed": 160.0,
-			"jump": 1.2, "atk": 1.2, "poise": 8.0, "final": "Garulu Howling Slash"},
+			"jump": 1.2, "atk": 1.2, "poise": 8.0, "final": "Garulu Howling Slash", "blade": {"look": "garulu_saber"}, "attacks": {"final": {"hits": 2, "damage": 34.0}},
+			"fx": {"hit": "spark", "swing": "slash", "final": "wind", "color": Color(0.4, 0.55, 1.0)}},
 		&"basshaa": {"name": "Basshaa Form", "style": "gunner", "hp": 145.0, "armor": 20.0, "speed": 115.0,
-			"jump": 1.0, "atk": 1.0, "poise": 5.0, "final": "Basshaa Aqua Tornado",
-			"gun": {"damage": 6.5, "speed": 400.0, "cooldown": 0.28, "radius": 3.0, "color": Color(0.3, 0.9, 0.7),
+			"jump": 1.0, "atk": 1.0, "poise": 5.0, "final": "Basshaa Aqua Tornado", "attacks": {"final": {"knockback": Vector2(-220, -40), "tags": [&"force"]}},
+			"fx": {"hit": "spark", "shot": "ball", "final": "wind", "color": Color(0.3, 0.9, 0.7)},
+			"gun": {"look": "basshaa_magnum", "damage": 6.5, "speed": 400.0, "cooldown": 0.28, "radius": 3.0, "color": Color(0.3, 0.9, 0.7),
 				"life": 1.0}},
 		&"dogga": {"name": "Dogga Form", "style": "heavy", "hp": 215.0, "armor": 60.0, "speed": 78.0,
-			"jump": 0.8, "atk": 1.45, "poise": 21.0, "final": "Dogga Thunder Slap"},
+			"jump": 0.8, "atk": 1.45, "poise": 21.0, "final": "Dogga Thunder Slap", "blade": {"look": "dogga_hammer", "style": "heavy"},
+			"attacks": {"final": {"tags": [&"stun", &"shock"]}},
+			"fx": {"hit": "ring", "final": "lightning", "color": Color(0.65, 0.4, 0.9)}},
 	},
 	"lv5": {"name": "Emperor Form", "final_mult": 1.5},
+	"final_fx": {"intro": "moon"},
+}
+
+## Giọng đai / tiếng hô (tools/gen_audio.py → audio/voice/<rider>_<khóa>.wav): "henshin" lúc biến thân, khóa = id form
+## lúc đổi sang form đó, "final" lúc Final Attack. Mỗi dòng: [kiểu giọng, câu]
+## (kiểu giọng: belt / belt_deep / belt_bright / kivat / hero, xem VOICES trong gen_audio.py).
+const VOICE := {
+	"henshin": ["kivat", "Gabu!"],
+	"garulu": ["kivat", "Garulu Saber!"],
+	"basshaa": ["kivat", "Basshaa Magnum!"],
+	"dogga": ["kivat", "Dogga Hammer!"],
+	"final": ["kivat", "Wake up!"],
 }
 
 const SPEAKERS := {
@@ -89,7 +106,7 @@ const STORY := {
 		],
 		"clear": [
 			["wataru", "Fangire hút sinh mệnh con người. Nhưng không phải Fangire nào cũng xấu... Mẹ tôi cũng là một Fangire."],
-			["pen", "Kiva Form: nhảy cao, đấm đá cân bằng. Ba Arms Monster đang bị lũ Fangire giam giữ."],
+			["pen", "Kiva Form: nhảy cao, đấm đá cân bằng. Darkness Moon Break kéo trăng xuống, ghim quái đứng im. Ba Arms Monster đang bị giam."],
 		],
 	},
 	"2": {
@@ -97,7 +114,7 @@ const STORY := {
 			["kivat", "Rừng đêm trăng tròn! Garulu, người sói cuối cùng, bị nhốt ở đây. Horse Fangire chạy nhanh lắm đấy!"],
 		],
 		"key": [
-			["kivat", "Garulu Saber! Xanh như trăng đêm. Chạy nhanh, nhảy xa, chém ba nhát rồi phá giáp."],
+			["kivat", "Garulu Saber! Xanh như trăng đêm. Bấm Chém để vung kiếm sói: nhanh, ba nhát rồi phá giáp."],
 		],
 		"clear": [
 			["wataru", "Bố tôi là người dám yêu cả một Fangire. Tôi... muốn dũng cảm được như bố."],
@@ -108,7 +125,7 @@ const STORY := {
 			["wataru", "Basshaa, người cá, bị giam trong chiếc bình dưới biển. Fangire canh bờ đông lắm, đừng để bị vây."],
 		],
 		"key": [
-			["kivat", "Basshaa Magnum! Súng bắn đạn nước, xanh lục như biển sâu. Bắn liên tục, bay xa. Giáp mỏng đó nha!"],
+			["kivat", "Basshaa Magnum! Giữ nút Bắn để bắn đạn nước. Aqua Tornado hút quái về phía cậu. Giáp mỏng đó nha!"],
 		],
 		"clear": [
 			["kivat", "Hồi trước Wataru bị dị ứng với cả thế giới, không dám ra khỏi nhà đâu. Giờ cậu ấy có bạn rồi!"],
@@ -119,7 +136,7 @@ const STORY := {
 			["pen", "Lâu đài cổ. Moose Fangire gác cổng, sừng cứng như đá. Dogga đang bị nhốt bên trong."],
 		],
 		"key": [
-			["kivat", "Dogga Hammer! Búa to như cánh cửa. Chậm như rùa, nhưng một búa là giáp nào cũng nát!"],
+			["kivat", "Dogga Hammer! Bấm Chém để vung búa to như cánh cửa. Thunder Slap giật điện, quái đứng hình luôn!"],
 		],
 		"clear": [
 			["wataru", "Trong lâu đài có Dark Kiva, bộ giáp của Vua Fangire. Và Vua bây giờ là... anh trai tôi, Nobori Taiga."],

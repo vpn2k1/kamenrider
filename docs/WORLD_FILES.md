@@ -56,19 +56,21 @@ const WORLD_CLEAR := [...]  # thoại trên bản đồ sau khi hạ trùm
 | `color` | màu nhận diện, cũng là màu khối tạm của Rider. Chọn màu sáng, dễ thấy trên nền tối |
 | `enemies` | `basic` / `fast` / `armored`: `{"name": tên quái trong phim, "color": Color}` |
 | `unlocks` | 5 dòng: `"<form gốc> (form gốc)"`, `"sát thương +10%, máu +8%"`, `+20%/+16%`, `+30%/+24%`, `"<tên Lv5>: Final Attack x1.5"` |
-| `stages` | đúng 5 màn (bảng dưới) |
+| `stages` | 5 màn (bảng dưới). Rider nhiều form có thể thêm màn luyện tập, tối đa 9 màn (OOO: 12-1, 12-2…12-8, 12-B), khi đó màn luyện tập nào cũng phải rơi form |
 
 Màn (`stages`):
 
 | # | Loại | Khóa |
 |---|---|---|
 | 1 | Thức tỉnh (người chơi dùng Rider cũ) | `name`, `goal` (mục tiêu, theo kiểu thử thách của thế giới), `bg`, `bg_theme` |
-| 2–4 | Luyện tập | `name`, `form` (`&"id"` form trong `RIDER.forms`, không phải form gốc), `form_name`, `bg`, `bg_theme` |
-| 5 | Trùm | `name` ("Trùm: …"), `bg`, `bg_theme`, `boss` |
+| 2–4 (tới N−1) | Luyện tập | `name`, `form` (`&"id"` form trong `RIDER.forms`, không phải form gốc), `form_name`, `bg`, `bg_theme` |
+| 5 (màn cuối) | Trùm | `name` ("Trùm: …"), `bg`, `bg_theme`, `boss` |
 
-- `bg` = `"<id>_1"`, `"<id>_2"`, `"<id>_3"`, `"<id>_4"`, `"<id>_b"`. `bg_theme` chọn trong danh mục cuối trang, hợp bối cảnh màn.
+- `bg` = `"<id>_1"`, `"<id>_2"`, `"<id>_3"`, `"<id>_4"`, `"<id>_b"` (thế giới nhiều màn: tới `"<id>_8"`). `bg_theme` chọn trong danh mục cuối trang, hợp bối cảnh màn.
+- Bộ nạp gán mỗi màn một **bậc** 0–4 (`WorldData.tier_of`): 0 Thức tỉnh, 4 Trùm, các màn luyện tập chia đều vào 1–3. Cấp thưởng (bậc + 1), cấp quái, độ khó bố cục, lộ trình và đợt quái mặc định tính theo bậc, nên thế giới nhiều màn vẫn lên Lv5 ở màn Trùm và không khó hơn thế giới kế tiếp.
 - `boss` = `{"name", "hp" (220–320), "damage" (13–19), "poise" (18–32), "speed" (55–90), "traits": [] | ["fast"] | ["armored"], "color": Color}`. Đây là chỉ số ở **thế giới 1**; bộ nạp tự nhân theo thế hệ.
 - Không cần ghi `route`, `waves`, `id`, `type`: bộ nạp tự điền.
+- Màn EX (`<số>-EX`, quái đặc biệt, GDD 3.4.1) bộ nạp tự thêm sau màn Trùm, loại quái theo `WorldData.CHALLENGE_THEMES`. Ghi đè (tùy chọn): `"challenge": {"special": &"flying" | &"giant" | &"phantom" | &"spectral", "name", "waves", "route", "bg"}` trong `WORLD`. Rider của thế giới phải có form / item khắc chế loại đó (`godot --headless --path . res://tools/special_caps.tscn`).
 
 ### RIDER
 
@@ -77,32 +79,61 @@ const RIDER := {
 	"name": "Kamen Rider Ryuki",
 	"tagline": "một dòng lối chơi (hiện ở màn chọn Rider)",
 	"base": &"ryuki",
-	"order": [&"ryuki", &"sword_vent", &"strike_vent", &"guard_vent"],   # form gốc đứng đầu, rồi 3 form theo màn 2–4
+	"order": [&"ryuki", &"survive", &"sword_vent", &"strike_vent", &"guard_vent"],   # form gốc đứng đầu, rồi các form theo thứ tự màn luyện tập
 	"forms": {
 		&"ryuki": {"name": "Ryuki", "style": "brawler", "hp": 160.0, "armor": 25.0, "speed": 130.0,
 			"jump": 1.05, "atk": 1.05, "poise": 7.0, "final": "Dragon Rider Kick"},
 		...
 	},
-	"lv5": {"name": "Survive", "final_mult": 1.5},
+	"lv5": {"form": &"survive", "final_mult": 1.5},   # hoặc {"name": "Shining", ...}: chỉ là tên hiện kèm ở Lv5
 }
 ```
 
-**Kiểu đòn (`style`)**, quyết định chuỗi đòn của nút Đánh:
+**`"lv5"`:** Lv5 nhân sát thương Final Attack (`"final_mult"`). Có `"name"` thì tên đó hiện kèm form và Final Attack.
+Có `"form"` thì Lv5 mở final form đó (form thật trong `"forms"`, không phải item, không rơi ở màn nào), ví dụ
+Ryuki Survive. Ryuki chỉ có 2 form (Ryuki, Survive); các thẻ Vent là vũ khí (`"item": true`).
+
+**Khóa tùy chọn của form:**
+- `"item": true`: form chỉ là vũ khí / lá bài / đòn (Ryuki Vent, Blade Mach Jaguar / Thunder Deer, Hibiki Onibi / Kaentsuzumi). Quái ở màn có form này rơi ra như item, không bắt buộc nhặt; người chơi chọn tối đa 2 item mang vào màn. Form đổi ngoại hình thật thì để trống.
+- `"effect": "time"` (+ `"time_call"`): tăng tốc thời gian (Clock Up, Axel).
+- `"fx"`: hiệu ứng đánh theo nguyên tác, xem `RiderForm.fx()` và `scripts/combat/fx.gd`.
+- Mỗi form phụ (trừ final form mở ở Lv5) rơi ra ở đúng một màn luyện tập; Rider ít form thì màn luyện tập có thể không rơi gì (Kabuto 7-2, 7-3).
+
+**Kiểu đòn (`style`)**. Nút Đánh luôn là **tay không** (đấm / đá): `brawler`, `lancer`, `heavy` dùng đúng bảng dưới, còn `blade` và `gunner` đánh tay như `brawler`. Kiếm sang **nút Chém** (K), súng sang **nút Bắn** (H), vũ khí chỉ hiện khi đang dùng. Final Attack theo đúng `style`.
 
 | style | Chuỗi đòn | Hợp với |
 |---|---|---|
 | `brawler` | 3 đấm + 1 đá, cân bằng | form gốc tay không |
-| `blade` | 3 chém + 1 chém nặng phá giáp | form cầm kiếm |
+| `blade` | nút Chém: 3 chém + 1 chém nặng phá giáp | form cầm kiếm (tự có nút Chém) |
 | `lancer` | 3 đòn tầm xa hơn, nhẹ hơn + 1 đòn | form nhanh, giáo, roi |
 | `heavy` | 2 đòn nặng phá giáp + 1 đòn rất nặng | form giáp dày, búa, sức mạnh |
-| `gunner` | 2 phát bắn tầm xa + 1 phát nạp | form cung / súng (bắt buộc có `gun`) |
+| `gunner` | Final Attack bắn tầm xa; súng ở nút Bắn | form cung / súng (bắt buộc có `gun`) |
 
 **Chỉ số** (validate kiểm khoảng): `hp` 110–220 · `armor` 0–65 · `speed` 75–185 · `jump` 0.75–1.5 · `atk` 0.75–1.5 · `poise` 2–22. Tham khảo: form gốc hp ~160, armor ~25, speed ~130, atk ~1.05. Form nhanh: hp thấp, speed 165–180, jump 1.2–1.4. Form nặng: hp 190–210, armor 50–60, speed 80–90, atk 1.35–1.45. Mọi form cộng lại nên "đổi cái này lấy cái kia", không form nào hơn hẳn.
 
 **Tùy chọn trong một form:**
-- `"gun": {"damage": 7.0, "speed": 380.0, "cooldown": 0.35, "count": 1, "spread": 0.0, "radius": 3.0, "color": Color(...), "pierce": false, "life": 0.9}`: form có súng (nút Bắn). Có thể gắn cho form không phải `gunner` (ví dụ form gốc cầm súng như Faiz).
+- `"gun": {"damage": 7.0, "speed": 380.0, "cooldown": 0.35, "count": 1, "spread": 0.0, "radius": 3.0, "color": Color(...), "pierce": false, "life": 0.9}`: form có súng (nút Bắn). Có thể gắn cho form không phải `gunner` (ví dụ form gốc cầm súng như Faiz). `"look"`: hình súng `art/characters/weapons/<look>.png` hiện ở tay lúc bắn (vẽ trong `tools/import_pixellab.py`, `GUN_LOOKS`).
+- `"armed": true`: vũ khí đã nằm sẵn trong hình (AI vẽ cứng, như Blay Rouzer của Blade): nút Đánh dùng luôn vũ khí theo `style` (`gunner` thì chém như `blade`), không có nút Chém.
+- `"blade": {"style": "lancer"}`: vũ khí cận chiến cho form không phải `blade` (roi, rìu, kiếm của form gió...): có nút Chém, chuỗi chém theo `"style"` (`blade` / `lancer` / `heavy`). Vũ khí vẽ vào animation `slash` trong `tools/import_pixellab.py` (biến đổi dạng `{"slash": ...}`), không vẽ vào đấm / đá.
 - `"effect": "time"`: tăng tốc thời gian (Clock Up, Formula...): quái chậm còn 15%, Rider nhanh ×1.6, đánh trúng được quái nhanh, nộ tụt nhanh (≈10 giây). Tối đa một form mỗi Rider, chỉ khi hợp nguyên tác.
 - `"final"`: tên Final Attack của form (tên chiêu trong phim).
+
+**Kỹ năng riêng theo nguyên tác** (tùy chọn, mẫu đầy đủ: `w12_ooo.gd`):
+- `"tags": [&"shock"]`: thêm tag vào mọi đòn của form. `"gun"` cũng nhận `"tags"` cho đạn.
+- `"attacks": {"light" | "kick" | "final": {...}}`: ghi đè từng đòn của kiểu đòn. Khóa: `damage`, `size`, `offset`, `knockback` (x âm = hút quái về phía Rider), `hits` (số nhịp trúng; nhớ chia `damage` cho mỗi nhịp), `lunge`, `startup`, `active`, `recovery`; `tags` thì cộng thêm.
+- `"guard": 0.4`: khiên, nhận chừng này sát thương từ phía trước khi không đang ra đòn (0.2–1).
+- `"rage_drain": 6.5`: nộ tụt mỗi giây ở form này (2–10, mặc định 4). Dùng cho form mạnh nhưng có giá (Medal tím).
+
+| Tag | Hiệu ứng trên quái (`Enemy`) | Ví dụ |
+|---|---|---|
+| `&"stun"` | choáng 1.2 giây, đứng yên, không ra đòn | chớp Lionde (LaTorarTar) |
+| `&"freeze"` | đóng băng 1.5 giây | hơi thở Ptera (PuToTyra) |
+| `&"burn"` | cháy 2 giây, mỗi 0.5 giây mất 15% sát thương đòn gây cháy | lửa Taja Spinner (TaJaDor) |
+| `&"shock"` | điện lan sang 2 quái gần nhất (70 px), 40% sát thương | sừng Kuwagata (GataKiriBa) |
+| `&"force"` | đẩy / hút / hất theo `knockback` kể cả khi đòn không làm quái khựng | dậm chân Zou, trọng lực (SaGohZo) |
+| `&"heavy"` | phá giáp quái giáp | |
+
+Trùm chỉ chịu 40% thời gian choáng / đóng băng và không bị `&"force"`.
 
 ### SPEAKERS
 
@@ -121,13 +152,13 @@ const SPEAKERS := {
 
 ### STORY
 
-Khóa `"1"`…`"4"`, `"B"`. Mỗi màn gồm các nhịp, mỗi nhịp là danh sách `[người nói, lời]`:
+Khóa `"1"`…`"4"` (thế giới nhiều màn: tới `"8"`), `"B"`. Mỗi màn gồm các nhịp, mỗi nhịp là danh sách `[người nói, lời]`:
 
 | Nhịp | Khi nào | Bắt buộc |
 |---|---|---|
-| `start` | đầu màn | màn 1–4 (màn B tùy chọn) |
+| `start` | đầu màn | mọi màn trừ B (màn B tùy chọn) |
 | `goal` | tới vạch đích màn 1 (nhóm canh giữ) / màn B (trùm xuất hiện) | màn B (lời trùm trước trận) |
-| `key` | vừa nhặt Driver (màn 1) / form (màn 2–4), sau cảnh biến thân | màn 1–4 |
+| `key` | vừa nhặt Driver (màn 1) / form (màn luyện tập), sau cảnh biến thân | màn 1 và màn luyện tập có form |
 | `clear` | qua màn | mọi màn |
 
 - Người nói chung: `narrator` (dẫn truyện), `hero` (nhân vật chính, tên người chơi đặt; trong lời viết `{name}`), `pen` (AI trong Chrono Pass), `void` (Chronos Void).
@@ -135,7 +166,7 @@ Khóa `"1"`…`"4"`, `"B"`. Mỗi màn gồm các nhịp, mỗi nhịp là danh 
 - **Giọng**: Pen nói nhiều, hay trêu, giải thích luật chơi ngắn gọn (form mới làm gì). {name} là shipper 19 tuổi, liều, tốt bụng, đang tìm anh trai mất tích. Void lạnh lùng, ít lời. Echo Rider (Rider gốc của thế giới, đã mất Driver) dẫn dắt, nói đúng tính cách trong phim.
 - Nội dung bám nguyên tác: tên nhân vật, quái, form, vũ khí, chiêu, câu cửa miệng (chỉ câu ngắn, không chép lời thoại dài của phim).
 - Màn 1 `start`: giới thiệu Trái Đất (`["narrator", "Trái Đất Ryuki · <nơi chốn>."]`), Echo Rider, vì sao Driver chưa dùng được và thử thách để giải phong ấn.
-- Màn 2–4 `key`: một câu nói form mới làm gì (nhanh / nặng / bắn xa...), khớp `style` và chỉ số.
+- Màn luyện tập `key`: một câu nói form mới làm gì (nhanh / nặng / bắn xa...), khớp `style` và chỉ số.
 - Màn B `clear`: trùm tan, **Driver thế giới kế tiếp** (tên theo bảng) hiện ra bọc tinh thể tím; sức mạnh Rider của thế giới trở về trọn vẹn (tên form Lv5); Echo Rider nói câu chia tay.
 - `WORLD_CLEAR`: 1–3 câu trên bản đồ, nhắc Trái Đất vừa sáng lại và chặng tiếp theo.
 

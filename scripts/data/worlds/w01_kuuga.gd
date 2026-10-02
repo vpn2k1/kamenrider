@@ -42,6 +42,15 @@ const WORLD := {
 
 const RIDER := {}
 
+## Giọng đai / tiếng hô (tools/gen_audio.py → audio/voice/<rider>_<khóa>.wav): "henshin" lúc biến thân, khóa = id form
+## lúc đổi sang form đó, "final" lúc Final Attack. Mỗi dòng: [kiểu giọng, câu]
+## (kiểu giọng: belt / belt_deep / belt_bright / kivat / hero, xem VOICES trong gen_audio.py).
+const VOICE := {
+	"dragon": ["hero", "超変身!"],
+	"pegasus": ["hero", "超変身!"],
+	"titan": ["hero", "超変身!"],
+}
+
 const SPEAKERS := {
 	"godai": {"name": "GODAI", "color": Color(0.95, 0.4, 0.3), "portrait": "godai",
 		"look": "hair=462d1e jacket=963728 stripe=ebe1d2 eyes=6e4628"},
@@ -82,7 +91,7 @@ const STORY := {
 			["pen", "Quái trong di tích đang giữ sức mạnh Dragon Form. Hạ chúng cho tới khi nó rơi ra!"],
 		],
 		"key": [
-			["godai", "Màu xanh! Dragon nhảy cao và nhanh, đòn nhẹ hơn một chút. Leo di tích là hợp nhất."],
+			["godai", "Màu xanh! Dragon nhảy cao, chạy nhanh. Bấm Chém để quét gậy Dragon Rod, nhát cuối đẩy bay quái."],
 			["pen", "Form đặc biệt ăn nộ. Hết nộ là tự về Mighty, nhớ nhé."],
 		],
 		"clear": [
@@ -97,7 +106,7 @@ const STORY := {
 			["pen", "Vậy thì cần một form bắn xa. Sức mạnh Pegasus đang nằm đâu đó trong đám quái này."],
 		],
 		"key": [
-			["ichijo", "Một khẩu súng... Được, tôi yểm trợ. Giữ Bắn để bắn liên tục, giữ lên để ngắm lên."],
+			["ichijo", "Pegasus Bowgun... Được, tôi yểm trợ. Giữ Bắn để bắn liên tục, giữ lên để ngắm lên. Mũi tên khí xuyên cả hàng Grongi."],
 		],
 		"clear": [
 			["ichijo", "Godai hay nói cậu ta chiến đấu vì nụ cười. Còn cậu thì sao, {name}?"],
@@ -111,7 +120,7 @@ const STORY := {
 			["pen", "Tường cao thì Dragon, quái bay thì Pegasus. Còn giáp dày... phải có thứ gì đó nặng hơn."],
 		],
 		"key": [
-			["godai", "Màu tím! Titan chậm nhưng cứng như đá. Đòn nào cũng phá được giáp."],
+			["godai", "Màu tím! Titan chậm nhưng cứng như đá. Bấm Chém để đâm Titan Sword. Final đâm trúng là quái bị phong ấn, đứng im."],
 		],
 		"clear": [
 			["pen", "Tín hiệu Void mạnh nhất nằm sâu phía trước. Kẻ mạnh nhất Trái Đất này đang chờ."],

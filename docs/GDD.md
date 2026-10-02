@@ -4,7 +4,7 @@
 > Bản 0.2: đổi cấu trúc thành **chuỗi thế giới**. Mỗi thế giới cho một Driver, lên cấp qua từng màn, trùm rơi Driver của thế giới kế tiếp.
 > Bản 0.3: thêm hệ thanh tài nguyên (2 hoặc 3 thanh), chỉ số riêng cho từng dạng/form, cấp độ quái.
 > Bản 0.4: màn chơi kiểu **Contra** — đường cuộn ngang, camera chỉ tiến, vực, bệ nhiều tầng, bắn 8 hướng, quái chạy ào và lính bắn tỉa.
-> Bản 0.13: **27 thế giới theo năm phát sóng** (Kuuga 2000 → Zeztz 2025), chơi được liền mạch 135 màn. Faiz thành thế giới 4, W thành thế giới 11. Mỗi thế giới là một file dữ liệu (`scripts/data/worlds/`, đặc tả ở `docs/WORLD_FILES.md`); Rider mới dựng từ dữ liệu (`DataRider`). Rider thế hệ sau mạnh hơn, quái tăng cấp chậm hơn để 27 thế giới cân bằng (mục 2.4, 3.13).
+> Bản 0.13: **27 thế giới theo năm phát sóng** (Kuuga 2000 → Zeztz 2025), chơi được liền mạch 139 màn (OOO 9 màn, các thế giới khác 5 màn). Faiz thành thế giới 4, W thành thế giới 11. Mỗi thế giới là một file dữ liệu (`scripts/data/worlds/`, đặc tả ở `docs/WORLD_FILES.md`); Rider mới dựng từ dữ liệu (`DataRider`). Rider thế hệ sau mạnh hơn, quái tăng cấp chậm hơn để 27 thế giới cân bằng (mục 2.4, 3.13).
 > Bản 0.12: **sửa AI quái**: quái chạy ào tới gần người chơi thì dừng lại đuổi đánh (không lướt qua bỏ mặc), vướng thùng thì nhảy qua; quái đánh xong nghỉ 1 giây mới xin lượt mới để quái đang chờ được vào đánh; quái không còn bị thả lọt vào chồng thùng rồi xuyên qua (mục 3.13).
 > Bản 0.11: **luồng qua màn mới**: qua màn thì dọn quái, **giải trừ biến thân về dạng người**, thoại, kết quả, rồi màn hình tối dần sang màn mới và **đổi nền theo bối cảnh màn** (14 nền vẽ bằng `tools/gen_backgrounds.py`). Mỗi màn bắt đầu ở dạng người, máu người đầy, nộ đầy (mục 3.1).
 > Bản 0.10: **camera đi tự do hai chiều**: chạy ngược lại, leo ngược giếng tụt đều được; tường vô hình chỉ còn ở đầu màn (sau điểm xuất phát) và hai bên đấu trường trùm. Quái chỉ nhảy lên / tụt xuống bệ khi người chơi đang đứng ở đó, không nhảy theo lúc người chơi nhảy (mục 3.14).
@@ -26,7 +26,7 @@
 | Nền tảng | PC trước, sau đó Android và Web |
 | Engine | **Godot 4.4 trở lên** |
 | Vòng lặp cốt lõi | **Vào thế giới mới → quái rơi Driver → biến thân → qua 3 màn, mỗi màn nhặt một form mới → hạ trùm → nhận Driver của thế giới kế tiếp** |
-| Quy mô | 27 thế giới theo **năm phát sóng** (Kuuga 2000 → Zeztz 2025) và thế giới cuối "Điểm Không". Bản hiện tại chơi được cả 27 thế giới (135 màn); Điểm Không chưa làm |
+| Quy mô | 27 thế giới theo **năm phát sóng** (Kuuga 2000 → Zeztz 2025) và thế giới cuối "Điểm Không". Bản hiện tại chơi được cả 27 thế giới (139 màn); Điểm Không chưa làm |
 
 **Tóm tắt vòng lặp một thế giới:**
 ```
@@ -50,7 +50,7 @@ Riêng màn 1-1 (màn đầu tiên của cả game), người chơi **chưa có 
 
 ### 1.1 Chọn Godot 4
 
-1. **Mỗi thế giới là một file dữ liệu** (`scripts/data/worlds/wNN_<id>.gd`: Rider và form, quái, 5 màn, trùm, thoại, nền). Rider dựng từ dữ liệu bằng `DataRider`; chỉ Rider có cơ chế đặc biệt (Kuuga, Faiz, W) mới có script riêng. Thêm thế giới mới không phải sửa code lõi. Với 26 thế giới, đây là yếu tố quan trọng nhất.
+1. **Mỗi thế giới là một file dữ liệu** (`scripts/data/worlds/wNN_<id>.gd`: Rider và form, quái, 5 màn (OOO 9 màn: mỗi combo cùng hệ một màn), trùm, thoại, nền). Rider dựng từ dữ liệu bằng `DataRider`; chỉ Rider có cơ chế đặc biệt (Kuuga, Faiz, W) mới có script riêng. Thêm thế giới mới không phải sửa code lõi. Với 26 thế giới, đây là yếu tố quan trọng nhất.
 2. **`AnimationPlayer`** keyframe được sprite, âm thanh, rung camera và hitbox trên cùng một timeline. Hợp để dựng hơn 26 cảnh biến thân và hơn 130 Final Attack.
 3. **Pixel-perfect có sẵn**: viewport 320×180, phóng to theo số nguyên, lọc Nearest (đã cấu hình trong `project.godot`).
 4. **`Area2D`** dùng làm hitbox, hurtbox, vật phẩm nhặt và vùng khóa màn.
@@ -298,20 +298,20 @@ Giáp dày (chỉ đòn nặng và Final xuyên được). Pha 3 là mưa Maximu
 
 27 thế giới theo năm phát sóng. Trùm mỗi thế giới rơi Driver của thế giới kế tiếp (còn phong ấn); trùm thế giới 27 rơi **Chrono Driver**. Bảng sinh tự động từ file thế giới bằng `godot --headless --path . -s tools/world_table.gd` (chạy lại khi sửa dữ liệu). Chi tiết (mục tiêu màn Thức tỉnh, kiểu đòn và chỉ số từng form, thoại) nằm trong `scripts/data/worlds/`.
 
-| # | Năm | Rider | Driver | Form gốc · form rơi ở màn 2 / 3 / 4 | Lv5 | Trùm | Echo Rider |
+| # | Năm | Rider | Driver | Form gốc · form rơi ở các màn luyện tập | Lv5 | Trùm | Echo Rider |
 |---|---|---|---|---|---|---|---|
 | 1 | 2000 | Kuuga | Arcle | Mighty · Dragon Form / Pegasus Form / Titan Form | Rising | N-Daguba-Zeba | Godai |
 | 2 | 2001 | Agito | Alter Ring | Ground Form · Storm Form / Flame Form / Trinity Form | Shining | Overlord of Darkness | Tsugami Shouichi |
-| 3 | 2002 | Ryuki | Advent Deck | Ryuki · Sword Vent / Strike Vent / Guard Vent | Survive | Kamen Rider Odin | Kido Shinji |
+| 3 | 2002 | Ryuki | Advent Deck | Ryuki · Sword Vent / Strike Vent / Guard Vent (vũ khí) | Ryuki Survive (final form) | Kamen Rider Odin | Kido Shinji |
 | 4 | 2003 | Faiz | Faiz Driver | Faiz · Axel Form / — / Blaster Form | sát thương +40%, máu +32% | Dragon Orphnoch | Takumi |
 | 5 | 2004 | Blade | Blay Buckle | Ace Form · Mach Jaguar / Thunder Deer / Jack Form | King Form | Caucasus Undead | Kenzaki Kazuma |
 | 6 | 2005 | Hibiki | Henshin Onsa | Hibiki · Onibi / Kaentsuzumi / Hibiki Kurenai | Armed Hibiki | Orochi | Hibiki |
-| 7 | 2006 | Kabuto | Kabuto Zecter | Rider Form · Masked Form / Kabuto Kunai Gun / Clock Up | Hyper Form | Dark Kabuto | Tendou Souji |
+| 7 | 2006 | Kabuto | Kabuto Zecter | Rider Form · — / — / Hyper Form | Perfect Zecter | Dark Kabuto | Tendou Souji |
 | 8 | 2007 | Den-O | Den-O Belt | Sword Form · Rod Form / Ax Form / Gun Form | Climax Form | Kamen Rider Gaoh | Nogami Ryotaro |
 | 9 | 2008 | Kiva | Kivat-bat III | Kiva Form · Garulu Form / Basshaa Form / Dogga Form | Emperor Form | Dark Kiva | Kurenai Wataru |
 | 10 | 2009 | Decade | Decadriver | Decade · Attack Ride: Slash / Attack Ride: Blast / Kamen Ride: Kabuto | Complete Form | Apollo Geist | Kadoya Tsukasa |
 | 11 | 2009 | W | Double Driver | CycloneJoker · Memory Heat & Metal / Memory Luna & Trigger / Xtreme Memory | sát thương +40%, máu +32% | Kamen Rider Eternal | Shotaro |
-| 12 | 2010 | OOO | OOO Driver | TaToBa Combo · LaTorarTar Combo / ShaUTa Combo / SaGohZo Combo | TaJaDor | Kazari | Hino Eiji |
+| 12 | 2010 | OOO | OOO Driver | TaToBa Combo · LaTorarTar Combo / GataKiriBa Combo / ShaUTa Combo / TaJaDor Combo / SaGohZo Combo / PuToTyra Combo / BuraKaWani Combo | Super TaToBa | Kazari | Hino Eiji |
 | 13 | 2011 | Fourze | Fourze Driver | Base States · Rocket States / Elek States / Fire States | Cosmic States | Sagittarius Zodiarts | Kisaragi Gentaro |
 | 14 | 2012 | Wizard | WizarDriver | Flame Style · Water Style / Hurricane Style / Land Style | Infinity Style | Wiseman | Soma Haruto |
 | 15 | 2013 | Gaim | Sengoku Driver | Orange Arms · Pine Arms / Ichigo Arms / Jimber Lemon Arms | Kiwami Arms | Lord Baron | Kazuraba Kouta |
@@ -428,6 +428,7 @@ Bản mẫu (`scripts/levels/stage_run.gd`) chạy đúng vòng lặp này, mỗ
 ```
 màn Thức tỉnh : activate_driver(rider)           → Lv1, vào đội hình (Rider của thế giới)
 mọi màn       : nếu reward_level > cấp hiện tại  → set_level(rider, reward_level)
+                (reward_level = bậc màn + 1, bậc 0..4 theo WorldData.tier_of; thế giới 5 màn: bậc = vị trí màn)
 màn có "form" : unlock_form(rider, form)          → đã nhặt giữa màn; gọi lại để không bao giờ kẹt tiến trình
 màn Trùm      : obtain_driver(next_driver)        → Driver kế tiếp ở trạng thái phong ấn
                 worlds_cleared += 1
@@ -483,6 +484,22 @@ Màn X-1 dùng lại một trong các kiểu sau. Mỗi kiểu là một script 
 
 Bản mẫu mới làm kiểu đơn giản nhất: hạ hết các đợt quái thì Driver rơi ra.
 
+### 3.4.1 Màn EX — quái đặc biệt
+
+- Mỗi thế giới có thêm **màn EX** (`<số>-EX`, ô cuối ở màn chọn màn) sau màn Trùm. Mở khi đã giải cứu thế giới đó, **không nằm trong chuỗi tiến trình**: không mở màn kế, không lên cấp, không rơi form. Qua lần đầu thưởng **150 Mảnh Ký Ức**.
+- Mỗi màn EX có **một loại quái đặc biệt** (3.13) lẫn với quái thường; quái thường cho nộ ở form gốc để vào form khắc chế. Một loại mỗi màn vì mỗi màn chỉ mang được **một form biến đổi** (cộng item).
+- Loại quái chọn theo form của **chính Rider thế giới đó** (`WorldData.CHALLENGE_THEMES`, file thế giới ghi đè bằng `"challenge"`), `tools/special_caps.tscn` kiểm mọi thế giới đều có form / item khắc chế và form gốc không tự khắc chế được (phải đổi form):
+
+  | Loại | Thế giới |
+  |---|---|
+  | Khổng lồ | Kuuga (Titan), Hibiki (Kaentsuzumi), Wizard (Land), Gaim (Pine), Zi-O, Zero-One, Saber, Revice, Zeztz |
+  | Bóng ma | Agito (Flame), Blade (Thunder), W (Heat), Fourze (Elek), Ghost (Edison) |
+  | Quái bay | Ryuki (Strike Vent / Survive), Den-O (Gun), Kiva (Basshaa), OOO (Tajador), Ex-Aid, Build, Gotchard, Gavv |
+  | Siêu tốc | Faiz (Axel), Kabuto (Hyper), Decade (Kamen Ride Kabuto), Drive (Formula), Geats (Boost) |
+
+- **Báo trước:** màn chọn màn ghi "Cần: …" và các form người chơi đang có khắc chế được (mọi Rider); màn chọn form / item có dòng "Khắc chế: …"; đầu màn banner nói cách hạ và form khắc chế đang mang, hoặc cảnh báo chưa mang (vào Menu chọn lại).
+- Nạp nộ rơi nhiều hơn (30% mỗi quái) vì form khắc chế tốn nộ.
+
 ### 3.5 Kiến trúc
 
 ```
@@ -513,11 +530,12 @@ Màn chơi cuộn ngang                 scripts/levels/stage_run.gd + stage_buil
 |---|---|
 | A / D | Di chuyển (camera theo cả hai chiều) |
 | W (giữ) | Ngắm (form có súng): W bắn thẳng lên, W + A/D bắn chéo; trên không giữ S bắn xuống |
-| H (giữ) | **Bắn** liên tục, **chỉ khi form có súng** (mục 3.14) |
+| H (giữ) | **Bắn** liên tục, **chỉ khi form có súng** (mục 3.14). Súng chỉ hiện ở tay lúc bắn |
+| K | **Chém**, **chỉ khi form có kiếm / vũ khí cận chiến**: chuỗi chém rồi nhát kết. Vũ khí chỉ hiện khi chém |
 | S (giữ) | **Cúi / thủ thế**: đứng yên, thân thấp lại (hurtbox cao 50 → 30, đạn cao bay qua), đòn cận chiến chỉ còn 40%, không bị đẩy lùi. Đánh nhẹ hoặc né để thoát |
 | W | W Rider: giữ W khi bấm Special để đổi nửa Body |
 | Space | Nhảy (cao ~110 px, xa ~170 px). Đứng trên bệ: S + Space, hoặc bấm đúp S (trong 0.3 giây) để xuống |
-| J | **Đánh**: chuỗi đấm (có bộ đệm bấm trước), đủ `punch_count()` đòn thì tự ra **cú đá** kết thúc, rồi chuỗi về đầu. Ngừng bấm giữa chừng thì chuỗi về đầu |
+| J | **Đánh** (luôn tay không): chuỗi đấm (có bộ đệm bấm trước), đủ `punch_count()` đòn thì tự ra **cú đá** kết thúc, rồi chuỗi về đầu. Ngừng bấm giữa chừng thì chuỗi về đầu |
 | L | **Đổi form** theo vòng các form đã nhặt (W: nửa Soul; giữ W + L: nửa Body). Vào form đặc biệt cần ≥ 20 nộ, tốn 10; về form gốc miễn phí. Hồi chiêu 1 giây (W 0.6). Dạng người không có |
 | Shift | Né (bất tử với đòn cận chiến, hủy được pha hồi chiêu của đòn), hồi chiêu 0.6 giây. **Không tránh được đạn** |
 | I | Biến thân vào form gốc (cần nộ đầy và ít nhất 1 Driver hoạt động; không mất nộ) |
@@ -694,7 +712,17 @@ Bị đánh (sát thương ≥ poise) → HURT 0.35 giây · HP về 0 → DEAD 
 - **Lượt tấn công:** tối đa 2 quái cận chiến ra đòn cùng lúc; quái khác đứng vòng ngoài (3 lần tầm đánh) chờ. Đánh xong quái **nghỉ 1 giây** mới xin lượt mới và lùi ra vòng ngoài, nhường lượt cho quái đang chờ (trước đây 2 con đứng sát cứ giành lại lượt, các con vòng ngoài hầu như không bao giờ được đánh). Quái chỉ vung đòn khi cùng độ cao với người chơi.
 - **Chỗ thả quái:** thả ở mép màn hình cao hơn sàn 40; nếu chỗ đó có chồng thùng 2–3 tầng thì đặt lên nóc chồng thùng (trước đây quái bị thả lọt vào trong rồi xuyên qua chồng thùng).
 - **Làm chậm:** mọi chuyển động và bộ đếm giờ của quái nhân với `enemy_time_scale`.
-- **Trait:** `fast` (khắc chế bằng Faiz Axel hoặc Kabuto Clock Up), `armored` (khắc chế bằng Titan, Metal hoặc Final). Sau này thêm `flying` (Pegasus, Trigger) và `mirror` (Ryuki).
+- **Trait:** `fast` (khắc chế bằng Faiz Axel hoặc Kabuto Clock Up), `armored` (khắc chế bằng Titan, Metal hoặc Final).
+- **Quái đặc biệt (màn EX, `Enemy.SPECIALS`):** **miễn nhiễm** mọi đòn không mang tag khắc chế, nên phải mang đúng form vào màn:
+
+  | Loại (`waves`) | Đặc điểm | Chỉ nhận đòn | Ví dụ form khắc chế |
+  |---|---|---|---|
+  | `flying` (Quái bay) | lượn cao hơn chân người chơi 78 px, chếch một bên; tới lượt thì tụ đòn rồi bổ nhào, xong bay vọt lên. Bay xuyên địa hình | `ranged` (đạn, đòn bắn xa) | Kuuga Pegasus, Faiz, Den-O Gun, Kiva Basshaa |
+  | `giant` (Khổng lồ) | to ×1.6, máu 150, không bị đẩy lùi / không bị `force`, hiệu ứng choáng ngắn như trùm | `crush` (form nặng) | Kuuga Titan, W Metal, Den-O Ax, Kiva Dogga |
+  | `phantom` (Siêu tốc) | tốc độ 120, để bóng mờ | `time` (hoặc quái đang bị làm chậm) | Faiz Axel, Kabuto Hyper, Drive Formula, Geats Boost |
+  | `spectral` (Bóng ma) | trong suốt, chập chờn | `burn` / `freeze` / `shock` | Agito Flame, W Heat, Fourze Elek, Ghost Edison |
+
+  `crush` và `time` là tag theo form (`RiderForm.special_tags()`, Player cộng vào mọi đòn và đạn): form kiểu `heavy` (hoặc vũ khí nặng ở nút Chém) có `crush`, form tăng tốc thời gian có `time`. Đòn bị chặn: tiếng giáp, quái chớp xám, chữ gợi ý trên đầu ("CẦN SÚNG!"...), đạn bật ra, banner giải thích (cách nhau 4 giây). Đòn bị chặn ở form gốc vẫn tích **một nửa** nộ, để khi chỉ còn quái đặc biệt người chơi vẫn nạp được nộ vào form khắc chế. Quái khổng lồ / siêu tốc không làm lính bắn đứng gác (chuyển sang đuổi đánh), quái bay luôn là quái bay.
 - **Trùm trong bản mẫu:** dùng chung AI quái nhưng to gấp 1.8 lần, chỉ số lấy từ `WorldData`. Daguba (HP 260, poise 30), Dragon Orphnoch (HP 220, `fast`), Eternal (HP 300, `armored`).
 - **Trùm bản đầy đủ:** lớp `Boss` kế thừa `Enemy`. Chuyển pha ở 66% và 33% HP; mỗi pha có danh sách chiêu riêng. Khi chuyển pha: bất tử 1.5 giây và phát cutscene ngắn.
 - **Cấp độ quái:** `cấp = 1 + ⌊(số thế giới đã qua) × 2/3⌋ + (thứ tự màn)`, trùm thêm 2 cấp. Thế giới 1 có quái Lv1–5, thế giới 4 Lv3–7, thế giới 11 Lv7–11, thế giới 27 Lv18–22.
@@ -716,6 +744,10 @@ Bị đánh (sát thương ≥ poise) → HURT 0.35 giây · HP về 0 → DEAD 
 | Thường | 30 | 8 | 55 | 6 | 73 / 17.6 |
 | Nhanh (`fast`) | 25 | 8 | 90 | 6 | 61 / 17.6 |
 | Giáp (`armored`) | 60 | 14 | 40 | 15 | 146 / 30.8 |
+| Bay (`flying`) | 24 | 7 | 70 | 6 | 59 / 15.4 |
+| Khổng lồ (`giant`) | 150 | 18 | 34 | ∞ | 366 / 39.6 |
+| Siêu tốc (`phantom`) | 22 | 8 | 120 | 6 | 54 / 17.6 |
+| Bóng ma (`spectral`) | 34 | 9 | 52 | 6 | 83 / 19.8 |
 
 Ví dụ: một đòn 17.6 của quái Lv9 làm dạng người (giáp 0) mất 18 máu, nhưng Kuuga Titan (giáp 60) chỉ mất 11. Quái cấp cao đánh đau hơn hẳn, nên biến thân và chọn form có giáp dày là quan trọng.
 

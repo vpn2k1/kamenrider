@@ -14,9 +14,9 @@ const WORLD := {
 	"driver_name": "Henshin Onsa",
 	"color": Color(0.72, 0.45, 1.0),
 	"enemies": {
-		"basic": {"name": "Kappa", "color": Color(0.35, 0.72, 0.45)},
-		"fast": {"name": "Ittanmomen", "color": Color(0.9, 0.88, 0.78)},
-		"armored": {"name": "Bakegani", "color": Color(0.85, 0.38, 0.25)},
+		"basic": {"name": "Kappa", "color": Color(0.35, 0.72, 0.45), "sprite": "kappa"},
+		"fast": {"name": "Ittanmomen", "color": Color(0.9, 0.88, 0.78), "sprite": "ittanmomen"},
+		"armored": {"name": "Bakegani", "color": Color(0.85, 0.38, 0.25), "sprite": "bakegani"},
 	},
 	"unlocks": [
 		"Hibiki (form gốc)",
@@ -49,21 +49,23 @@ const RIDER := {
 	"order": [&"hibiki", &"onibi", &"kaentsuzumi", &"kurenai"],
 	"forms": {
 		&"hibiki": {"name": "Hibiki", "style": "brawler", "hp": 165.0, "armor": 25.0, "speed": 128.0,
-			"jump": 1.05, "atk": 1.05, "poise": 8.0, "final": "Kaen Renda no Kata",
+			"jump": 1.05, "atk": 1.05, "poise": 8.0, "final": "Kaen Renda no Kata", "attacks": {"final": {"hits": 6, "damage": 11.0}},
 			"fx": {"hit": "sound", "final": "sound", "color": Color(0.75, 0.5, 1.0)}},
-		&"onibi": {"name": "Onibi", "style": "gunner", "hp": 145.0, "armor": 15.0, "speed": 120.0,
+		&"onibi": {"item": true, "name": "Onibi", "style": "gunner", "hp": 145.0, "armor": 15.0, "speed": 120.0,
 			"jump": 1.0, "atk": 1.0, "poise": 5.0, "final": "Rekka Dan",
 			"fx": {"hit": "fire", "shot": "fire", "final": "sound", "color": Color(1.0, 0.5, 0.2)},
-			"gun": {"damage": 8.0, "speed": 330.0, "cooldown": 0.42, "radius": 4.5, "color": Color(1.0, 0.45, 0.2),
+			"gun": {"look": "onibi", "tags": [&"burn"], "damage": 8.0, "speed": 330.0, "cooldown": 0.42, "radius": 4.5, "color": Color(1.0, 0.45, 0.2),
 				"life": 0.8}},
-		&"kaentsuzumi": {"name": "Kaentsuzumi", "style": "heavy", "hp": 205.0, "armor": 55.0, "speed": 84.0,
-			"jump": 0.85, "atk": 1.4, "poise": 19.0, "final": "Bakuretsu Kyouda no Kata",
+		&"kaentsuzumi": {"item": true, "name": "Kaentsuzumi", "style": "heavy", "hp": 205.0, "armor": 55.0, "speed": 84.0,
+			"jump": 0.85, "atk": 1.4, "poise": 19.0, "final": "Bakuretsu Kyouda no Kata", "attacks": {"kick": {"tags": [&"stun"]}},
 			"fx": {"hit": "sound", "final": "sound", "color": Color(1.0, 0.75, 0.3)}},
 		&"kurenai": {"name": "Hibiki Kurenai", "style": "blade", "hp": 170.0, "armor": 30.0, "speed": 140.0,
-			"jump": 1.1, "atk": 1.3, "poise": 12.0, "final": "Shakunetsu Shinku no Kata",
+			"jump": 1.1, "atk": 1.3, "poise": 12.0, "final": "Shakunetsu Shinku no Kata", "blade": {"look": "rekka"},
+			"attacks": {"slash": {"tags": [&"burn"]}, "slash_finish": {"tags": [&"burn"]}, "final": {"tags": [&"burn"]}},
 			"fx": {"hit": "fire", "swing": "slash", "final": "sound", "color": Color(1.0, 0.3, 0.25)}},
 	},
 	"lv5": {"name": "Armed Hibiki", "final_mult": 1.5},
+	"final_fx": {"signature": "taiko"},
 }
 
 const SPEAKERS := {
@@ -90,7 +92,7 @@ const STORY := {
 		],
 		"clear": [
 			["hidaka", "Oni ở đây không hô biến thân đâu, nhưng thôi, hô cũng được. Nhớ nhé: Makamou chỉ sợ âm thanh thanh tẩy."],
-			["pen", "Form gốc Hibiki đánh tay không, đòn cuối là gõ trống thanh tẩy. Các kỹ thuật khác đang trong tay Makamou."],
+			["pen", "Hibiki đánh tay không, Final là Kaen Renda: gõ trống liên hồi sáu nhịp. Các kỹ thuật khác đang trong tay Makamou."],
 		],
 	},
 	"2": {
@@ -99,7 +101,7 @@ const STORY := {
 			["pen", "Kỹ thuật Onibi nằm trong đám Kappa này. Dùi trống Ongekibou Rekka sẽ bắn ra cầu lửa, quét từ xa."],
 		],
 		"key": [
-			["hidaka", "Onibi! Vung dùi trống là cầu lửa Rekka Dan bay tới. Bắn xa được, nhưng đừng để bị vây."],
+			["hidaka", "Onibi! Giữ nút Bắn, dùi trống phun cầu lửa Rekka Dan, quái trúng còn cháy thêm. Đừng để bị vây."],
 		],
 		"clear": [
 			["asumu", "Làm sao để mạnh được như anh Hibiki vậy ạ?"],
@@ -112,7 +114,7 @@ const STORY := {
 			["pen", "Cần trống Kaentsuzumi: gắn lên người quái rồi gõ. Chậm, nhưng đập vỡ mọi lớp vỏ."],
 		],
 		"key": [
-			["hidaka", "Kaentsuzumi! Nặng tay, bước chậm, nhưng mỗi dùi là một tiếng sấm. Vỏ cua cỡ nào cũng nứt."],
+			["hidaka", "Kaentsuzumi! Gắn trống Ongeki lên quái: cú đánh kết làm nó choáng đứng im. Nặng tay, bước chậm."],
 		],
 		"clear": [
 			["hidaka", "Nghe tiếng trống là biết người đánh. Trống của cậu thật thà lắm, {name}."],
@@ -124,7 +126,7 @@ const STORY := {
 			["pen", "Hibiki Kurenai: lửa đỏ thiêu rực cả thân. Mạnh và nhanh, nhưng ngốn nộ lắm đấy!"],
 		],
 		"key": [
-			["hidaka", "Kurenai! Cả người đỏ rực như than hồng. Dùi trống chém như kiếm lửa, nhát cuối phá giáp."],
+			["hidaka", "Kurenai! Cả người đỏ rực như than hồng. Bấm Chém để vung dùi Rekka thành kiếm lửa, đốt cháy quái."],
 		],
 		"clear": [
 			["narrator", "Trên mỏm đá ngoài khơi, một bóng áo choàng đứng giữa sóng, lặng nhìn ngọn lửa đỏ trên người {name}."],

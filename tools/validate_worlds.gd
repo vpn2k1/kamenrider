@@ -4,19 +4,22 @@ extends SceneTree
 ##   godot --headless --path . -s tools/validate_worlds.gd            # mọi thế giới
 ##   godot --headless --path . -s tools/validate_worlds.gd -- ryuki   # chỉ vài thế giới (theo id)
 ##
-## In lỗi từng file và thoát với mã lỗi = số lỗi. Kiểm: đủ hằng và khóa, 5 màn, form của màn có trong RIDER,
-## mỗi form phụ rơi ra ở đúng một màn luyện tập,
-## kiểu đòn / hiệu ứng hợp lệ, chỉ số trong khoảng, tên nền "<id>_1".."<id>_4", "<id>_b" và kiểu nền có trong
+## In lỗi từng file và thoát với mã lỗi = số lỗi. Kiểm: đủ hằng và khóa, 5 màn (Rider nhiều form tới MAX_STAGES màn,
+## khi đó màn luyện tập nào cũng phải rơi form), form của màn có trong RIDER, mỗi form phụ rơi ra ở đúng một màn
+## luyện tập, kiểu đòn / hiệu ứng hợp lệ, chỉ số trong khoảng, tên nền "<id>_1".."<id>_<N-1>", "<id>_b" và kiểu nền có trong
 ## tools/gen_backgrounds.py, người nói trong STORY có khai báo, câu thoại không quá dài, không trùng người nói /
 ## tên nền giữa các file.
 
 const DIR := "res://scripts/data/worlds/"
 const CUSTOM := ["kuuga", "faiz", "double"]       ## Rider có script riêng, RIDER để trống
 const STYLES := ["brawler", "blade", "lancer", "heavy", "gunner"]
-const GUN_KEYS := ["damage", "speed", "cooldown", "count", "spread", "radius", "color", "pierce", "life"]
+const GUN_KEYS := ["damage", "speed", "cooldown", "count", "spread", "radius", "color", "pierce", "life", "tags", "look"]
+const FORM_TAGS := [&"stun", &"freeze", &"burn", &"shock", &"force", &"heavy"]   ## tag form được thêm (xem DataRider)
+const ATTACK_KEYS := ["damage", "size", "offset", "knockback", "hits", "lunge", "startup", "active", "recovery", "tags"]
 const BEATS := ["start", "goal", "key", "clear"]
 const BASE_SPEAKERS := ["narrator", "hero", "pen", "void"]
 const MAX_LINE := 165
+const MAX_STAGES := 9                              ## 1 Thức tỉnh + tối đa 7 màn luyện tập + Trùm
 const RANGES := {"hp": [110.0, 220.0], "armor": [0.0, 65.0], "speed": [75.0, 185.0], "jump": [0.75, 1.5],
 	"atk": [0.75, 1.5], "poise": [2.0, 22.0]}
 
@@ -103,28 +106,35 @@ func _check_world(w: Dictionary, c: Dictionary, themes: Array, seen_speakers: Di
 	if not custom:
 		_check_rider(rider)
 	var stages: Array = w.get("stages", [])
-	if stages.size() != 5:
-		_err("cần đúng 5 màn (có %d)" % stages.size())
+	var n := stages.size()
+	var last := n - 1                                  # màn Trùm; màn luyện tập là 1..last-1
+	if n < 5 or n > MAX_STAGES:
+		_err("cần 5 màn (Rider nhiều form tới %d) (có %d)" % [MAX_STAGES, n])
+	elif n > 5:
+		for i in range(1, last):
+			if not (stages[i] as Dictionary).has("form"):
+				_err("thế giới hơn 5 màn: màn luyện tập %d phải rơi form" % (i + 1))
 	if not custom:
-		# Mỗi form phụ rơi ra ở đúng một màn luyện tập (2–4). Rider ít form (Kabuto) có màn luyện tập không rơi form.
+		# Mỗi form phụ rơi ra ở đúng một màn luyện tập. Rider ít form (Kabuto) có màn luyện tập không rơi form.
+		# Final form mở ở Lv5 (RIDER "lv5": {"form"}) thì không rơi.
 		for fid in forms:
-			if fid == rider.get("base", &""):
+			if fid == rider.get("base", &"") or fid == (rider.get("lv5", {}) as Dictionary).get("form", &""):
 				continue
 			var drops := 0
-			for i in range(1, mini(stages.size(), 4)):
+			for i in range(1, last):
 				if (stages[i] as Dictionary).get("form", &"") == fid:
 					drops += 1
 			if drops != 1:
 				_err("form %s phải rơi ra ở đúng một màn luyện tập (đang %d màn)" % [fid, drops])
-	var suffixes := ["1", "2", "3", "4", "b"]
-	for i in stages.size():
+	for i in n:
+		var suffix := "b" if i == last else str(i + 1)
 		var st: Dictionary = stages[i]
 		if str(st.get("name", "")).is_empty():
 			_err("màn %d thiếu name" % (i + 1))
 		var bg := str(st.get("bg", ""))
 		if not custom:
-			if bg != "%s_%s" % [id, suffixes[mini(i, 4)]]:
-				_err("màn %d: \"bg\" phải là \"%s_%s\"" % [i + 1, id, suffixes[mini(i, 4)]])
+			if bg != "%s_%s" % [id, suffix]:
+				_err("màn %d: \"bg\" phải là \"%s_%s\"" % [i + 1, id, suffix])
 			if not themes.has(str(st.get("bg_theme", ""))):
 				_err("màn %d: bg_theme \"%s\" không có trong tools/gen_backgrounds.py" % [i + 1, st.get("bg_theme", "")])
 		if seen_bg.has(bg) and seen_bg[bg] != f:
@@ -132,14 +142,14 @@ func _check_world(w: Dictionary, c: Dictionary, themes: Array, seen_speakers: Di
 		seen_bg[bg] = f
 		if i == 0 and str(st.get("goal", "")).is_empty():
 			_err("màn 1 (Thức tỉnh) cần \"goal\"")
-		if i in [1, 2, 3] and st.has("form"):
+		if i > 0 and i < last and st.has("form"):
 			if str(st.get("form_name", "")).is_empty():
 				_err("màn %d có form nhưng thiếu form_name" % (i + 1))
 			if not custom and not forms.has(st["form"]):
 				_err("màn %d: form %s không có trong RIDER.forms" % [i + 1, st["form"]])
 			if not custom and st["form"] == rider.get("base", &""):
 				_err("màn %d: form rơi ra không được là form gốc" % (i + 1))
-		if i == 4:
+		if i == last:
 			var boss: Dictionary = st.get("boss", {})
 			for k in ["name", "hp", "damage", "poise", "speed", "traits", "color"]:
 				if not boss.has(k):
@@ -166,8 +176,11 @@ func _check_world(w: Dictionary, c: Dictionary, themes: Array, seen_speakers: Di
 			_err("người nói %s: \"look\" sai định dạng: %s" % [key, sp.get("look", "")])
 	# Hội thoại
 	var story: Dictionary = c.get("STORY", {})
+	var keys: Array = []                               # "1".."<n-1>", "B"
+	for i in n:
+		keys.append("B" if i == last else str(i + 1))
 	for sk in story:
-		if not str(sk) in ["1", "2", "3", "4", "B"]:
+		if not str(sk) in keys:
 			_err("STORY khóa \"%s\" không hợp lệ" % sk)
 		var beats: Dictionary = story[sk]
 		for b in beats:
@@ -175,18 +188,18 @@ func _check_world(w: Dictionary, c: Dictionary, themes: Array, seen_speakers: Di
 				_err("STORY[%s] nhịp \"%s\" không hợp lệ" % [sk, b])
 			for line in beats[b]:
 				_check_line(line, sps, "STORY[%s].%s" % [sk, b])
-	for sk in ["1", "2", "3", "4"]:
+	for sk in keys.slice(0, last):
 		if not (story.get(sk, {}) as Dictionary).has("start"):
 			_err("STORY[%s] thiếu \"start\"" % sk)
-	for sk in ["1", "2", "3", "4", "B"]:
+	for sk in keys:
 		if not (story.get(sk, {}) as Dictionary).has("clear"):
 			_err("STORY[%s] thiếu \"clear\"" % sk)
 	if not (story.get("B", {}) as Dictionary).has("goal"):
 		_err("STORY[B] thiếu \"goal\" (lời trùm trước trận)")
 	if not (story.get("1", {}) as Dictionary).has("key"):
 		_err("STORY[1] thiếu \"key\" (cảnh nhặt Driver)")
-	for i in [1, 2, 3]:
-		if i < stages.size() and (stages[i] as Dictionary).has("form") and not (story.get(str(i + 1), {}) as Dictionary).has("key"):
+	for i in range(1, last):
+		if (stages[i] as Dictionary).has("form") and not (story.get(str(i + 1), {}) as Dictionary).has("key"):
 			_err("STORY[%d] thiếu \"key\" (cảnh nhặt form)" % (i + 1))
 	var wc: Array = c.get("WORLD_CLEAR", [])
 	if wc.is_empty():
@@ -234,7 +247,7 @@ func _check_rider(r: Dictionary) -> void:
 			_err("form %s: effect chỉ có thể là \"time\"" % fid)
 		var fx: Dictionary = fm.get("fx", {})
 		for fk in fx:
-			if not fk in ["hit", "swing", "shot", "final", "color", "trail", "glide"]:
+			if not fk in ["hit", "swing", "shot", "final", "color", "trail", "glide", "intro", "signature"]:
 				_err("form %s: fx có khóa lạ \"%s\"" % [fid, fk])
 		for fk in ["hit", "swing", "final"]:
 			if fx.has(fk) and not str(fx[fk]) in Fx.KINDS and not (fk == "swing" and str(fx[fk]) == ""):
@@ -244,8 +257,44 @@ func _check_rider(r: Dictionary) -> void:
 		for gk in (fm.get("gun", {}) as Dictionary):
 			if not GUN_KEYS.has(gk):
 				_err("form %s: gun có khóa lạ \"%s\"" % [fid, gk])
+		var all_tags: Array = (fm.get("tags", []) as Array) + ((fm.get("gun", {}) as Dictionary).get("tags", []) as Array)
+		var atks: Dictionary = fm.get("attacks", {})
+		for ak in atks:
+			if not ak in ["light", "kick", "slash", "slash_finish", "final"]:
+				_err("form %s: attacks có đòn lạ \"%s\" (light / kick / slash / slash_finish / final)" % [fid, ak])
+			if ak in ["slash", "slash_finish"] and (fm.get("armed", false) or not (fm.has("blade") or str(fm.get("style", "")) == "blade")):
+				_err("form %s: attacks.%s nhưng form không có kiếm (\"blade\")" % [fid, ak])
+			for k in (atks[ak] as Dictionary):
+				if not ATTACK_KEYS.has(k):
+					_err("form %s: attacks.%s có khóa lạ \"%s\"" % [fid, ak, k])
+			all_tags += (atks[ak] as Dictionary).get("tags", []) as Array
+		for tag in all_tags:
+			if not FORM_TAGS.has(tag):
+				_err("form %s: tag %s không hợp lệ %s" % [fid, tag, FORM_TAGS])
+		var blade: Dictionary = fm.get("blade", {})
+		for bk in blade:
+			if not bk in ["look", "style"]:
+				_err("form %s: blade có khóa lạ \"%s\"" % [fid, bk])
+		if blade.has("style") and not str(blade["style"]) in ["blade", "lancer", "heavy"]:
+			_err("form %s: blade.style phải là blade / lancer / heavy" % fid)
+		var look := str((fm.get("gun", {}) as Dictionary).get("look", ""))
+		if look != "" and not ResourceLoader.exists("res://art/characters/weapons/%s.png" % look):
+			_err("form %s: gun.look \"%s\" chưa có ảnh art/characters/weapons/%s.png" % [fid, look, look])
+		if fm.has("guard") and not (float(fm["guard"]) >= 0.2 and float(fm["guard"]) < 1.0):
+			_err("form %s: guard phải trong khoảng 0.2–1" % fid)
+		if fm.has("rage_drain") and not (float(fm["rage_drain"]) >= 2.0 and float(fm["rage_drain"]) <= 10.0):
+			_err("form %s: rage_drain phải trong khoảng 2–10" % fid)
 		if str(fm.get("style", "")) == "gunner" and not fm.has("gun"):
 			_err("form %s kiểu gunner nên có \"gun\"" % fid)
+	for fk in (r.get("final_fx", {}) as Dictionary):
+		if not fk in ["intro", "signature"] or not str(r["final_fx"][fk]) in Fx.KINDS:
+			_err("RIDER.final_fx.%s \"%s\" không hợp lệ (Fx.KINDS)" % [fk, r["final_fx"][fk]])
 	var lv5: Dictionary = r.get("lv5", {})
-	if str(lv5.get("name", "")).is_empty():
-		_err("RIDER.lv5 cần name")
+	if str(lv5.get("name", "")).is_empty() and not lv5.has("form"):
+		_err("RIDER.lv5 cần name hoặc form (final form mở ở Lv5)")
+	if lv5.has("form"):
+		var final_form: Dictionary = forms.get(lv5["form"], {})
+		if final_form.is_empty():
+			_err("RIDER.lv5.form %s không có trong forms" % lv5["form"])
+		elif final_form.get("item", false):
+			_err("RIDER.lv5.form %s là item, phải là form" % lv5["form"])

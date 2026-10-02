@@ -12,6 +12,7 @@ var _floor_y := 0.0
 
 
 func _ready() -> void:
+	GameState.use_test_profile()   # tiến trình trống, không đè save thật
 	GameState.story_enabled = false   # không để hội thoại đầu màn dừng game giữa các trường hợp
 	stage = load(STAGE).instantiate()
 	add_child(stage)

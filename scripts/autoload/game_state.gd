@@ -15,11 +15,13 @@ signal fragments_changed(amount: int)
 signal form_unlocked(rider_id: StringName, form_id: StringName)
 
 const SAVE_PATH := "user://save.json"
-const SAVE_VERSION := 2
+const SAVE_VERSION := 4                ## 4: OOO có 9 màn (chỉ số màn thế giới 12 đổi)
 const MAX_LEVEL := 5
-## Bản mẫu: mỗi lần mở game đều chơi lại từ màn 1-1. Đặt false để đọc save.
-const DEBUG_FRESH_START := true
-## Cấp quái: mỗi màn +1, mỗi thế giới +2/3 (làm tròn xuống): thế giới 1 Lv1–5, thế giới 4 Lv3–7, thế giới 11
+const MAX_ITEMS := 2                    ## số item (vũ khí) mang vào một màn
+## Đặt true để mỗi lần mở game đều chơi lại từ màn 1-1 (không đọc save). Mặc định đọc save: Driver, cấp, form và
+## item đã nhặt, màn đã qua được giữ lại giữa các lần mở game (user://save.json; bản web lưu trong trình duyệt).
+const DEBUG_FRESH_START := false
+## Cấp quái: mỗi bậc màn (WorldData.tier_of) +1, mỗi thế giới +2/3 (làm tròn xuống): thế giới 1 Lv1–5, thế giới 4 Lv3–7, thế giới 11
 ## Lv7–11, thế giới 27 Lv18–22. Trùm +2. Tăng chậm để khớp với sức mạnh Rider theo thế hệ (POWER_PER_WORLD).
 const ENEMY_LEVELS_PER_WORLD := 2.0 / 3.0
 ## Sức mạnh Rider theo thế hệ: Rider của thế giới thứ i (đếm từ 0) có máu và sát thương × (1 + 0.12 × i).
@@ -27,10 +29,11 @@ const ENEMY_LEVELS_PER_WORLD := 2.0 / 3.0
 const POWER_PER_WORLD := 0.12
 ## Dạng người cũng mạnh dần theo hành trình: máu và sức đánh × (1 + 0.06 × số thế giới đã qua).
 const HUMAN_POWER_PER_WORLD := 0.06
-## Tên nhân vật chính do người chơi đặt ở màn hình đầu game (scenes/ui/name_entry.tscn).
+## Tên nhân vật chính do người chơi đặt ở màn nhập tên (scenes/ui/name_entry.tscn, sau màn hình chính).
 const DEFAULT_PLAYER_NAME := "Sora"
 const MAX_NAME_LENGTH := 12
 const BOSS_LEVEL_BONUS := 2
+const CHALLENGE_FRAGMENTS := 150        ## qua màn EX lần đầu (WorldData.StageType.CHALLENGE)
 ## Hệ số sát thương của quái theo tiến độ, để các màn đầu dễ thở:
 ##   chưa có Driver nào (màn 1-1, đánh tay không) 35% · thế giới 1: 1-2 60%, 1-3 75%, 1-4 90%, trùm 100%
 ##   từ thế giới 2 trở đi 100%. Áp cho cả đòn đánh lẫn đạn của quái.
@@ -52,20 +55,28 @@ const INPUT_KEYS := {
 	"jump": [KEY_SPACE],
 	"attack_light": [KEY_J],
 	"shoot": [KEY_H],
+	"attack_slash": [KEY_K],     ## chém bằng vũ khí cận chiến (form có kiếm)
 	"special": [KEY_L],
 	"dodge": [KEY_SHIFT],
 	"henshin": [KEY_I],
 	"swap_rider": [KEY_O],
+	"menu": [KEY_ESCAPE, KEY_P],   ## về màn chọn màn
 	"final_attack": [KEY_U],
 	"ultimate": [],   ## nút tuyệt chiêu trên màn hình: biến thân hoặc Final Attack
 }
 
-var world_index := 0
+var world_index := 0                    ## màn đang chơi (chọn ở màn chọn màn)
 var stage_index := 0
+var frontier_world := 0                 ## màn xa nhất đã mở: các màn tới đây chọn được, qua màn này thì mở màn kế
+var frontier_stage := 0
+var in_stage := false                   ## đang trong màn (gục thì tải lại vào thẳng màn đó, không về màn chọn màn)
+var carried_items: Array[StringName] = []   ## item của Rider chính mang vào màn đang chơi (tối đa MAX_ITEMS)
+## Form biến đổi dùng được trong màn đang chơi: form chọn trước màn (tối đa 1, như trận đấu) + form nhặt giữa màn.
+var carried_forms: Array[StringName] = []
 var worlds_cleared := 0
 var drivers := {}                       ## "kuuga" -> {"active": bool, "level": int, "forms": ["dragon", ...]}
-var main_rider: StringName = &""        ## Rider chính, chọn trước mỗi màn (màn chọn Rider)
-var equipped: Array[StringName] = []    ## đội hình trong màn: [Rider chính, Rider của thế giới]; ô đầu dùng khi biến thân
+var main_rider: StringName = &""        ## Rider dùng trong màn, chọn trước mỗi màn; trong màn không đổi Rider
+var equipped: Array[StringName] = []    ## [Rider chính] (một Rider mỗi màn)
 var memory_fragments := 0
 var cleared_stages: Array[String] = []
 var rei_memories: Array[String] = []    ## ký ức ẩn của Rei đã nhặt → điều kiện Kết thúc thật
@@ -75,6 +86,15 @@ var player_name := DEFAULT_PLAYER_NAME
 var seen_story: Array[String] = []
 ## Tắt để bot test chạy không dừng vì hội thoại.
 var story_enabled := true
+## Chế độ đấu 2 người qua WiFi (scenes/versus/versus.tscn). Chỉ dùng Rider đã kích hoạt Driver, với cấp và sức mạnh
+## như ở hành trình; trong trận chỉ dùng được form và item đã chọn trước trận (versus_form, versus_items, phải là thứ đã
+## nhặt được). Dạng người ai cũng như nhau (human_power = 1).
+var versus := false
+var versus_rider: StringName = &""
+var versus_form: StringName = &""          ## &"" = chỉ form gốc
+var versus_items: Array[StringName] = []   ## tối đa MAX_ITEMS
+## false: không đọc / ghi save (bot test gọi use_test_profile để không đè lên tiến trình thật của người chơi).
+var persist := true
 ## Checkpoint trong màn hiện tại: chỉ số trong layout["checkpoints"] (-1 = đầu màn).
 ## Giữ qua lần chơi lại khi gục, xóa khi qua màn.
 var checkpoint := -1
@@ -84,6 +104,31 @@ func _ready() -> void:
 	_setup_input()
 	if not DEBUG_FRESH_START:
 		load_game()
+
+
+## Bot test: bắt đầu từ tiến trình trống và không ghi save (save thật của người chơi giữ nguyên).
+func use_test_profile() -> void:
+	persist = false
+	world_index = 0
+	stage_index = 0
+	frontier_world = 0
+	frontier_stage = 0
+	in_stage = false
+	carried_items.clear()
+	carried_forms.clear()
+	worlds_cleared = 0
+	drivers = {}
+	main_rider = &""
+	memory_fragments = 0
+	cleared_stages.clear()
+	rei_memories.clear()
+	player_name = DEFAULT_PLAYER_NAME
+	seen_story.clear()
+	checkpoint = -1
+	versus_rider = &""
+	versus_form = &""
+	versus_items.clear()
+	rebuild_team()
 
 
 # --- Tiến trình ----------------------------------------------------------
@@ -123,7 +168,7 @@ func enemy_damage_mult() -> float:
 
 
 func current_enemy_level() -> int:
-	return 1 + int(world_index * ENEMY_LEVELS_PER_WORLD) + stage_index
+	return 1 + int(world_index * ENEMY_LEVELS_PER_WORLD) + int(current_stage().get("tier", stage_index))
 
 
 ## Hệ số sức mạnh thế hệ của Rider (RiderForm.power).
@@ -133,11 +178,26 @@ func rider_power(id: StringName) -> float:
 
 ## Hệ số sức mạnh dạng người (máu và sức đánh).
 func human_power() -> float:
+	if versus:
+		return 1.0
 	return 1.0 + HUMAN_POWER_PER_WORLD * mini(world_index, WorldData.WORLDS.size() - 1)
 
 
+## Đã qua hết mọi thế giới (vẫn chọn lại được các màn cũ ở màn chọn màn).
 func is_demo_finished() -> bool:
-	return world_index >= WorldData.WORLDS.size()
+	return frontier_world >= WorldData.WORLDS.size()
+
+
+## Màn EX (sau màn Trùm) mở khi đã giải cứu thế giới đó: frontier_stage không bao giờ trỏ tới nó.
+func is_stage_unlocked(w: int, s: int) -> bool:
+	return w < frontier_world or (w == frontier_world and s <= frontier_stage)
+
+
+## Chọn màn để chơi (màn chọn màn). Bắt đầu từ đầu màn.
+func select_stage(w: int, s: int) -> void:
+	world_index = w
+	stage_index = s
+	checkpoint = -1
 
 
 func current_world() -> Dictionary:
@@ -168,26 +228,36 @@ func complete_stage() -> Dictionary:
 		result["level"] = reward_level
 
 	# Form của màn đã được nhặt giữa màn; gọi lại ở đây để chắc chắn không bị kẹt tiến trình.
+	# Item (vũ khí) thì không: chỉ có khi nhặt được từ quái, lỡ thì chơi lại màn.
 	var stage_form: StringName = stage.get("form", &"")
-	if stage_form != &"":
+	if stage_form != &"" and not is_item(rider, stage_form):
 		unlock_form(rider, stage_form)
+	if stage_form != &"" and has_form(rider, stage_form):
 		result["form_name"] = stage["form_name"]
 
 	if stage["type"] == WorldData.StageType.BOSS:
 		var next_driver: StringName = world["next_driver"]
 		obtain_driver(next_driver)
 		result["obtained"] = next_driver
-		worlds_cleared += 1
+		if not cleared_stages.has(stage["id"]):
+			worlds_cleared += 1
 
 	checkpoint = -1
-	if not cleared_stages.has(stage["id"]):
+	in_stage = false
+	var first_clear := not cleared_stages.has(stage["id"])
+	if first_clear:
 		cleared_stages.append(stage["id"])
-	var stages: Array = world["stages"]
-	stage_index += 1
-	if stage_index >= stages.size():
-		stage_index = 0
-		world_index += 1
-		rebuild_team()   # sang thế giới mới: Rider của thế giới cũ không còn đi kèm
+	# Qua màn xa nhất đã mở thì mở màn kế (chơi lại màn cũ không mở gì thêm).
+	if world_index == frontier_world and stage_index == frontier_stage:
+		frontier_stage += 1
+		if frontier_stage >= int(world["main_count"]):
+			frontier_stage = 0
+			frontier_world += 1
+	result["first_clear"] = first_clear
+	result["fragments"] = 0
+	if stage["type"] == WorldData.StageType.CHALLENGE and first_clear:
+		add_fragments(CHALLENGE_FRAGMENTS)
+		result["fragments"] = CHALLENGE_FRAGMENTS
 	save_game()
 	return result
 
@@ -215,6 +285,7 @@ func activate_driver(id: StringName) -> void:
 	if main_rider == &"":
 		main_rider = id
 	rebuild_team()
+	save_game()   # nhặt giữa màn rồi tắt game cũng không mất
 
 
 func is_active(id: StringName) -> bool:
@@ -234,24 +305,100 @@ func set_level(id: StringName, level: int) -> void:
 	var lv := clampi(level, 1, MAX_LEVEL)
 	drivers[key]["level"] = lv
 	rider_leveled.emit(id, lv)
+	_unlock_level_forms(id)
+
+
+## Final form mở khi lên Lv5 (RIDER "lv5": {"form": ...}, ví dụ Ryuki Survive).
+func _unlock_level_forms(id: StringName) -> void:
+	var form_id: StringName = (WorldData.rider_data(id).get("lv5", {}) as Dictionary).get("form", &"")
+	if form_id != &"" and get_level(id) >= MAX_LEVEL:
+		unlock_form(id, form_id)
 
 
 ## Số ô trang bị: 1 ô lúc đầu, +1 mỗi thế giới đã qua, tối đa 3.
 ## Mở form đặc biệt cho Rider. Trả về true nếu là lần đầu (để biến thân ngay với nộ đầy).
 func unlock_form(id: StringName, form_id: StringName) -> bool:
 	var key := String(id)
-	if not drivers.has(key) or has_form(id, form_id):
+	if not drivers.has(key) or owns_form(id, form_id):
 		return false
 	var forms: Array = drivers[key].get("forms", [])
 	forms.append(String(form_id))
 	drivers[key]["forms"] = forms
+	# Form nhặt giữa màn dùng được ngay trong màn này
+	if in_stage and not versus and id == main_rider and not is_item(id, form_id) and not carried_forms.has(form_id):
+		carried_forms.append(form_id)
 	form_unlocked.emit(id, form_id)
+	save_game()   # nhặt giữa màn rồi tắt game cũng không mất
 	return true
 
 
-func has_form(id: StringName, form_id: StringName) -> bool:
+## Form / item đã nhặt được (đã lưu trong save), không tính giới hạn của trận đấu.
+func owns_form(id: StringName, form_id: StringName) -> bool:
 	var key := String(id)
 	return drivers.has(key) and (drivers[key].get("forms", []) as Array).has(String(form_id))
+
+
+## Form đã mở. Trong trận đấu chỉ tính form / item đã chọn mang vào trận.
+func has_form(id: StringName, form_id: StringName) -> bool:
+	if versus and (form_id != versus_form and not versus_items.has(form_id)):
+		return false
+	return owns_form(id, form_id)
+
+
+## Item: form chỉ là vũ khí / lá bài / đòn ("item": true trong RIDER), quái rơi, mang vào màn tối đa MAX_ITEMS.
+func is_item(id: StringName, form_id: StringName) -> bool:
+	return WorldData.form_is_item(id, form_id)
+
+
+## Các item Rider đã nhặt, theo thứ tự order của Rider.
+func owned_items(id: StringName) -> Array[StringName]:
+	var out: Array[StringName] = []
+	for f in WorldData.rider_data(id).get("order", []):
+		if is_item(id, f) and owns_form(id, f):
+			out.append(f)
+	return out
+
+
+## Các form biến đổi (không phải item) Rider đã nhặt, theo thứ tự nhặt.
+func owned_forms(id: StringName) -> Array[StringName]:
+	var out: Array[StringName] = []
+	for f in drivers.get(String(id), {}).get("forms", []):
+		if not is_item(id, StringName(f)):
+			out.append(StringName(f))
+	return out
+
+
+## Chọn Rider, form (tối đa 1, &"" = chỉ form gốc) và item mang vào trận đấu; lưu lại để lần sau chọn sẵn.
+## Chỉ nhận thứ đã mở khoá.
+func set_versus_loadout(id: StringName, form_id: StringName, items: Array[StringName]) -> void:
+	versus_rider = id
+	versus_form = form_id if owned_forms(id).has(form_id) else &""
+	versus_items.clear()
+	for f in items:
+		if owned_items(id).has(f) and versus_items.size() < MAX_ITEMS:
+			versus_items.append(f)
+	save_game()
+
+
+## Item mang vào màn (chọn trước khi vào màn).
+func set_carried(items: Array[StringName]) -> void:
+	carried_items = items.slice(0, MAX_ITEMS)
+
+
+## Form biến đổi mang vào màn (chọn trước màn, &"" = chỉ form gốc).
+func set_carried_form(form_id: StringName) -> void:
+	carried_forms.clear()
+	if form_id != &"" and owned_forms(main_rider).has(form_id):
+		carried_forms.append(form_id)
+
+
+## Form dùng được trong màn: form biến đổi phải là form đã chọn mang vào (hoặc nhặt giữa màn), item phải đang mang theo.
+func form_usable(id: StringName, form_id: StringName) -> bool:
+	if not has_form(id, form_id):
+		return false
+	if versus:
+		return true
+	return carried_items.has(form_id) if is_item(id, form_id) else carried_forms.has(form_id)
 
 
 ## Các Rider chọn được làm Rider chính (mọi Driver đã kích hoạt), theo thứ tự thế giới.
@@ -264,9 +411,14 @@ func selectable_riders() -> Array[StringName]:
 	return out
 
 
+## Số form (kể cả form gốc và item) Rider đã có, hiện ở màn chọn Rider.
+func form_count(id: StringName) -> int:
+	return 1 + (drivers.get(String(id), {}).get("forms", []) as Array).size()
+
+
 ## Rider của thế giới đang chơi (form của màn chỉ rơi cho Rider này).
 func world_rider() -> StringName:
-	return current_world()["rider"] if not is_demo_finished() else &""
+	return current_world()["rider"] if world_index < WorldData.WORLDS.size() else &""
 
 
 ## Chọn Rider chính trước khi vào màn.
@@ -278,14 +430,11 @@ func choose_main(id: StringName) -> void:
 	save_game()
 
 
-## Đội hình = [Rider chính] + Rider của thế giới (nếu đã kích hoạt và khác Rider chính).
+## Đội hình = [Rider chính]: mỗi màn chỉ một Rider, không đổi Rider giữa màn.
 func rebuild_team() -> void:
 	var team: Array[StringName] = []
 	if main_rider != &"" and is_active(main_rider):
 		team.append(main_rider)
-	var wr := world_rider()
-	if wr != &"" and is_active(wr) and not team.has(wr):
-		team.append(wr)
 	if team != equipped:
 		equipped = team
 		equipped_changed.emit()
@@ -315,10 +464,14 @@ func add_fragments(amount: int) -> void:
 # --- Lưu / đọc -----------------------------------------------------------
 
 func save_game() -> void:
+	if not persist:
+		return
 	var data := {
 		"version": SAVE_VERSION,
 		"world_index": world_index,
 		"stage_index": stage_index,
+		"frontier_world": frontier_world,
+		"frontier_stage": frontier_stage,
 		"worlds_cleared": worlds_cleared,
 		"drivers": drivers,
 		"main_rider": str(main_rider),
@@ -327,6 +480,7 @@ func save_game() -> void:
 		"rei_memories": rei_memories,
 		"player_name": player_name,
 		"seen_story": seen_story,
+		"versus": {"rider": str(versus_rider), "form": str(versus_form), "items": versus_items.map(func(f): return str(f))},
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -336,7 +490,7 @@ func save_game() -> void:
 
 
 func load_game() -> void:
-	if not FileAccess.file_exists(SAVE_PATH):
+	if not persist or not FileAccess.file_exists(SAVE_PATH):
 		return
 	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
 	if file == null:
@@ -347,6 +501,8 @@ func load_game() -> void:
 		return
 	world_index = int(data.get("world_index", 0))
 	stage_index = int(data.get("stage_index", 0))
+	frontier_world = int(data.get("frontier_world", 0))
+	frontier_stage = int(data.get("frontier_stage", 0))
 	worlds_cleared = int(data.get("worlds_cleared", 0))
 	drivers = data.get("drivers", {})
 	main_rider = StringName(str(data.get("main_rider", "")))
@@ -361,6 +517,15 @@ func load_game() -> void:
 	seen_story.clear()
 	for s in data.get("seen_story", []):
 		seen_story.append(str(s))
+	var vs: Dictionary = data.get("versus", {})
+	versus_rider = StringName(str(vs.get("rider", "")))
+	versus_form = StringName(str(vs.get("form", "")))
+	versus_items.clear()
+	for f in vs.get("items", []):
+		versus_items.append(StringName(str(f)))
+	# Save cũ: Rider đã Lv5 trước khi có final form thì mở bù
+	for key in drivers:
+		_unlock_level_forms(StringName(key))
 	rebuild_team()
 
 

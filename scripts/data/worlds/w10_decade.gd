@@ -15,9 +15,9 @@ const WORLD := {
 	"driver_name": "Decadriver",
 	"color": Color(0.95, 0.3, 0.65),
 	"enemies": {
-		"basic": {"name": "Chiến binh Dai-Shocker", "color": Color(0.45, 0.45, 0.55)},
-		"fast": {"name": "Okami Otoko", "color": Color(0.62, 0.52, 0.4)},
-		"armored": {"name": "Kanibubbler", "color": Color(0.85, 0.35, 0.3)},
+		"basic": {"name": "Chiến binh Dai-Shocker", "color": Color(0.45, 0.45, 0.55), "sprite": "dai_shocker"},
+		"fast": {"name": "Okami Otoko", "color": Color(0.62, 0.52, 0.4), "sprite": "okami_otoko"},
+		"armored": {"name": "Kanibubbler", "color": Color(0.85, 0.35, 0.3), "sprite": "kanibubbler"},
 	},
 	"unlocks": [
 		"Decade (form gốc)",
@@ -50,17 +50,29 @@ const RIDER := {
 	"order": [&"decade", &"slash", &"blast", &"kabuto"],
 	"forms": {
 		&"decade": {"name": "Decade", "style": "brawler", "hp": 160.0, "armor": 25.0, "speed": 130.0,
-			"jump": 1.05, "atk": 1.05, "poise": 7.0, "final": "Dimension Kick"},
+			"jump": 1.05, "atk": 1.05, "poise": 7.0, "final": "Dimension Kick", "attacks": {"final": {"hits": 3, "damage": 22.0}}},
 		&"slash": {"name": "Attack Ride: Slash", "style": "blade", "hp": 165.0, "armor": 28.0, "speed": 120.0,
-			"jump": 1.0, "atk": 1.25, "poise": 11.0, "final": "Dimension Slash"},
+			"jump": 1.0, "atk": 1.25, "poise": 11.0, "final": "Dimension Slash", "attacks": {"slash": {"hits": 2, "damage": 3.5}}},
 		&"blast": {"name": "Attack Ride: Blast", "style": "gunner", "hp": 140.0, "armor": 12.0, "speed": 120.0,
 			"jump": 1.0, "atk": 0.9, "poise": 5.0, "final": "Dimension Blast",
-			"gun": {"damage": 3.5, "speed": 380.0, "cooldown": 0.4, "count": 3, "spread": 0.12, "radius": 3.0,
+			"gun": {"look": "booker_gun", "damage": 3.5, "speed": 380.0, "cooldown": 0.4, "count": 3, "spread": 0.12, "radius": 3.0,
 				"color": Color(1.0, 0.4, 0.75), "life": 0.8}},
 		&"kabuto": {"name": "Kamen Ride: Kabuto", "style": "lancer", "hp": 130.0, "armor": 10.0, "speed": 165.0,
 			"jump": 1.2, "atk": 0.95, "poise": 4.0, "effect": "time", "final": "Rider Kick"},
 	},
 	"lv5": {"name": "Complete Form", "final_mult": 1.5},
+	"final_fx": {"intro": "cards"},
+}
+
+## Giọng đai / tiếng hô (tools/gen_audio.py → audio/voice/<rider>_<khóa>.wav): "henshin" lúc biến thân, khóa = id form
+## lúc đổi sang form đó, "final" lúc Final Attack. Mỗi dòng: [kiểu giọng, câu]
+## (kiểu giọng: belt / belt_deep / belt_bright / kivat / hero, xem VOICES trong gen_audio.py).
+const VOICE := {
+	"henshin": ["belt", "Kamen Ride. Decade!"],
+	"slash": ["belt", "Attack Ride. Slash!"],
+	"blast": ["belt", "Attack Ride. Blast!"],
+	"kabuto": ["belt", "Kamen Ride. Kabuto! Attack Ride. Clock Up!"],
+	"final": ["belt", "Final Attack Ride. De. De. De. Decade!"],
 }
 
 const SPEAKERS := {
@@ -89,7 +101,7 @@ const STORY := {
 		],
 		"clear": [
 			["tsukasa", "Cái thẻ biết nói của cậu mở được cổng sang thế giới khác, đúng không? Giống hệt sức mạnh của tôi."],
-			["pen", "...Decade là form gốc: tay không, cân bằng. Thẻ Attack Ride còn nằm trong tay lũ Dai-Shocker."],
+			["pen", "...Decade là form gốc: tay không, cân bằng. Dimension Kick xuyên qua hàng thẻ. Thẻ Attack Ride còn nằm trong tay lũ Dai-Shocker."],
 		],
 	},
 	"2": {
@@ -97,7 +109,7 @@ const STORY := {
 			["natsumi", "Hikari Natsumi, cháu ông chủ tiệm ảnh. Các thế giới đang nhập vào nhau, con phố này sắp biến mất! Thẻ Slash ở trong đám lính kia."],
 		],
 		"key": [
-			["tsukasa", "ATTACK RIDE: SLASH! Một nhát thành ba. Chậm hơn chút, nhưng nhát cuối phá được giáp."],
+			["tsukasa", "ATTACK RIDE: SLASH! Bấm Chém, Ride Booker một nhát thành hai. Nhát cuối phá được giáp."],
 		],
 		"clear": [
 			["natsumi", "Cậu với cô bạn trong thẻ giận nhau à? Tsukasa từng bị gọi là kẻ hủy diệt thế giới, tôi vẫn đi cùng cậu ta đấy thôi."],
@@ -109,7 +121,7 @@ const STORY := {
 			["pen", "Kaijin rải khắp căn cứ, đánh gần không xuể. Thẻ Attack Ride Blast đang ở đâu đó quanh đây!"],
 		],
 		"key": [
-			["tsukasa", "ATTACK RIDE: BLAST! Ride Booker hóa súng, một phát ra cả chùm đạn. Giáp mỏng đi, đừng để chúng áp sát."],
+			["tsukasa", "ATTACK RIDE: BLAST! Giữ nút Bắn, Ride Booker hóa súng bắn cả chùm đạn. Giáp mỏng đi, đừng để chúng áp sát."],
 		],
 		"clear": [
 			["pen", "{name}... tôi xin lỗi. Tôi không nhớ hết chuyện hồi ở với Void. Có những mảng ký ức trống trơn."],

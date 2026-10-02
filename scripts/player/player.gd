@@ -8,7 +8,9 @@ class_name Player
 ##
 ## Đánh (J / nút Đánh): chuỗi đấm rồi tự ra cú ĐÁ kết thúc (sát thương cao hơn, đẩy xa, tag &"heavy" phá giáp).
 ##   Số đòn trước cú đá: RiderForm.punch_count() (dạng người HUMAN_PUNCHES). Bấm tiếp trong lúc đang đánh để nối chuỗi;
-##   ngừng bấm thì chuỗi về đầu. Form bắn xa (Pegasus, Trigger): 2 phát bắn rồi 1 phát nạp mạnh.
+##   ngừng bấm thì chuỗi về đầu. Nút Đánh luôn là tay không (Rider có script riêng như Kuuga Pegasus vẫn tự quyết).
+## Chém (K / nút Chém): chỉ form có kiếm / vũ khí cận chiến (RiderForm.has_blade): chuỗi slash_count() nhát rồi nhát kết
+##   &"slash_finish", animation "slash" (vũ khí chỉ hiện trong animation này).
 ## Thanh tài nguyên: MÁU · NỘ
 ##   Nộ: tích khi đánh trúng và khi bị đánh.
 ##       Dạng người: nộ đầy thì biến thân (I) vào form gốc của Rider ở ô đầu (không mất nộ).
@@ -16,11 +18,19 @@ class_name Player
 ##           và tốn FORM_SWITCH_COST; ở form đặc biệt nộ tụt dần (RiderForm.rage_drain), về 0 thì
 ##           tự về form gốc. Final Attack (U) cần ≥ FINAL_MIN_RAGE và đốt hết nộ.
 ##   Nhặt Driver / form lần đầu (transform_into): nộ đầy và biến thân ngay vào form đó.
-## Bắn: chỉ form có súng (RiderForm.get_shot khác {}). Dạng người không bắn được.
+## Bắn: chỉ form có súng (RiderForm.get_shot khác {}). Dạng người không bắn được. Hình súng (RiderForm.gun_look,
+##   art/characters/weapons/) hiện ở tay theo hướng ngắm suốt lúc giữ nút Bắn, thả nút thì cất sau GUN_SHOW_TIME giây.
+## Đổi nút giữa chừng: đang hồi chiêu mà bấm nút KHÁC loại (đấm ↔ chém) hoặc giữ Bắn thì ra ngay, không chờ hồi chiêu.
 ## Né (Shift) bất tử với đòn cận chiến nhưng KHÔNG tránh được đạn: đạn cao thì cúi, đạn thấp thì nhảy.
 ## Qua màn: release_henshin() giải trừ biến thân (cảnh biến thân chạy ngược, không bị phạt như Henshin Break).
 ## Vào màn: reset_for_stage() đưa về dạng người, máu người đầy, nộ đầy. input_locked = true thì đứng yên, bỏ qua phím.
 ## Cần các node con: Sprite (AnimatedSprite2D), Hitbox, Hurtbox, Forms (Node).
+##
+## Chế độ đấu qua mạng (scripts/versus/versus.gd):
+##   versus_riders: Rider của nhân vật này (thay cho GameState.equipped; hai người chơi chọn riêng, trùng nhau cũng được).
+##   team: phe của Hitbox / Hurtbox / đạn (&"p1" / &"p2"), để hai người chơi đánh trúng nhau.
+##   net_puppet = true: bản sao của đối thủ trên máy này. Không tự chạy, không đọc phím; vị trí và hình do mạng
+##   cập nhật (VersusSync). Bị đánh trúng thì không tự trừ máu mà phát net_hit cho máy của đối thủ xử lý.
 
 signal hp_changed(current: int, maximum: int)
 signal rider_hp_changed(current: float, maximum: float)
@@ -30,9 +40,12 @@ signal form_status_changed(text: String)         ## dòng trạng thái phụ (f
 signal combo_changed(count: int)
 signal notice(text: String)                      ## thông báo ngắn cho màn chơi hiện banner (hết nộ, thiếu nộ...)
 signal died
+signal net_hit(info: DamageInfo)                 ## net_puppet bị đánh trúng: chuyển đòn sang máy của người chơi đó
+signal shot_fired(projectile: Projectile)        ## vừa bắn một viên đạn (chế độ đấu gửi bản sao sang máy kia)
 
 enum State { NORMAL, ATTACK, DODGE, HURT, HENSHIN, SWAP, BREAK, KO, CROUCH, RELEASE }
 
+const GUN_SHOW_TIME := 0.3       ## giây súng còn trên tay sau khi thả nút Bắn
 const GAUGE_MAX := 100.0
 const HENSHIN_TIME := 1.2
 const RELEASE_TIME := 0.8      ## giải trừ biến thân khi qua màn (cảnh biến thân chạy ngược, nhanh hơn)
@@ -76,7 +89,7 @@ const FINAL_MIN_RAGE := 50.0                 ## nộ tối thiểu để tung Fi
 @export var max_hp := 100
 ## Hiệu ứng mặc định, form ghi đè từng khóa qua RiderForm.fx().
 const DEFAULT_FX := {"hit": "spark", "swing": "", "shot": "ball", "final": "ring", "color": Color(1.0, 0.85, 0.5),
-	"trail": false, "glide": false}
+	"trail": false, "glide": false, "intro": "", "signature": ""}
 const GHOST_INTERVAL := 0.05   ## giây giữa hai bóng mờ khi tăng tốc thời gian / form tốc độ
 const GLIDE_FALL := 45.0       ## tốc độ rơi tối đa khi lượn (Blade Jack Form, giữ Nhảy)
 const FEATHER_INTERVAL := 0.25
@@ -106,6 +119,10 @@ var speed_mult := 1.0          ## Rider có thể chỉnh (Faiz Axel)
 var shoot_cooldown := 0.0
 var _grace_timer := 0.0        ## bất tử ngắn sau khi hồi sinh / hết nộ (đếm riêng, không đụng cờ invincible)
 var dodge_cooldown := 0.0
+var team: StringName = &"player"
+var versus_riders: Array[StringName] = []
+var net_puppet := false
+var net_invulnerable := false  ## net_puppet: đối thủ đang bất tử (theo gói trạng thái gần nhất)
 var _pending_form: StringName = &""   ## form sẽ vào khi biến thân / đổi Rider xong (nhặt form)
 
 var _state_timer := 0.0
@@ -114,6 +131,10 @@ var _attack_kind: StringName = &""
 var _attack_phase := 0         ## 0 = startup, 1 = active, 2 = recovery
 var _hits_left := 0
 var _light_chain := 0          ## số đòn đấm đã ra trong chuỗi hiện tại (tới punch_count thì đòn kế là cú đá)
+var _slash_chain := 0          ## số nhát chém đã ra (tới slash_count thì nhát kế là nhát kết)
+var _gun: Sprite2D             ## hình súng hiện ở tay lúc bắn
+var _gun_timer := 0.0
+static var _weapon_textures := {}
 var _down_tap := INF           ## giây kể từ lần bấm ↓ trước (bấm đúp để xuống bệ)
 var _buffered: StringName = &""
 var _combo := 0
@@ -127,9 +148,17 @@ var _feather_timer := 0.0
 func _ready() -> void:
 	add_to_group("player")
 	hp = max_hp
-	hitbox.team = &"player"
-	hurtbox.team = &"player"
+	hitbox.team = team
+	hurtbox.team = team
+	if net_puppet:
+		set_physics_process(false)
+		return
 	hitbox.hit_landed.connect(_on_hit_landed)
+	_gun = Sprite2D.new()
+	_gun.centered = false
+	_gun.visible = false
+	_gun.z_index = 1
+	add_child(_gun)
 	GameState.equipped_changed.connect(_sync_forms)
 	GameState.rider_leveled.connect(_on_rider_leveled)
 	_sync_forms()
@@ -196,6 +225,8 @@ func add_rage(amount: float) -> void:
 
 
 func _set_rage(value: float) -> void:
+	if value >= GAUGE_MAX and rage < GAUGE_MAX and not net_puppet:
+		Sound.sfx("rage_full", 0.0)
 	rage = clampf(value, 0.0, GAUGE_MAX)
 	rage_changed.emit(rage)
 
@@ -237,12 +268,14 @@ func transform_into(rider_id: StringName, form_id: StringName) -> void:
 	_set_crouch(false)
 	hitbox.deactivate()
 	_light_chain = 0
+	_slash_chain = 0
 	invincible = true
 	velocity.x = 0.0
 	if current_form == null:
 		state = State.HENSHIN
 		_state_timer = HENSHIN_TIME
 		_play("henshin", form.animation_prefix())
+		_henshin_sound(form)
 	else:
 		state = State.SWAP
 		_state_timer = SWAP_TIME
@@ -266,6 +299,7 @@ func _state_normal(delta: float) -> void:
 			_drop_through()            # ↓ + nhảy trên bệ = xuống khỏi bệ (như Contra)
 			return
 		velocity.y = jump_velocity * Units.SCALE * (current_form.jump_mult if current_form else 1.0)
+		Sound.sfx("jump", 0.03, -4.0)
 	if Input.is_action_just_pressed("move_down") and is_on_floor():
 		# Bấm đúp ↓ trên bệ = xuống khỏi bệ (nút cảm ứng không bấm được ↓ cùng lúc với nhảy).
 		if _down_tap < DOUBLE_TAP_TIME and _on_platform():
@@ -281,6 +315,8 @@ func _state_normal(delta: float) -> void:
 
 	if Input.is_action_just_pressed("attack_light"):
 		start_attack(&"light")
+	elif Input.is_action_just_pressed("attack_slash"):
+		start_attack(&"slash")
 	elif Input.is_action_just_pressed("dodge"):
 		start_dodge()
 	elif Input.is_action_just_pressed("henshin"):
@@ -316,10 +352,14 @@ func _state_attack(delta: float) -> void:
 			pass
 		elif Input.is_action_just_pressed("attack_light"):
 			_buffered = &"light"
+		elif Input.is_action_just_pressed("attack_slash"):
+			_buffered = &"slash"
 		elif _attack_phase == 2 and Input.is_action_just_pressed("dodge"):
 			# Né hủy hồi chiêu (dodge cancel)
 			hitbox.deactivate()
 			start_dodge()
+			return
+		if _attack_phase == 2 and not input_locked and _switch_cancel():
 			return
 
 	_state_timer -= delta * speed_mult   # tăng tốc thời gian: ra đòn nhanh như chạy
@@ -348,6 +388,7 @@ func _state_attack(delta: float) -> void:
 				start_attack(_buffered)
 			else:
 				_light_chain = 0
+				_slash_chain = 0
 
 
 func _state_crouch(delta: float) -> void:
@@ -366,6 +407,9 @@ func _state_crouch(delta: float) -> void:
 	elif Input.is_action_just_pressed("attack_light"):
 		_set_crouch(false)
 		start_attack(&"light")
+	elif Input.is_action_just_pressed("attack_slash"):
+		_set_crouch(false)
+		start_attack(&"slash")
 	elif Input.is_action_just_pressed("dodge"):
 		_set_crouch(false)
 		start_dodge()
@@ -403,6 +447,7 @@ func _state_henshin(delta: float) -> void:
 	if _state_timer > 0.0:
 		return
 	_enter_form(equipped[active_slot], true)
+	Sound.sfx("henshin_flash", 0.0)
 	# Sóng xung kích lúc biến thân xong: đẩy lùi quái xung quanh.
 	_begin_attack(&"henshin", RiderForm.make_attack(4.0, 0.0, 0.12, 0.1, Vector2(90, 40), Vector2(0, -14),
 		Vector2(180, -90), [&"henshin"], {"no_cancel": true, "anim": "idle"}))
@@ -441,10 +486,18 @@ func start_attack(kind: StringName) -> void:
 			kind = &"kick"
 		else:
 			chain = _light_chain
+	elif kind == &"slash":
+		if current_form == null or not current_form.has_blade():
+			return
+		if _slash_chain >= current_form.slash_count():
+			kind = &"slash_finish"
+		else:
+			chain = _slash_chain
 	var data := current_form.get_attack(kind, chain) if current_form else _human_attack(kind, chain)
 	if data.is_empty():
 		return
 	_light_chain = _light_chain + 1 if kind == &"light" else 0
+	_slash_chain = _slash_chain + 1 if kind == &"slash" else 0
 	if kind == &"kick" and not data.has("anim"):
 		data["anim"] = "heavy"   # bộ hình cú đá trong SpriteFrames tên là "<form>_heavy"
 	_begin_attack(kind, data)
@@ -460,20 +513,20 @@ func try_shoot() -> void:
 		return
 	shoot_cooldown = shot["cooldown"]
 	var aim := _aim_dir()
-	var crouching := state == State.CROUCH
-	var muzzle := Vector2(14.0 * facing, -18.0 if crouching else -34.0)
-	if aim.y < -0.5 and aim.x == 0.0:
-		muzzle = Vector2(4.0 * facing, -58.0)
+	var muzzle := _muzzle(aim)
 	var count: int = shot["count"]
 	for i in count:
 		var p := Projectile.new()
-		p.team = &"player"
+		p.team = team
 		p.damage = float(shot["damage"]) * _damage_mult()
 		p.radius = shot["radius"]
 		p.color = shot["color"]
 		p.pierce = shot["pierce"]
 		p.life = shot["life"]
 		p.source = self
+		if shot.has("tags"):
+			p.tags = p.tags + Array(shot["tags"])   # đạn mang hiệu ứng của form (&"burn"...)
+		p.tags = p.tags + current_form.special_tags()
 		p.style = str(current_fx()["shot"])
 		p.hit_fx = str(current_fx()["hit"])
 		var offset: float = (i - (count - 1) / 2.0) * float(shot["spread"])
@@ -481,6 +534,53 @@ func try_shoot() -> void:
 		p.hit_landed.connect(_on_hit_landed)
 		get_parent().add_child(p)
 		p.global_position = global_position + muzzle
+		shot_fired.emit(p)
+	_show_gun(aim)
+	var shot_sfx: String = {"bolt": "shot_bolt", "fire": "shot_fire", "arrow": "shot_arrow"}.get(str(current_fx()["shot"]), "shot_ball")
+	Sound.sfx("shot_heavy" if float(shot["damage"]) >= 10.0 else shot_sfx, 0.08, -3.0)
+
+
+## Chỗ đạn bay ra (so với chân nhân vật): ngang ngực, cúi thì thấp xuống, bắn thẳng lên thì trên đầu.
+func _muzzle(aim: Vector2) -> Vector2:
+	if aim.y < -0.5 and aim.x == 0.0:
+		return Vector2(4.0 * facing, -58.0)
+	return Vector2(14.0 * facing, -18.0 if state == State.CROUCH else -34.0)
+
+
+## Súng của form hiện ở tay, chĩa theo hướng bắn, nòng ở chỗ đạn bay ra. Ảnh súng: báng ở mép trái, nòng ở mép phải.
+## Giữ nút Bắn thì súng ở yên trên tay (không tắt giữa hai phát), thả nút thì cất sau GUN_SHOW_TIME giây.
+func _show_gun(aim: Vector2) -> void:
+	if _gun == null or current_form == null:
+		return
+	var tex := _weapon_texture(current_form.gun_look())
+	if tex == null:
+		return
+	_gun.texture = tex
+	_gun.offset = Vector2(-2.0, -tex.get_height() / 2.0)
+	_aim_gun(aim)
+	_gun.visible = true
+	_gun_timer = GUN_SHOW_TIME
+
+
+func _aim_gun(aim: Vector2) -> void:
+	_gun.rotation = aim.angle()
+	_gun.flip_v = aim.x < 0.0
+	_gun.position = _muzzle(aim) - aim.normalized() * (_gun.texture.get_width() - 2.0)
+
+
+func _hide_gun() -> void:
+	if _gun:
+		_gun.visible = false
+	_gun_timer = 0.0
+
+
+static func _weapon_texture(look: String) -> Texture2D:
+	if look == "":
+		return null
+	if not _weapon_textures.has(look):
+		var path := "res://art/characters/weapons/%s.png" % look
+		_weapon_textures[look] = load(path) if ResourceLoader.exists(path) else null
+	return _weapon_textures[look]
 
 
 func _aim_dir() -> Vector2:
@@ -554,6 +654,7 @@ func start_dodge() -> void:
 	invincible = true
 	velocity.x = d * dodge_speed * Units.SCALE * (1.2 if current_form == null else 1.0)
 	_play("dodge")
+	Sound.sfx("dodge")
 
 
 func try_henshin() -> void:
@@ -564,6 +665,26 @@ func try_henshin() -> void:
 	invincible = true
 	velocity.x = 0.0
 	_play("henshin", equipped[active_slot].animation_prefix())
+	_henshin_sound(equipped[active_slot])
+
+
+## Âm thanh biến thân: tiếng món đồ biến thân riêng của Rider (audio/sfx/henshin_<rider>), Sora hô "Henshin!",
+## rồi giọng đai (audio/voice/<rider>_henshin, như "Standing by... Complete").
+func _henshin_sound(form: RiderForm) -> void:
+	var rid := String(form.rider_id)
+	if Sound.henshin_ext(rid):
+		return          # tiếng biến thân lấy từ phim đã gồm tiếng đai + tiếng hô
+	Sound.sfx("henshin_" + rid if Sound.has_sfx("henshin_" + rid) else "henshin_charge", 0.0)
+	Sound.voice("hero_henshin")
+	Sound.voice(rid + "_henshin", 0.6)
+
+
+## Đổi sang form khác (Special, nhặt form, hết nộ về form gốc): tiếng chuyển form + giọng đai của form ("Rod Form").
+func on_form_changed(form: RiderForm) -> void:
+	if net_puppet:
+		return
+	Sound.sfx("form_change", 0.0)
+	Sound.voice("%s_%s" % [form.rider_id, form.current_form_id()])
 
 
 ## Qua màn: giải trừ biến thân. Chạy ngược cảnh biến thân của Rider đang mang (Rider chưa có sprite thì chỉ chớp
@@ -574,6 +695,7 @@ func release_henshin() -> void:
 	_set_crouch(false)
 	hitbox.deactivate()
 	_light_chain = 0
+	_slash_chain = 0
 	_pending_form = &""
 	state = State.RELEASE
 	_state_timer = RELEASE_TIME
@@ -635,6 +757,11 @@ func try_final_attack() -> void:
 	if not can_final():
 		return
 	_set_rage(0.0)   # ở form đặc biệt: đánh xong thì về form gốc (_tick_rage)
+	Sound.sfx("final_charge", 0.0)
+	Sound.voice("%s_final" % current_form.rider_id)
+	var fx := current_fx()
+	if str(fx["intro"]) != "":       # dấu hiệu tuyệt chiêu riêng quanh Rider (rồng lửa Ryuki, vòng Medal OOO...)
+		Fx.spawn(get_parent(), global_position + Vector2(0, -30) * Units.SCALE, str(fx["intro"]), fx["color"], facing, 1.2)
 	CombatDirector.final_attack_started.emit(current_form.rider_id, current_form.final_attack_name())
 	start_attack(&"final")
 
@@ -643,6 +770,12 @@ func try_final_attack() -> void:
 func take_hit(info: DamageInfo) -> bool:
 	if state == State.KO:
 		return false
+	if net_puppet:
+		# Đoán theo trạng thái nhận qua mạng; máy của đối thủ mới quyết định trừ máu (take_hit trên bản thật).
+		if net_invulnerable and not (state == State.DODGE and info.has_tag(&"ranged")):
+			return false
+		net_hit.emit(info)
+		return true
 	# Né chỉ tránh được đòn cận chiến; đạn phải nhảy hoặc cúi mà tránh.
 	var dodging_bullet := state == State.DODGE and _grace_timer <= 0.0 and info.has_tag(&"ranged")
 	if is_invulnerable() and not dodging_bullet:
@@ -655,6 +788,7 @@ func take_hit(info: DamageInfo) -> bool:
 			_grace_timer = maxf(_grace_timer, HIT_INVULN_RIDER)
 		rider_hp -= dmg
 		rider_hp_changed.emit(maxf(rider_hp, 0.0), current_form.get_max_hp())
+		Sound.sfx("hurt", 0.08, -3.0)
 		_gain_from_damage(dmg)
 		if rider_hp <= 0.0:
 			_henshin_break()
@@ -666,6 +800,7 @@ func take_hit(info: DamageInfo) -> bool:
 		if not blocking:
 			_grace_timer = maxf(_grace_timer, HIT_INVULN_HUMAN)
 		hp -= ceili(dmg)
+		Sound.sfx("hurt", 0.08, -3.0)
 		hp_changed.emit(maxi(hp, 0), max_hp)
 		_gain_from_damage(dmg)
 		if hp <= 0:
@@ -675,6 +810,7 @@ func take_hit(info: DamageInfo) -> bool:
 		return true   # đang thủ thế: không bị khựng, không bị đẩy
 	hitbox.deactivate()
 	_light_chain = 0
+	_slash_chain = 0
 	state = State.HURT
 	_state_timer = HURT_TIME
 	velocity = Vector2(info.knockback.x * _knock_dir(info), info.knockback.y) * Units.SCALE
@@ -715,6 +851,8 @@ func is_action_visible(action: String) -> bool:
 	match action:
 		"shoot":
 			return has_gun()
+		"attack_slash":
+			return current_form != null and current_form.has_blade()
 		"special":
 			return current_form != null and current_form.special_available()
 		"swap_rider":
@@ -757,7 +895,7 @@ func rescale_rider_hp(old_max: float, new_max: float) -> void:
 ## Đồng bộ danh sách Rider với GameState.equipped (khi kích hoạt Driver mới giữa màn chơi).
 func _sync_forms() -> void:
 	var new_list: Array[RiderForm] = []
-	for id in GameState.equipped:
+	for id in (versus_riders if not versus_riders.is_empty() else GameState.equipped):
 		var form := _find_form(id)
 		if form == null:
 			form = GameState.create_form(id)
@@ -788,7 +926,48 @@ func _on_rider_leveled(id: StringName, level: int) -> void:
 			rider_hp_changed.emit(rider_hp, form.get_max_hp())
 
 
+## Đang hồi chiêu: bấm nút đòn khác loại (đấm ↔ chém) thì ra đòn mới ngay; giữ Bắn (form có súng) thì bắn ngay.
+## Nối đòn cùng loại vẫn chờ hồi chiêu như cũ. Trả true nếu đã chuyển.
+func _switch_cancel() -> bool:
+	var to_shoot := Input.is_action_pressed("shoot") and has_gun() and shoot_cooldown <= 0.0
+	var next := _buffered
+	if not to_shoot and (next == &"" or _attack_group(next) == _attack_group(_attack_kind)):
+		return false
+	hitbox.deactivate()
+	invincible = false
+	state = State.NORMAL
+	_buffered = &""
+	if to_shoot:
+		_light_chain = 0
+		_slash_chain = 0
+		try_shoot()
+	else:
+		start_attack(next)
+	return true
+
+
+static func _attack_group(kind: StringName) -> StringName:
+	if kind == &"light" or kind == &"kick":
+		return &"hand"
+	if kind == &"slash" or kind == &"slash_finish":
+		return &"blade"
+	return kind
+
+
+## Tiếng đòn trúng: trúng thường / nặng, tiếng hiệu ứng (cháy, điện, băng, choáng), Final trúng thì nổ lớn.
+func _hit_sound(info: DamageInfo) -> void:
+	Sound.sfx("hit_heavy" if info.has_tag(&"heavy") or info.has_tag(&"final") else "hit")
+	for tag in [&"burn", &"shock", &"freeze", &"stun"]:
+		if info.has_tag(tag):
+			Sound.sfx(String(tag), 0.04, -4.0)
+	if info.has_tag(&"final"):
+		Sound.sfx("final_impact", 0.0)
+
+
 func _begin_attack(kind: StringName, data: Dictionary) -> void:
+	var swing_sound := current_form.swing_sfx(kind) if current_form else ("kick" if kind == &"kick" else "punch")
+	if swing_sound != "" and not net_puppet:
+		Sound.sfx(swing_sound, 0.08, -2.0)
 	_attack = data
 	_attack_kind = kind
 	_attack_phase = 0
@@ -811,6 +990,10 @@ func _fire_hitbox() -> void:
 	var tags := base_tags.duplicate()
 	if _attack_kind == &"final":
 		tags.append(&"final")
+	if current_form:
+		for t in current_form.special_tags():   # &"crush" form nặng, &"time" form tăng tốc (quái đặc biệt)
+			if not tags.has(t):
+				tags.append(t)
 	var dmg: float = _attack["damage"] * _damage_mult()
 	var info := DamageInfo.new(dmg, _attack["knockback"], facing, tags, self)
 	hitbox.activate(info, _attack["size"], _attack["offset"])
@@ -860,6 +1043,7 @@ func _tick_rage(delta: float) -> void:
 	if state == State.ATTACK:
 		hitbox.deactivate()
 		_light_chain = 0
+		_slash_chain = 0
 		invincible = false
 		state = State.NORMAL
 	current_form.reset_to_base()
@@ -878,6 +1062,7 @@ func _to_human() -> void:
 	form_changed.emit(&"")
 	hitbox.deactivate()
 	_light_chain = 0
+	_slash_chain = 0
 
 
 func _henshin_break() -> void:
@@ -889,6 +1074,7 @@ func _henshin_break() -> void:
 	invincible = true
 	velocity = Vector2(-facing * 120.0, -120.0) * Units.SCALE
 	_play("break")
+	Sound.sfx("break", 0.0)
 
 
 func _die() -> void:
@@ -896,6 +1082,7 @@ func _die() -> void:
 	state = State.KO
 	hitbox.deactivate()
 	_play("ko")
+	Sound.sfx("ko", 0.0)
 	died.emit()
 
 
@@ -903,6 +1090,16 @@ func _tick_timers(delta: float) -> void:
 	swap_cooldown = maxf(swap_cooldown - delta, 0.0)
 	_down_tap += delta
 	shoot_cooldown = maxf(shoot_cooldown - delta, 0.0)
+	if _gun_timer > 0.0:
+		if state in [State.NORMAL, State.CROUCH] and Input.is_action_pressed("shoot") and not input_locked:
+			_gun_timer = GUN_SHOW_TIME     # đang giữ Bắn: súng ở yên trên tay, xoay theo hướng ngắm
+			_aim_gun(_aim_dir())
+		elif state in [State.NORMAL, State.CROUCH]:
+			_gun_timer -= delta
+		else:
+			_gun_timer = 0.0               # ra đòn / né / trúng đòn: cất súng ngay
+		if _gun_timer <= 0.0:
+			_gun.visible = false
 	_grace_timer = maxf(_grace_timer - delta, 0.0)
 	dodge_cooldown = maxf(dodge_cooldown - delta, 0.0)
 	_tick_rage(delta)
@@ -916,11 +1113,14 @@ func _tick_timers(delta: float) -> void:
 func _on_hit_landed(target: Node, info: DamageInfo) -> void:
 	if info.has_tag(&"henshin"):
 		return
+	_hit_sound(info)
 	if not info.has_tag(&"ranged") and target is Node2D:   # đạn tự vẽ hiệu ứng trúng (Projectile.hit_fx)
 		var fx := current_fx()
 		var at := (target as Node2D).global_position + Vector2(-facing * 4.0, -34.0)
 		if info.has_tag(&"final"):
 			Fx.spawn(get_parent(), at, str(fx["final"]), fx["color"], facing, 1.6)
+			if str(fx["signature"]) != "":   # dấu ấn trên quái (phong ấn Kuuga, Φ của Faiz...)
+				Fx.spawn(get_parent(), at, str(fx["signature"]), fx["color"], facing, 1.3)
 			Fx.spawn(get_parent(), at, str(fx["hit"]), fx["color"], facing, 1.4)
 		else:
 			Fx.spawn(get_parent(), at, str(fx["hit"]), fx["color"], facing, 1.2 if info.has_tag(&"heavy") else 1.0)

@@ -4,7 +4,7 @@ class_name EarthMap
 ## Dùng ở cảnh cuối phần mở đầu và sau trùm mỗi thế giới (DialogueBox backdrop "map").
 ##   - Hàng trên: Tokyo 2026 · cửa sổ WINDOW Trái Đất quanh chặng đang tới · Điểm Không.
 ##     Đã giải cứu: sáng màu Rider, đường nối vàng. Đang tới: nhấp nháy, có chân dung nhân vật chính.
-##     Chưa tới: xám, khóa tinh thể tím.
+##     Chưa tới: xám, khóa tinh thể tím. Mỗi Trái Đất là hành tinh tự quay riêng (Planet, tools/gen_planets.py).
 ##   - Dải dòng thời gian bên dưới: mỗi thế giới một chấm theo năm (2000 → 2025).
 ## Vẽ bằng lệnh _draw của CanvasItem được truyền vào để giữ nét pixel.
 
@@ -17,6 +17,7 @@ const LOCKED := Color(0.32, 0.32, 0.4)
 const HOME_COLOR := Color(0.4, 0.65, 1.0)
 const ZERO_COLOR := Color(0.7, 0.35, 1.0)
 const WINDOW := 7
+const PLANET_LOCKED := Color(0.38, 0.36, 0.48)
 
 
 ## cleared: số thế giới đã qua (GameState.worlds_cleared). fresh: chỉ số thế giới vừa được giải cứu (-1 = không có),
@@ -57,12 +58,12 @@ static func draw(ci: CanvasItem, rect: Rect2, cleared: int, t: float, fresh := -
 			for j in 3:
 				ci.draw_circle(a.lerp(b, 0.4 + 0.1 * j) + Vector2(0, -8), 1.5, Color(0.85, 0.85, 1.0, 0.8))
 	var r := 12.0
-	_node(ci, points[0], r, HOME_COLOR, "Tokyo 2026", "", t, "cleared", false)
+	_node(ci, points[0], r, Planet.HOME, HOME_COLOR, "Tokyo 2026", "", t, "cleared", false)
 	for k in shown:
 		var i := first + k
 		var w: Dictionary = worlds[i]
 		var state := "cleared" if i < cleared else ("next" if i == cleared else "locked")
-		_node(ci, points[k + 1], r, w.get("color", Color.WHITE), str(w["rider_name"]), str(w["year"]), t, state, i == fresh)
+		_node(ci, points[k + 1], r, i, w.get("color", Color.WHITE), str(w["rider_name"]), str(w["year"]), t, state, i == fresh)
 	var zp := points[slots - 1]
 	ci.draw_circle(zp, r + 6.0 + (0.5 + 0.5 * sin(t * 2.2)) * 3.0, Color(SEAL, 0.18))
 	_earth(ci, zp, r, ZERO_COLOR.darkened(0.25))
@@ -86,13 +87,8 @@ static func draw(ci: CanvasItem, rect: Rect2, cleared: int, t: float, fresh := -
 		Color(0.7, 0.7, 0.85))
 
 
-static func _node(ci: CanvasItem, p: Vector2, r: float, col: Color, name: String, year: String, t: float,
+static func _node(ci: CanvasItem, p: Vector2, r: float, row: int, col: Color, name: String, year: String, t: float,
 		state: String, fresh: bool) -> void:
-	var shown := col
-	if state == "locked":
-		shown = LOCKED
-	elif fresh and t < 1.6:
-		shown = LOCKED.lerp(col, clampf(t / 1.2, 0.0, 1.0))
 	if state == "next":
 		var pulse := 0.5 + 0.5 * sin(t * 4.0)
 		ci.draw_arc(p, r + 4.0 + pulse * 2.0, 0.0, TAU, 32, Color(GOLD, 0.5 + 0.5 * pulse), 1.5)
@@ -100,7 +96,13 @@ static func _node(ci: CanvasItem, p: Vector2, r: float, col: Color, name: String
 		ci.draw_circle(p, r + 4.0, Color(col, 0.18))
 	if fresh and t < 1.6:
 		ci.draw_arc(p, r + t * 30.0, 0.0, TAU, 40, Color(col, maxf(0.0, 1.0 - t / 1.6)), 2.0)
-	_earth(ci, p, r, shown)
+	# Trái Đất quay (tools/gen_planets.py); bị phong ấn thì nhuộm xám, vừa giải cứu thì sáng dần lên
+	var tint := Color.WHITE
+	if state == "locked":
+		tint = PLANET_LOCKED
+	elif fresh and t < 1.6:
+		tint = PLANET_LOCKED.lerp(Color.WHITE, clampf(t / 1.2, 0.0, 1.0))
+	Planet.draw(ci, p, r, row, t, tint)
 	if state == "locked":
 		_diamond(ci, p + Vector2(0, 2), 5.0, SEAL)
 		_diamond(ci, p + Vector2(0, 2), 2.5, Color(0.95, 0.8, 1.0))

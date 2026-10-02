@@ -7,6 +7,7 @@ var knockback := Vector2.ZERO
 var direction := 1          ## hướng mặt của người ra đòn (1 = phải, -1 = trái)
 var tags: Array = []        ## StringName: &"heavy", &"ranged", &"time", &"final", &"fire"...
 var source: Node = null
+var blocked := false        ## quái đặc biệt miễn nhiễm đòn này (Enemy.SPECIALS): đạn bật ra, không bay xuyên
 
 
 func _init(p_damage := 0.0, p_knockback := Vector2.ZERO, p_direction := 1, p_tags: Array = [], p_source: Node = null) -> void:

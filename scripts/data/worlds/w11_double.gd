@@ -12,9 +12,9 @@ const WORLD := {
 	"driver_name": "Double Driver",
 	"color": Color(0.25, 0.85, 0.4),
 	"enemies": {
-		"basic": {"name": "Dopant", "color": Color(0.3, 0.55, 0.9)},
-		"fast": {"name": "Dopant tốc độ", "color": Color(0.6, 0.35, 0.85)},
-		"armored": {"name": "Dopant giáp", "color": Color(0.5, 0.5, 0.6)},
+		"basic": {"name": "Dopant", "color": Color(0.3, 0.55, 0.9), "sprite": "masquerade_dopant"},
+		"fast": {"name": "Dopant tốc độ", "color": Color(0.6, 0.35, 0.85), "sprite": "bird_dopant"},
+		"armored": {"name": "Dopant giáp", "color": Color(0.5, 0.5, 0.6), "sprite": "rhino_dopant"},
 	},
 	"unlocks": [
 		"CycloneJoker (form gốc)",
@@ -40,6 +40,23 @@ const WORLD := {
 }
 
 const RIDER := {}
+
+## Giọng đai / tiếng hô (tools/gen_audio.py → audio/voice/<rider>_<khóa>.wav): "henshin" lúc biến thân, khóa = id form
+## lúc đổi sang form đó, "final" lúc Final Attack. Mỗi dòng: [kiểu giọng, câu]
+## (kiểu giọng: belt / belt_deep / belt_bright / kivat / hero, xem VOICES trong gen_audio.py).
+const VOICE := {
+	"henshin": ["belt_deep", "Cyclone! Joker!"],
+	"cyclone_metal": ["belt_deep", "Cyclone! Metal!"],
+	"cyclone_trigger": ["belt_deep", "Cyclone! Trigger!"],
+	"heat_joker": ["belt_deep", "Heat! Joker!"],
+	"heat_metal": ["belt_deep", "Heat! Metal!"],
+	"heat_trigger": ["belt_deep", "Heat! Trigger!"],
+	"luna_joker": ["belt_deep", "Luna! Joker!"],
+	"luna_metal": ["belt_deep", "Luna! Metal!"],
+	"luna_trigger": ["belt_deep", "Luna! Trigger!"],
+	"xtreme": ["belt_deep", "Xtreme!"],
+	"final": ["belt_deep", "Maximum Drive!"],
+}
 
 const SPEAKERS := {
 	"shotaro": {"name": "SHOTARO", "color": Color(0.35, 0.85, 0.45), "portrait": "shotaro",
@@ -74,7 +91,7 @@ const STORY := {
 			["shotaro", "Dopant giáp đang càn quét phố. Tay không của W không đủ nặng đâu."],
 		],
 		"key": [
-			["pen", "Heat và Metal! Lửa cho nửa trái, gậy thép cho nửa phải."],
+			["pen", "Heat và Metal! Heat làm đòn nào cũng bốc lửa. Metal cầm gậy Metal Shaft: bấm Chém để quật."],
 		],
 		"clear": [
 			["shotaro", "Thành phố này lúc nào cũng có gió. Philip bảo gió mang theo mọi câu chuyện."],
@@ -85,7 +102,7 @@ const STORY := {
 			["shotaro", "Tháp gió. Mục tiêu ở xa ngoài tầm với, phải có thứ gì bắn được."],
 		],
 		"key": [
-			["pen", "Luna và Trigger! Giờ đủ cả 9 tổ hợp rồi. Trigger bắn được đấy."],
+			["pen", "Luna và Trigger! Đủ cả 9 tổ hợp rồi. Trigger cầm Trigger Magnum: giữ nút Bắn."],
 		],
 		"clear": [
 			["shotaro", "Tín hiệu lạ từ Driver... Là Philip! Cậu ấy vẫn còn ở đâu đó trong hư không."],

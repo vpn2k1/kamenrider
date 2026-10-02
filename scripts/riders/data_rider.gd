@@ -9,16 +9,36 @@ class_name DataRider
 ##   "order": [&"ground", &"storm", &"flame", &"trinity"], vòng đổi form (L), form gốc đứng đầu
 ##   "forms": {form_id: {
 ##       "name": "Storm Form",
-##       "style": "brawler" | "blade" | "lancer" | "heavy" | "gunner"   (kiểu đòn nút Đánh, xem STYLES)
+##       "style": "brawler" | "blade" | "lancer" | "heavy" | "gunner"   (kiểu đòn của form, xem STYLES). Nút Đánh
+##                             luôn là tay không: "blade" / "gunner" đánh tay như "brawler"; kiếm sang nút Chém, súng
+##                             sang nút Bắn. Final Attack theo đúng "style".
+##       "blade": {"look": "wizarsword", "style": "blade"}  tùy chọn: vũ khí cận chiến cho nút Chém. "look" = kiểu vũ khí
+##                             tools/import_pixellab.py vẽ vào animation "slash" (vũ khí chỉ hiện khi chém), "style" = bảng
+##                             đòn của chuỗi chém (blade / lancer / heavy). Form "style": "blade" không ghi thì có sẵn.
+##       "armed": true         vũ khí cầm sẵn trong hình (AI vẽ cứng, như Blay Rouzer của Blade): nút Đánh dùng luôn vũ
+##                             khí theo "style" ("gunner" thì chém như "blade"), không có nút Chém
 ##       "hp", "armor", "speed", "jump", "atk", "poise"                 (như bảng FORMS của Kuuga)
-##       "gun": {...}          tùy chọn: form có súng, nút Bắn dùng dữ liệu này (khóa như RiderForm.base_shot)
+##       "gun": {...}          tùy chọn: form có súng, nút Bắn dùng dữ liệu này (khóa như RiderForm.base_shot);
+##                             "look": hình súng art/characters/weapons/<look>.png hiện ở tay lúc bắn
 ##       "effect": "time"      tùy chọn: tăng tốc thời gian (Faiz Axel, Kabuto Clock Up...): quái chậm còn 15%,
 ##                             Rider chạy và ra đòn nhanh ×1.6, để bóng mờ, màn hình ngả xanh, đòn mang tag &"time"
 ##                             (đánh trúng quái nhanh), nộ tụt 10/giây. "time_call": chữ hiện khi bật ("CLOCK UP")
 ##       "fx": {...}           tùy chọn: hiệu ứng đánh của form (xem RiderForm.fx)
 ##       "final": "Rider Kick" tên Final Attack của form
+##       Kỹ năng riêng theo nguyên tác (tùy chọn):
+##       "tags": [&"shock"]    tag thêm vào mọi đòn của form. Tag hiệu ứng (xử lý ở Enemy): &"stun" choáng, &"freeze"
+##                             đóng băng, &"burn" cháy, &"shock" điện lan sang quái gần, &"force" đẩy / hút / hất kể cả
+##                             khi đòn không làm quái khựng; &"heavy" phá giáp. "gun" cũng nhận "tags" cho đạn.
+##       "attacks": {"light" | "kick" | "slash" | "slash_finish" | "final": {khóa của make_attack}}  ghi đè từng đòn của kiểu đòn: "damage",
+##                             "size", "offset", "knockback" (x âm = hút về phía Rider), "hits" (số nhịp trúng),
+##                             "lunge", "startup", "active", "recovery"; "tags" thì cộng thêm
+##       "guard": 0.5          nhận chừng này sát thương từ phía trước khi không đang ra đòn (khiên)
+##       "rage_drain": 6.0     nộ tụt mỗi giây ở form này (mặc định RiderForm.RAGE_DRAIN)
 ##   }},
 ##   "lv5": {"name": "Shining", "final_mult": 1.5}  Lv5: tên hiện kèm form + Final Attack mạnh hơn
+##   "lv5": {"form": &"survive", ...}  Lv5 mở final form này (GameState.set_level), thay cho tên hiện kèm
+##   "final_fx": {"intro": "dragon", "signature": "seal"}  tùy chọn: dấu hiệu tuyệt chiêu riêng (Fx.KINDS) hiện quanh
+##                             Rider lúc tung Final ("intro") và trên quái lúc Final trúng ("signature"), mọi form
 ## }
 ##
 ## Kiểu đòn (STYLES): số đòn trước cú kết thúc và đặc điểm:
@@ -79,8 +99,11 @@ func _stats() -> Dictionary:
 	return forms.get(form, {})
 
 
+## Hiệu ứng của form, cộng dấu hiệu tuyệt chiêu chung của Rider (RIDER "final_fx": {"intro", "signature"}).
 func fx() -> Dictionary:
-	return _stats().get("fx", {})
+	var f: Dictionary = (_stats().get("fx", {}) as Dictionary).duplicate()
+	f.merge(data.get("final_fx", {}), false)
+	return f
 
 
 func _is_time() -> bool:
@@ -88,7 +111,7 @@ func _is_time() -> bool:
 
 
 func rage_drain() -> float:
-	return TIME_RAGE_DRAIN if _is_time() else RAGE_DRAIN
+	return TIME_RAGE_DRAIN if _is_time() else float(_stats().get("rage_drain", RAGE_DRAIN))
 
 
 func special_available() -> bool:
@@ -104,10 +127,12 @@ func _set_form(form_id: StringName) -> void:
 	var forms: Dictionary = data.get("forms", {})
 	if not forms.has(form_id) or form_id == form:
 		return
-	if _is_time():
+	# Form chưa gắn vào nhân vật (bản xem trước ở màn chọn form / item) thì không bật hiệu ứng thời gian;
+	# on_enter bật lại khi gắn vào.
+	if _is_time() and player:
 		_set_time_effects(false)
 	form = form_id
-	if _is_time():
+	if _is_time() and player:
 		_set_time_effects(true)
 	_apply_form()
 
@@ -138,6 +163,7 @@ func _set_time_effects(on: bool) -> void:
 		player.speed_mult = TIME_SPEED_MULT if on else 1.0
 		if on:
 			player.notice.emit(str(_stats().get("time_call", "CLOCK UP")))
+			Sound.sfx("clock_up", 0.0)
 
 
 func _apply_form() -> void:
@@ -150,8 +176,8 @@ func _apply_form() -> void:
 	poise = float(s.get("poise", 6.0))
 	if player:
 		var status := str(s.get("name", display_name))
-		if _lv5():
-			status += " · " + str(data["lv5"].get("name", "Lv5"))
+		if _lv5() and str(data["lv5"].get("name", "")) != "":
+			status += " · " + str(data["lv5"]["name"])
 		player.set_form_status(status)
 		player.refresh_animation()
 
@@ -164,23 +190,81 @@ func _style() -> String:
 	return str(_stats().get("style", "brawler"))
 
 
+## Kiểu đòn tay không của nút Đánh: kiếm và súng đã có nút riêng nên đánh tay như brawler.
+func _hand_style() -> String:
+	var s := _style()
+	if _stats().get("armed", false):
+		return "blade" if s == "gunner" else s
+	return s if s in ["brawler", "lancer", "heavy"] else "brawler"
+
+
+## Vũ khí cận chiến của nút Chém ({} = không có).
+func _blade() -> Dictionary:
+	if _stats().get("armed", false):
+		return {}
+	var b: Dictionary = _stats().get("blade", {})
+	if b.is_empty() and _style() == "blade":
+		return {"style": "blade"}
+	return b
+
+
+func has_blade() -> bool:
+	return not _blade().is_empty()
+
+
+func slash_count() -> int:
+	return 2 if str(_blade().get("style", "blade")) == "heavy" else 3
+
+
+## Form cầm sẵn vũ khí (Blade): nút Đánh là chém nên tiếng cũng là tiếng chém.
+func swing_sfx(kind: StringName) -> String:
+	if _stats().get("armed", false) and (kind == &"light" or kind == &"kick"):
+		return "slash" if kind == &"light" else "slash_heavy"
+	return super(kind)
+
+
+func gun_look() -> String:
+	return str((_stats().get("gun", {}) as Dictionary).get("look", ""))
+
+
+## Form kiểu "heavy" (hoặc cầm vũ khí nặng ở nút Chém) xuyên da quái khổng lồ; form tăng tốc thời gian trúng quái siêu tốc.
+func special_tags() -> Array:
+	var t: Array = []
+	if _style() == "heavy" or str(_blade().get("style", "")) == "heavy":
+		t.append(&"crush")
+	if _is_time():
+		t.append(&"time")
+	return t
+
+
 func punch_count() -> int:
-	return 2 if _style() in ["heavy", "gunner"] else 3
+	return 2 if _hand_style() in ["heavy", "gunner"] else 3
 
 
 func final_attack_name() -> String:
 	var attack_name := str(_stats().get("final", "Rider Kick"))
-	if _lv5():
-		attack_name = "%s %s" % [str(data["lv5"].get("name", "")), attack_name]
+	if _lv5() and str(data["lv5"].get("name", "")) != "":
+		attack_name = "%s %s" % [str(data["lv5"]["name"]), attack_name]
 	return attack_name
 
 
 func get_attack(kind: StringName, _chain: int) -> Dictionary:
 	if kind == &"swap_in":
 		return make_attack(8.0, 0.0, 0.1, 0.15, Vector2(26, 14), Vector2(16, -12), Vector2(120, -60), _tags([]))
-	var d := _style_attack(kind)
+	var d: Dictionary
+	match kind:
+		&"slash", &"slash_finish":
+			if not has_blade():
+				return {}
+			d = _style_attack(str(_blade().get("style", "blade")), &"light" if kind == &"slash" else &"kick")
+			d["anim"] = "slash"
+		&"final":
+			d = _style_attack(_style(), kind)
+		_:
+			d = _style_attack(_hand_style(), kind)
 	if d.is_empty():
 		return d
+	_apply_form_attack(d, kind)
 	if kind == &"final" and _lv5():
 		d["damage"] = float(d["damage"]) * float(data["lv5"].get("final_mult", 1.5))
 	if _is_time():
@@ -192,6 +276,31 @@ func get_attack(kind: StringName, _chain: int) -> Dictionary:
 	return d
 
 
+## Kỹ năng của form: ghi đè đòn theo "attacks" và cộng "tags" (xem đầu file).
+func _apply_form_attack(d: Dictionary, kind: StringName) -> void:
+	var over: Dictionary = (_stats().get("attacks", {}) as Dictionary).get(String(kind), {})
+	for k in over:
+		d[k] = (d["tags"] as Array) + (over[k] as Array) if k == "tags" else over[k]
+	for tag in _stats().get("tags", []):
+		if not (d["tags"] as Array).has(tag):
+			d["tags"] = (d["tags"] as Array) + [tag]
+
+
+## Khiên ("guard"): đòn đánh / đạn từ phía trước nhẹ đi khi Rider không đang ra đòn.
+func modify_incoming_damage(info: DamageInfo) -> float:
+	var dmg := super(info)
+	var guard := float(_stats().get("guard", 1.0))
+	if guard < 1.0 and player and player.state != Player.State.ATTACK and _from_front(info):
+		dmg *= guard
+	return dmg
+
+
+func _from_front(info: DamageInfo) -> bool:
+	if is_instance_valid(info.source) and info.source is Node2D:
+		return signf((info.source as Node2D).global_position.x - player.global_position.x) == float(player.facing)
+	return info.direction == -player.facing
+
+
 func _tags(base: Array) -> Array:
 	var t := base.duplicate()
 	if _is_time() and not t.has(&"time"):
@@ -199,8 +308,8 @@ func _tags(base: Array) -> Array:
 	return t
 
 
-func _style_attack(kind: StringName) -> Dictionary:
-	match _style():
+func _style_attack(style: String, kind: StringName) -> Dictionary:
+	match style:
 		"lancer":
 			match kind:
 				&"light":

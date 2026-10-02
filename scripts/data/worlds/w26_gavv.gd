@@ -15,9 +15,9 @@ const WORLD := {
 	"driver_name": "Henshin Belt Gavv",
 	"color": Color(1.0, 0.55, 0.88),
 	"enemies": {
-		"basic": {"name": "Agent", "color": Color(0.35, 0.35, 0.45)},
-		"fast": {"name": "Granute làm thuê", "color": Color(0.65, 0.38, 0.82)},
-		"armored": {"name": "Granute giáp", "color": Color(0.5, 0.45, 0.5)},
+		"basic": {"name": "Agent", "color": Color(0.35, 0.35, 0.45), "sprite": "agent"},
+		"fast": {"name": "Granute làm thuê", "color": Color(0.65, 0.38, 0.82), "sprite": "granute"},
+		"armored": {"name": "Granute giáp", "color": Color(0.5, 0.45, 0.5), "sprite": "granute_armored"},
 	},
 	"unlocks": [
 		"Poppingummy Form (form gốc)",

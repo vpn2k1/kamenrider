@@ -85,6 +85,7 @@ func advance() -> void:
 		_label.visible_characters = total
 		return
 	_index += 1
+	Sound.sfx("ui_move", 0.0, -6.0)
 	if _index >= _lines.size():
 		_close()
 	else:
@@ -141,8 +142,11 @@ func _process(delta: float) -> void:
 	_t += delta
 	var total := _total()
 	if _label.visible_characters >= 0 and _label.visible_characters < total:
+		var before := int(_shown)
 		_shown = minf(float(total), _shown + CHARS_PER_SEC * delta)
 		_label.visible_characters = int(_shown)
+		if int(_shown) / 2 != before / 2:
+			Sound.sfx("text_blip", 0.15, -8.0)   # tiếng chữ chạy
 	queue_redraw()
 
 

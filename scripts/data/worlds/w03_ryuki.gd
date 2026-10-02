@@ -23,7 +23,7 @@ const WORLD := {
 		"sát thương +10%, máu +8%",
 		"sát thương +20%, máu +16%",
 		"sát thương +30%, máu +24%",
-		"Ryuki Survive: Final Attack x1.5",
+		"mở final form Ryuki Survive, Final Attack x1.5",
 	],
 	"stages": [
 		{"name": "Phố trước tòa soạn OREJournal", "goal": "Hạ Mirror Monster, giành lại Advent Deck và ký khế ước với Dragreder",
@@ -40,30 +40,50 @@ const WORLD := {
 	],
 }
 
-## Ryuki: form gốc đấm đá, mỗi thẻ Vent một kiểu. Sword Vent (kiếm Drag Saber) chém nặng; Strike Vent (găng Dragclaw)
-## phun cầu lửa từ xa; Guard Vent (khiên Dragshield) chậm nhưng lì đòn, đập phá giáp.
+## Ryuki chỉ có 2 form: form gốc và final form Survive (mở khi lên Lv5, "lv5" → "form"). Các thẻ Vent là vũ khí
+## (item, quái rơi ở 3-2..3-4): Sword Vent (kiếm Drag Saber) chém nặng; Strike Vent (găng Dragclaw) phun cầu lửa
+## từ xa; Guard Vent (khiên Dragshield) chậm nhưng lì đòn, đập phá giáp.
+## Survive (thẻ Survive "Rekka" + Dragvisor-Zwei): giáp đỏ viền vàng, chém bằng lưỡi Dragvisor, bắn lửa từ xa.
 const RIDER := {
 	"name": "Kamen Rider Ryuki",
 	"tagline": "Thẻ Vent · kiếm rồng, cầu lửa, khiên rồng",
 	"base": &"ryuki",
-	"order": [&"ryuki", &"sword_vent", &"strike_vent", &"guard_vent"],
+	"order": [&"ryuki", &"survive", &"sword_vent", &"strike_vent", &"guard_vent"],
 	"forms": {
 		&"ryuki": {"name": "Ryuki", "style": "brawler", "hp": 160.0, "armor": 25.0, "speed": 130.0,
-			"jump": 1.05, "atk": 1.05, "poise": 7.0, "final": "Dragon Rider Kick",
+			"jump": 1.05, "atk": 1.05, "poise": 7.0, "final": "Dragon Rider Kick", "attacks": {"final": {"tags": [&"burn"]}},
 			"fx": {"hit": "spark", "final": "fire", "color": Color(1.0, 0.4, 0.25)}},
-		&"sword_vent": {"name": "Sword Vent", "style": "blade", "hp": 165.0, "armor": 28.0, "speed": 122.0,
-			"jump": 1.0, "atk": 1.25, "poise": 11.0, "final": "Drag Saber Slash",
+		&"survive": {"name": "Ryuki Survive", "style": "blade", "hp": 195.0, "armor": 40.0, "speed": 145.0,
+			"jump": 1.1, "atk": 1.45, "poise": 14.0, "final": "Dragon Fire Stream", "rage_drain": 5.0,
+			"attacks": {"final": {"tags": [&"burn"]}},
+			"fx": {"hit": "fire", "swing": "slash", "shot": "fire", "final": "fire", "color": Color(1.0, 0.6, 0.2)},
+			"gun": {"look": "gun", "tags": [&"burn"], "damage": 11.0, "speed": 360.0, "cooldown": 0.45, "radius": 5.0,
+				"color": Color(1.0, 0.55, 0.15), "life": 0.9}},
+		&"sword_vent": {"item": true, "name": "Sword Vent", "style": "blade", "hp": 165.0, "armor": 28.0, "speed": 122.0,
+			"jump": 1.0, "atk": 1.25, "poise": 11.0, "final": "Drag Saber Slash", "attacks": {"final": {"tags": [&"burn"]}},
 			"fx": {"hit": "spark", "swing": "slash", "final": "fire", "color": Color(1.0, 0.75, 0.35)}},
-		&"strike_vent": {"name": "Strike Vent", "style": "gunner", "hp": 145.0, "armor": 15.0, "speed": 118.0,
+		&"strike_vent": {"item": true, "name": "Strike Vent", "style": "gunner", "hp": 145.0, "armor": 15.0, "speed": 118.0,
 			"jump": 1.0, "atk": 1.0, "poise": 5.0, "final": "Dragclaw Fire",
 			"fx": {"hit": "fire", "shot": "fire", "final": "fire", "color": Color(1.0, 0.5, 0.15)},
-			"gun": {"damage": 9.0, "speed": 320.0, "cooldown": 0.5, "radius": 5.0, "color": Color(1.0, 0.5, 0.15),
+			"gun": {"tags": [&"burn"], "damage": 9.0, "speed": 320.0, "cooldown": 0.5, "radius": 5.0, "color": Color(1.0, 0.5, 0.15),
 				"life": 0.9}},
-		&"guard_vent": {"name": "Guard Vent", "style": "heavy", "hp": 205.0, "armor": 58.0, "speed": 82.0,
-			"jump": 0.85, "atk": 1.35, "poise": 20.0, "final": "Advent: Dragreder",
+		&"guard_vent": {"item": true, "name": "Guard Vent", "style": "heavy", "hp": 205.0, "armor": 58.0, "speed": 82.0,
+			"jump": 0.85, "atk": 1.35, "poise": 20.0, "final": "Advent: Dragreder", "guard": 0.4,
 			"fx": {"hit": "ring", "final": "fire", "color": Color(0.85, 0.85, 0.95)}},
 	},
-	"lv5": {"name": "Survive", "final_mult": 1.5},
+	"lv5": {"form": &"survive", "final_mult": 1.5},
+	"final_fx": {"intro": "dragon"},
+}
+
+## Giọng đai / tiếng hô (tools/gen_audio.py → audio/voice/<rider>_<khóa>.wav): "henshin" lúc biến thân, khóa = id form
+## lúc đổi sang form đó, "final" lúc Final Attack. Mỗi dòng: [kiểu giọng, câu]
+## (kiểu giọng: belt / belt_deep / belt_bright / kivat / hero, xem VOICES trong gen_audio.py).
+const VOICE := {
+	"sword_vent": ["belt", "Sword Vent."],
+	"strike_vent": ["belt", "Strike Vent."],
+	"guard_vent": ["belt", "Guard Vent."],
+	"survive": ["belt", "Survive."],
+	"final": ["belt", "Final Vent."],
 }
 
 const SPEAKERS := {
@@ -90,7 +110,7 @@ const STORY := {
 		],
 		"clear": [
 			["shinji", "Khế ước nghĩa là phải cho Dragreder ăn quái vật cậu hạ được. Nó không phải thú cưng đâu nhé."],
-			["pen", "Ryuki là form gốc, đấm đá cân bằng. Các thẻ Vent khác đang nằm trong người lũ quái gương."],
+			["pen", "Ryuki là form gốc, đấm đá cân bằng. Final Vent gọi Dragreder xoáy lửa quanh cậu. Các thẻ Vent khác nằm trong lũ quái gương."],
 		],
 	},
 	"2": {
@@ -99,7 +119,7 @@ const STORY := {
 			["pen", "Thẻ Sword Vent đang ở trong đám quái này. Có nó là có kiếm Drag Saber."],
 		],
 		"key": [
-			["shinji", "Sword Vent! Drag Saber làm từ đuôi của Dragreder đấy. Chém ba nhát, nhát cuối phá được giáp."],
+			["shinji", "Sword Vent! Drag Saber làm từ đuôi Dragreder. Bấm Chém: ba nhát, nhát cuối phá giáp, Final còn đốt cháy quái."],
 		],
 		"clear": [
 			["ren", "Cậu giống hệt Kido. Ngây thơ tới mức ngốc nghếch. ...Nhưng đánh không tệ."],
@@ -111,7 +131,7 @@ const STORY := {
 			["pen", "Cần thẻ Strike Vent: găng đầu rồng Dragclaw, phun cầu lửa từ xa."],
 		],
 		"key": [
-			["shinji", "Strike Vent! Đấm Dragclaw ra là Dragreder phun lửa cùng cậu. Bắn xa, nhưng đừng để bị áp sát."],
+			["shinji", "Strike Vent! Giữ nút Bắn, Dragclaw phun lửa, quái trúng còn cháy thêm. Bắn xa được, đừng để bị áp sát."],
 		],
 		"clear": [
 			["narrator", "Mặt sông gợn sóng. Bóng phản chiếu trong đó không phải của {name}."],
@@ -126,7 +146,7 @@ const STORY := {
 			["pen", "Ở lâu trong gương là cơ thể tan thành hạt đấy! Thẻ Guard Vent cho cậu khiên Dragshield, chịu đòn cực tốt."],
 		],
 		"key": [
-			["shinji", "Guard Vent! Khiên Dragshield trên vai. Chậm thì chậm, cứ đứng vững mà đập, giáp dày cỡ nào cũng vỡ."],
+			["shinji", "Guard Vent! Khiên Dragshield chặn hơn nửa sát thương phía trước khi cậu không ra đòn. Cứ đứng vững mà đập."],
 		],
 		"clear": [
 			["shinji", "Đừng đánh để thắng, {name}. Đánh để mọi người không phải đánh nhau nữa."],

@@ -1,0 +1,12 @@
+{
+  "prompt": "Pixel art game sprite in exactly the same style, scale, outline and side-view standing pose as the reference image. Kamen Rider Ryuki, faithful to the TV suit: RED bodysuit on arms and legs with a fine mesh texture; large SILVER chest armor made of two rounded pectoral plates, outlined in black; black shoulder pads; SILVER helmet whose face is covered by a grille of vertical silver bars with red eyes behind it, a silver dragon-head crest on the forehead; a red dragon-head gauntlet (Dragvisor) on the left forearm; silver knee pads; black boots; silver belt with a rectangular dark buckle bearing a gold dragon emblem. One character only, full body, side view facing right, plain white background.",
+  "model": "oai_gpt25_low",
+  "pixel_config": {
+    "colors": 32
+  },
+  "job": "1092a24a-76d5-4952-82b5-60b5cc997ff5",
+  "credits": 6,
+  "seconds": 29,
+  "width": 94,
+  "height": 94
+}

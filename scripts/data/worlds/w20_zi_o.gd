@@ -14,9 +14,9 @@ const WORLD := {
 	"driver_name": "Ziku Driver",
 	"color": Color(1.0, 0.82, 0.3),
 	"enemies": {
-		"basic": {"name": "Kasshine", "color": Color(0.72, 0.68, 0.58)},
-		"fast": {"name": "Another Faiz", "color": Color(0.8, 0.32, 0.32)},
-		"armored": {"name": "Another Build", "color": Color(0.38, 0.48, 0.65)},
+		"basic": {"name": "Kasshine", "color": Color(0.72, 0.68, 0.58), "sprite": "kasshine"},
+		"fast": {"name": "Another Faiz", "color": Color(0.8, 0.32, 0.32), "sprite": "another_faiz"},
+		"armored": {"name": "Another Build", "color": Color(0.38, 0.48, 0.65), "sprite": "another_build"},
 	},
 	"unlocks": [
 		"Zi-O (form gốc)",

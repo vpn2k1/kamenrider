@@ -12,9 +12,9 @@ const WORLD := {
 	"driver_name": "Faiz Driver",
 	"color": Color(0.95, 0.8, 0.2),
 	"enemies": {
-		"basic": {"name": "Orphnoch", "color": Color(0.8, 0.8, 0.85)},
-		"fast": {"name": "Orphnoch tốc độ", "color": Color(0.6, 0.35, 0.85)},
-		"armored": {"name": "Orphnoch giáp", "color": Color(0.45, 0.45, 0.5)},
+		"basic": {"name": "Orphnoch", "color": Color(0.8, 0.8, 0.85), "sprite": "orphnoch_wolf"},
+		"fast": {"name": "Orphnoch tốc độ", "color": Color(0.6, 0.35, 0.85), "sprite": "orphnoch_fast"},
+		"armored": {"name": "Orphnoch giáp", "color": Color(0.45, 0.45, 0.5), "sprite": "orphnoch_armored"},
 	},
 	"unlocks": [
 		"Faiz (form gốc, bắn bằng Faiz Phone)",
@@ -41,6 +41,16 @@ const WORLD := {
 
 const RIDER := {}
 
+## Giọng đai / tiếng hô (tools/gen_audio.py → audio/voice/<rider>_<khóa>.wav): "henshin" lúc biến thân, khóa = id form
+## lúc đổi sang form đó, "final" lúc Final Attack. Mỗi dòng: [kiểu giọng, câu]
+## (kiểu giọng: belt / belt_deep / belt_bright / kivat / hero, xem VOICES trong gen_audio.py).
+const VOICE := {
+	"henshin": ["belt_deep", "Standing by. Complete."],
+	"axel": ["belt_deep", "Complete. Start up."],
+	"blaster": ["belt_deep", "Awakening."],
+	"final": ["belt_deep", "Exceed Charge."],
+}
+
 const SPEAKERS := {
 	"takumi": {"name": "TAKUMI", "color": Color(0.95, 0.8, 0.2), "portrait": "takumi",
 		"look": "hair=5f3e28 jacket=1c1c22 stripe=aaaab4 eyes=463228"},
@@ -66,7 +76,7 @@ const STORY := {
 			["narrator", "5... 5... 5... ENTER. Tinh thể tím vỡ tan. Sức mạnh của Faiz Driver đã trở về!"],
 		],
 		"clear": [
-			["pen", "Faiz bắn được ngay từ form gốc bằng Faiz Phone. Nhanh, đánh mạnh, nhưng giáp mỏng đấy."],
+			["pen", "Faiz bắn bằng Faiz Phone: giữ nút Bắn. Crimson Smash phóng mũi Pointer ghim quái lại rồi mới đá. Giáp mỏng đấy."],
 			["takumi", "Đừng xài phí."],
 		],
 	},
@@ -98,7 +108,7 @@ const STORY := {
 			["takumi", "Phòng thí nghiệm của Smart Brain. Sức mạnh Faiz Blaster bị giấu ở đây."],
 		],
 		"key": [
-			["takumi", "Blaster Form. Nặng, chậm, nhưng hỏa lực thì khỏi bàn."],
+			["takumi", "Blaster Form. Nặng, chậm, nhưng Faiz Blaster bắn đạn xuyên. Giữ nút Bắn."],
 		],
 		"clear": [
 			["takumi", "Dragon Orphnoch ở phía trước. Hắn đổi dạng liên tục. Lúc hắn hóa Long nhân thì bật Axel."],

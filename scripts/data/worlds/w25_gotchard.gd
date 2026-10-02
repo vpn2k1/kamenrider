@@ -15,9 +15,9 @@ const WORLD := {
 	"driver_name": "Gotchard Driver",
 	"color": Color(0.2, 0.9, 0.72),
 	"enemies": {
-		"basic": {"name": "Dreadrooper", "color": Color(0.42, 0.42, 0.52)},
-		"fast": {"name": "Malgam", "color": Color(0.7, 0.35, 0.8)},
-		"armored": {"name": "Malgam giáp", "color": Color(0.5, 0.48, 0.55)},
+		"basic": {"name": "Dreadrooper", "color": Color(0.42, 0.42, 0.52), "sprite": "dreadrooper"},
+		"fast": {"name": "Malgam", "color": Color(0.7, 0.35, 0.8), "sprite": "malgam"},
+		"armored": {"name": "Malgam giáp", "color": Color(0.5, 0.48, 0.55), "sprite": "malgam_armored"},
 	},
 	"unlocks": [
 		"Steamhopper (form gốc)",

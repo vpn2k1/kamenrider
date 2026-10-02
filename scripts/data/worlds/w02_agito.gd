@@ -52,16 +52,21 @@ const RIDER := {
 			"jump": 1.05, "atk": 1.05, "poise": 7.0, "final": "Rider Kick",
 			"fx": {"hit": "spark", "final": "ring", "color": Color(1.0, 0.8, 0.25)}},
 		&"storm": {"name": "Storm Form", "style": "lancer", "hp": 135.0, "armor": 10.0, "speed": 170.0,
-			"jump": 1.25, "atk": 0.9, "poise": 4.0, "final": "Haldent Tornado",
+			"jump": 1.25, "atk": 0.9, "poise": 4.0, "final": "Haldent Tornado", "blade": {"look": "halberd", "style": "lancer"},
+			"attacks": {"slash_finish": {"knockback": Vector2(240, -80), "tags": [&"force"]}},
 			"fx": {"hit": "wind", "swing": "wind", "color": Color(0.4, 0.6, 1.0)}},
 		&"flame": {"name": "Flame Form", "style": "blade", "hp": 170.0, "armor": 30.0, "speed": 110.0,
-			"jump": 0.95, "atk": 1.25, "poise": 12.0, "final": "Saber Slash",
+			"jump": 0.95, "atk": 1.25, "poise": 12.0, "final": "Saber Slash", "blade": {"look": "flame_saber"},
+			"attacks": {"slash": {"tags": [&"burn"]}, "slash_finish": {"tags": [&"burn"]}, "final": {"tags": [&"burn"]}},
 			"fx": {"hit": "fire", "swing": "slash", "color": Color(1.0, 0.35, 0.2)}},
 		&"trinity": {"name": "Trinity Form", "style": "blade", "hp": 175.0, "armor": 35.0, "speed": 135.0,
-			"jump": 1.1, "atk": 1.3, "poise": 12.0, "final": "Fire Storm Attack",
+			"jump": 1.1, "atk": 1.3, "poise": 12.0, "final": "Fire Storm Attack", "blade": {"look": "flame_saber"},
+			"attacks": {"slash": {"tags": [&"burn"]}, "slash_finish": {"knockback": Vector2(240, -80), "tags": [&"burn", &"force"]},
+				"final": {"hits": 2, "damage": 34.0, "tags": [&"burn"]}},
 			"fx": {"hit": "fire", "swing": "slash", "color": Color(1.0, 0.85, 0.5)}},
 	},
 	"lv5": {"name": "Shining", "final_mult": 1.5},
+	"final_fx": {"intro": "crest"},
 }
 
 const SPEAKERS := {
@@ -91,7 +96,7 @@ const STORY := {
 		],
 		"clear": [
 			["shouichi", "Tôi không nhớ mình là ai trước khi thành Agito. Nhưng tôi biết mình muốn bảo vệ bữa cơm của mọi người."],
-			["pen", "Ground Form là form gốc: cân bằng, không có gì yếu. Các form vũ khí nằm trong tay lũ Lord."],
+			["pen", "Ground Form là form gốc, cân bằng. Final mở huy hiệu sừng dưới chân rồi đá. Vũ khí của các form khác nằm trong tay lũ Lord."],
 		],
 	},
 	"2": {
@@ -100,7 +105,7 @@ const STORY := {
 			["pen", "Sức mạnh Storm Form đang ở đâu đó trong đám Lord này. Giáo Storm Halberd, nhanh như gió."],
 		],
 		"key": [
-			["shouichi", "Màu xanh! Storm Form nhẹ và nhanh, cầm giáo đánh được xa. Nhảy cũng cao hơn đấy."],
+			["shouichi", "Màu xanh! Storm Form nhẹ và nhanh. Bấm Chém để quay Storm Halberd, nhát cuối tạo lốc thổi bay quái."],
 		],
 		"clear": [
 			["hikawa", "G3 của tôi chỉ là giáp do con người làm ra. Nhìn cậu, tôi thấy mình còn phải cố gắng nhiều."],
@@ -113,7 +118,7 @@ const STORY := {
 			["pen", "Cần đòn nặng. Flame Form với kiếm Flame Saber: chậm, nhưng chém một nhát là vỡ mai."],
 		],
 		"key": [
-			["shouichi", "Màu đỏ! Flame Form. Chậm hơn, nhưng mỗi nhát kiếm nặng như búa."],
+			["shouichi", "Màu đỏ! Flame Form. Bấm Chém để rút Flame Saber: chậm hơn, nhưng lưỡi lửa đốt cháy quái."],
 		],
 		"clear": [
 			["hikawa", "Cảm ơn. Lần sau tôi sẽ đứng cạnh cậu, không phải đứng sau."],
@@ -125,7 +130,7 @@ const STORY := {
 			["pen", "Trinity Form, gộp cả Storm và Flame. Muốn dùng được nó thì phải thạo cả hai trước đã."],
 		],
 		"key": [
-			["shouichi", "Vai trái xanh, vai phải đỏ. Trinity Form! Cậu học nhanh thật đấy."],
+			["shouichi", "Vai trái xanh, vai phải đỏ: Trinity Form! Kiếm lửa và lốc xoáy cùng lúc. Cậu học nhanh thật đấy."],
 		],
 		"clear": [
 			["pen", "Kẻ đứng sau lũ Lord ở ngay phía trước. Hắn tự xưng là Overlord, kẻ tạo ra loài người."],

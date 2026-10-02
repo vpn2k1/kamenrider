@@ -14,9 +14,9 @@ const WORLD := {
 	"driver_name": "Fourze Driver",
 	"color": Color(0.92, 0.94, 1.0),
 	"enemies": {
-		"basic": {"name": "Dustard", "color": Color(0.45, 0.4, 0.6)},
-		"fast": {"name": "Unicorn Zodiarts", "color": Color(0.85, 0.82, 0.95)},
-		"armored": {"name": "Orion Zodiarts", "color": Color(0.6, 0.52, 0.35)},
+		"basic": {"name": "Dustard", "color": Color(0.45, 0.4, 0.6), "sprite": "dustard"},
+		"fast": {"name": "Unicorn Zodiarts", "color": Color(0.85, 0.82, 0.95), "sprite": "unicorn_zodiarts"},
+		"armored": {"name": "Orion Zodiarts", "color": Color(0.6, 0.52, 0.35), "sprite": "orion_zodiarts"},
 	},
 	"unlocks": [
 		"Base States (form gốc)",
@@ -49,17 +49,30 @@ const RIDER := {
 	"order": [&"base_states", &"rocket", &"elek", &"fire"],
 	"forms": {
 		&"base_states": {"name": "Base States", "style": "brawler", "hp": 160.0, "armor": 25.0, "speed": 130.0,
-			"jump": 1.1, "atk": 1.05, "poise": 7.0, "final": "Rider Rocket Drill Kick"},
+			"jump": 1.1, "atk": 1.05, "poise": 7.0, "final": "Rider Rocket Drill Kick", "attacks": {"final": {"hits": 4, "damage": 16.0}}},
 		&"rocket": {"name": "Rocket States", "style": "lancer", "hp": 130.0, "armor": 8.0, "speed": 180.0,
-			"jump": 1.35, "atk": 0.9, "poise": 4.0, "final": "Rider Rocket Punch"},
+			"jump": 1.35, "atk": 0.9, "poise": 4.0, "final": "Rider Rocket Punch", "fx": {"trail": true, "color": Color(1.0, 0.55, 0.2)},
+			"attacks": {"kick": {"lunge": Vector2(260, -20)}, "final": {"lunge": Vector2(340, -60)}}},
 		&"elek": {"name": "Elek States", "style": "blade", "hp": 165.0, "armor": 28.0, "speed": 118.0,
-			"jump": 1.0, "atk": 1.25, "poise": 11.0, "final": "Rider 10 Billion Volt Break"},
+			"jump": 1.0, "atk": 1.25, "poise": 11.0, "final": "Rider 10 Billion Volt Break", "attacks": {"slash": {"tags": [&"shock"]}, "slash_finish": {"tags": [&"shock"]}, "final": {"tags": [&"shock"]}}},
 		&"fire": {"name": "Fire States", "style": "gunner", "hp": 150.0, "armor": 20.0, "speed": 115.0,
-			"jump": 1.0, "atk": 0.95, "poise": 6.0, "final": "Rider Bakunetsu Shoot",
-			"gun": {"damage": 7.0, "speed": 340.0, "cooldown": 0.4, "radius": 4.0,
+			"jump": 1.0, "atk": 0.95, "poise": 6.0, "final": "Rider Bakunetsu Shoot", "attacks": {"final": {"tags": [&"burn"]}},
+			"gun": {"tags": [&"burn"], "look": "hackgun", "damage": 7.0, "speed": 340.0, "cooldown": 0.4, "radius": 4.0,
 				"color": Color(1.0, 0.5, 0.15), "life": 0.7}},
 	},
 	"lv5": {"name": "Cosmic States", "final_mult": 1.5},
+	"final_fx": {"intro": "rocket"},
+}
+
+## Giọng đai / tiếng hô (tools/gen_audio.py → audio/voice/<rider>_<khóa>.wav): "henshin" lúc biến thân, khóa = id form
+## lúc đổi sang form đó, "final" lúc Final Attack. Mỗi dòng: [kiểu giọng, câu]
+## (kiểu giọng: belt / belt_deep / belt_bright / kivat / hero, xem VOICES trong gen_audio.py).
+const VOICE := {
+	"henshin": ["belt", "Three. Two. One."],
+	"rocket": ["belt", "Rocket. On."],
+	"elek": ["belt", "Elek. On."],
+	"fire": ["belt", "Fire. On."],
+	"final": ["belt", "Rocket. Drill. Limit Break!"],
 }
 
 const SPEAKERS := {
@@ -87,7 +100,7 @@ const STORY := {
 			["gentaro", "Giờ giơ tay lên trời mà hét đi! UCHUU KITAAA!"],
 		],
 		"clear": [
-			["kengo", "Base States: cân bằng, tay phải Rocket, chân trái Drill. Các Switch mạnh hơn đang ở căn cứ trên Mặt Trăng."],
+			["kengo", "Base States: cân bằng, tay phải Rocket, chân trái Drill. Drill Kick khoan bốn nhịp. Switch mạnh hơn ở căn cứ trên Mặt Trăng."],
 			["gentaro", "Nào, bắt tay kiểu bạn bè: nắm tay đụng trên, đụng dưới. Xong! Giờ tụi mình là bạn!"],
 		],
 	},
@@ -96,7 +109,7 @@ const STORY := {
 			["kengo", "Rabbit Hatch, căn cứ CLB Kamen Rider trên Mặt Trăng. Dustard theo cửa không gian lên đây, ôm theo Rocket Switch Super-1."],
 		],
 		"key": [
-			["kengo", "Rocket States! Hai tay tên lửa, lao nhanh và nhảy xa. Nhưng giáp mỏng, đừng lao đầu bừa."],
+			["kengo", "Rocket States! Cú đá kết lao theo tên lửa, chạy nhanh, nhảy xa. Nhưng giáp mỏng, đừng lao đầu bừa."],
 		],
 		"clear": [
 			["hero", "Gentaro, sao cậu tin người lạ dễ vậy?"],
@@ -109,7 +122,7 @@ const STORY := {
 			["gentaro", "Unicorn Zodiarts đang quậy khu phố. Nó múa kiếm nhanh như chớp! Elek Switch cũng ở đó."],
 		],
 		"key": [
-			["kengo", "Elek States! Billy the Rod phóng điện. Chém chậm hơn, nhưng nhát cuối phá được giáp."],
+			["kengo", "Elek States! Bấm Chém để vung Billy the Rod: điện lan sang quái bên cạnh, nhát cuối phá giáp."],
 		],
 		"clear": [
 			["pen", "Hồi còn ở với Void, tôi không có bạn. Chrono Pass chỉ cần làm theo lệnh."],
@@ -122,7 +135,7 @@ const STORY := {
 			["gentaro", "Fire Switch ở đó! Vừa phun lửa vừa dập lửa được. Cứu người trước, đánh sau!"],
 		],
 		"key": [
-			["kengo", "Fire States! Súng Hee-Hackgun bắn cầu lửa từ xa. Giữ khoảng cách, đừng để bị áp sát."],
+			["kengo", "Fire States! Giữ nút Bắn, Hee-Hackgun phun lửa, quái trúng còn cháy thêm. Giữ khoảng cách nhé."],
 		],
 		"clear": [
 			["kengo", "Thủ lĩnh Horoscopes là Sagittarius. Và hắn là... chủ tịch hội đồng quản trị của chính ngôi trường này."],

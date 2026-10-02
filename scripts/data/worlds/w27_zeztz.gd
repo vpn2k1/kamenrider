@@ -16,9 +16,9 @@ const WORLD := {
 	"driver_name": "Zeztz Driver",
 	"color": Color(0.55, 0.65, 1.0),
 	"enemies": {
-		"basic": {"name": "Nightmare", "color": Color(0.48, 0.42, 0.62)},
-		"fast": {"name": "Crow Nightmare", "color": Color(0.32, 0.32, 0.48)},
-		"armored": {"name": "Bomb Nightmare", "color": Color(0.58, 0.46, 0.36)},
+		"basic": {"name": "Nightmare", "color": Color(0.48, 0.42, 0.62), "sprite": "nightmare"},
+		"fast": {"name": "Crow Nightmare", "color": Color(0.32, 0.32, 0.48), "sprite": "crow_nightmare"},
+		"armored": {"name": "Bomb Nightmare", "color": Color(0.58, 0.46, 0.36), "sprite": "bomb_nightmare"},
 	},
 	"unlocks": [
 		"Physicam Impact (form gốc)",
