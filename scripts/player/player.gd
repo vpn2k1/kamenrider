@@ -919,6 +919,7 @@ func try_skill(i: int) -> bool:
 	if skills == null or current_form == null or state not in [State.NORMAL, State.CROUCH]:
 		return false
 	_set_crouch(false)
+	_face_close_enemy()   # quái sát sau lưng mà trước mặt trống: quay lại rồi mới tung
 	return skills.try_skill(i)
 
 

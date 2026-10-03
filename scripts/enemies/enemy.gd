@@ -4,7 +4,8 @@ class_name Enemy
 ## Đuổi theo người chơi, xin "lượt tấn công" từ CombatDirector, ra đòn có báo trước (windup).
 ##
 ## traits:
-##   &"fast"    : né 75% đòn, trừ khi đòn có tag &"time" hoặc quái đang bị làm chậm (Faiz Axel...)
+##   &"fast"    : né 75% đòn, trừ khi đòn có tag &"time" hoặc quái đang bị làm chậm (Faiz Axel...). Skill và Final
+##                Attack (tag &"skill" / &"final", đã tốn nộ) không bị né.
 ##   &"armored" : chỉ nhận 40% sát thương, trừ đòn &"heavy" hoặc Final Attack
 ## Quái đặc biệt (màn EX, xem SPECIALS): MIỄN NHIỄM mọi đòn không mang tag khắc chế, phải mang đúng form vào màn:
 ##   &"flying"   : bay lượn trên đầu, bổ nhào xuống đánh. Chỉ trúng đạn / đòn bắn xa (&"ranged", form có súng)
@@ -381,14 +382,40 @@ func _drop_through() -> void:
 
 func _start_windup() -> void:
 	state = State.WINDUP
-	_timer = windup_time
+	# Tụ đòn ít nhất đủ để hoạt ảnh đánh chạy tới khung tay vươn ra (_strike_delay)
+	_timer = maxf(windup_time, _strike_delay())
 	velocity.x = 0.0
 	_play("windup")
+
+
+## Giây từ đầu hoạt ảnh "attack" tới khung tay / vũ khí vươn xa nhất (đo trên hình, cache theo loại quái).
+## Đòn chỉ gây sát thương từ khung đó, để người chơi không mất máu khi tay quái chưa chạm tới.
+static var _strike_cache := {}
+
+func _strike_delay() -> float:
+	var anim := "%s_attack" % sprite_prefix
+	if _strike_cache.has(anim):
+		return _strike_cache[anim]
+	var delay := 0.0
+	var frames := sprite.sprite_frames
+	if frames and frames.has_animation(anim) and frames.get_animation_speed(anim) > 0.0:
+		var best := -INF
+		for i in frames.get_frame_count(anim):
+			var img := frames.get_frame_texture(anim, i).get_image()
+			var front := float(img.get_used_rect().end.x) - img.get_width() / 2.0
+			if front > best + 0.5:
+				best = front
+				delay = i / frames.get_animation_speed(anim)
+	_strike_cache[anim] = delay
+	return delay
 
 
 func _state_attack(d: float) -> void:
 	velocity.x = move_toward(velocity.x, 0.0, 600.0 * Units.SCALE * d)
 	_timer -= d
+	# Cuối lúc tụ đòn: chạy hoạt ảnh đánh sớm, để khung tay vươn ra trùng lúc đòn có hiệu lực (hoặc đạn bay ra)
+	if state == State.WINDUP and _timer <= _strike_delay():
+		_play("attack")
 	if _timer > 0.0:
 		return
 	match state:
@@ -434,7 +461,8 @@ func take_hit(info: DamageInfo) -> bool:
 	if special != &"":
 		_block(info, special)
 		return false
-	if traits.has(&"fast") and not info.has_tag(&"time") and not slowed and randf() < FAST_EVADE_CHANCE:
+	var dodgeable := not (info.has_tag(&"time") or info.has_tag(&"skill") or info.has_tag(&"final"))
+	if traits.has(&"fast") and dodgeable and not slowed and randf() < FAST_EVADE_CHANCE:
 		evaded.emit()
 		return false
 	var dmg := info.damage
