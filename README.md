@@ -7,7 +7,6 @@ Game 2D pixel đi qua 27 thế giới Kamen Rider. Fan game phi thương mại.
 
 **Bản 0.2:** mỗi form có 2 skill riêng (U / Y) · Decade Kamen Ride và Zi-O Armor nhiều form · form đặc biệt tụt nộ,
 hết nộ về form gốc · hiệu ứng đánh vẽ lại bằng PixelLab · nền riêng cho từng màn · cài đặt âm thanh.
-APK cài đè được lên bản 0.1 (giữ dữ liệu chơi).
 
 ## Bàn phím
 
