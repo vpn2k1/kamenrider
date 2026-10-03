@@ -7,6 +7,8 @@ class_name Projectile
 ## Chém đạn (Player._check_parry): vung vũ khí đúng lúc, đạn ở trong tầm lưỡi thì đạn bị chém tan (cut) hoặc,
 ## vung sớm và đạn ở mũi lưỡi, bị đánh bật ngược lại về phía kẻ bắn (reflect) với sát thương gấp đôi.
 ## Mọi viên đạn nằm trong nhóm GROUP để người chơi quét.
+## Skill (SkillCaster): homing tự đuổi quái gần nhất; boomerang bay ra rồi quay về người ném (trúng lại được lúc về);
+## steer lái lên / xuống bằng ↑ ↓ khi đang bay ra (Den-O Extreme Slash Toss); bind_time trói quái trúng đạn.
 
 signal hit_landed(target: Node, info: DamageInfo)
 
@@ -27,6 +29,17 @@ var hit_fx := ""
 ## Bản sao để nhìn (chế độ đấu: đạn của đối thủ do máy đối thủ tính trúng). Chạm Hurtbox phe kia thì tan, không gây sát thương.
 var visual_only := false
 var parried := false           ## đã bị chém / phản: không bị chém lần nữa
+var bind_time := 0.0           ## > 0: trói quái trúng đạn chừng này giây (tag &"bind")
+var homing := false            ## tự đuổi mục tiêu phe kia gần nhất phía trước
+var boomerang: Node2D = null   ## người ném: bay ra hết nửa đời thì quay về người này
+var steer := false             ## (boomerang) giữ ↑ / ↓ để lái khi đang bay ra
+
+const HOMING_TURN := 6.0       ## rad/giây
+const HOMING_RANGE := 220.0
+const STEER_SPEED := 150.0
+
+var _returning := false
+var _life0 := 0.0
 
 
 var _hit: Array = []
@@ -47,11 +60,53 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	var ts: float = CombatDirector.enemy_time_scale if team == &"enemy" else 1.0
+	if _life0 == 0.0:
+		_life0 = life
+	if homing:
+		_home(delta)
+	if is_instance_valid(boomerang):
+		_boomerang(delta)
 	position += velocity * delta * ts
 	life -= delta * ts
 	if life <= 0.0:
 		queue_free()
 	queue_redraw()
+
+
+func _home(delta: float) -> void:
+	var best: Node2D = null
+	var best_d := HOMING_RANGE * Units.SCALE
+	for e in get_tree().get_nodes_in_group("enemies"):
+		var n := e as Node2D
+		if n == null or (n is Enemy and (n as Enemy).state == Enemy.State.DEAD):
+			continue
+		var d := n.global_position + Vector2(0, -20) - global_position
+		if d.length() < best_d and d.dot(velocity) > 0.0:
+			best_d = d.length()
+			best = n
+	if best == null:
+		return
+	var want := (best.global_position + Vector2(0, -20) - global_position).angle()
+	var cur := velocity.angle()
+	var turn := clampf(wrapf(want - cur, -PI, PI), -HOMING_TURN * delta, HOMING_TURN * delta)
+	velocity = velocity.rotated(turn)
+
+
+func _boomerang(delta: float) -> void:
+	if not _returning:
+		if steer:
+			var dy := Input.get_axis("move_up", "move_down")
+			position.y += dy * STEER_SPEED * Units.SCALE * delta
+		if life <= _life0 * 0.5:
+			_returning = true
+			_hit.clear()      # quay về: trúng lại được quái cũ
+		return
+	var to := boomerang.global_position + Vector2(0, -30) - global_position
+	if to.length() < 14.0:
+		queue_free()
+		return
+	velocity = to.normalized() * velocity.length()
+	life = maxf(life, 0.2)
 
 
 func _on_area_entered(area: Area2D) -> void:
@@ -67,6 +122,7 @@ func _on_area_entered(area: Area2D) -> void:
 	# Người bắn có thể đã chết khi đạn còn bay: khi đó bỏ source (hướng đẩy lùi lấy theo hướng đạn).
 	var src: Node = source if is_instance_valid(source) else null
 	var info := DamageInfo.new(damage, Vector2(40, -20), dir, tags, src)
+	info.bind_time = bind_time
 	if hurtbox.receive(info):
 		if hit_fx != "":
 			Fx.spawn(get_parent(), global_position, hit_fx, color, dir)
@@ -79,6 +135,8 @@ func _on_area_entered(area: Area2D) -> void:
 
 
 func _on_body_entered(_body: Node2D) -> void:
+	if is_instance_valid(boomerang):
+		return        # vật ném bay xuyên tường rồi về tay
 	queue_free()
 
 
@@ -115,6 +173,19 @@ func reflect(by: Node, new_team: StringName, target: Node2D, speed_mult: float, 
 func _draw() -> void:
 	var fwd := velocity.normalized()
 	match style:
+		"wave":
+			# Sóng chém: vầng trăng khuyết dựng đứng, lõi trắng.
+			var ang := fwd.angle()
+			draw_arc(Vector2.ZERO, radius * 2.2, ang - 1.2, ang + 1.2, 12, Color(color, 0.55), radius * 1.1)
+			draw_arc(Vector2.ZERO, radius * 2.2, ang - 1.0, ang + 1.0, 12, Color(1, 1, 1, 0.9), maxf(radius * 0.35, 1.0))
+		"spin":
+			# Vật ném xoay tròn (lưỡi kiếm, bánh xe, khiên): đĩa có nan quay.
+			var t := float(Time.get_ticks_msec()) * 0.02
+			draw_circle(Vector2.ZERO, radius * 1.3, Color(color, 0.45))
+			for i in 3:
+				var v := Vector2.from_angle(t + TAU * i / 3.0) * radius * 1.4
+				draw_line(-v, v, color, maxf(radius * 0.4, 1.0))
+			draw_circle(Vector2.ZERO, radius * 0.4, Color(1, 1, 1))
 		"bolt":
 			# Tia sét: đường gấp khúc dọc theo hướng bay, đổi hình mỗi frame.
 			var side := fwd.orthogonal()

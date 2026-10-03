@@ -26,8 +26,9 @@ const KEY_ROWS := [
 	 [["shoot"], "giữ", "Bắn (form có súng)"]],
 	[[["dodge"], "", "Né đòn cận chiến (không tránh được đạn)"],
 	 [["henshin"], "", "Biến thân (nộ đầy, đã có Driver)"],
-	 [["special"], "", "Đổi form (tốn nộ)"],
-	 [["final_attack"], "", "Final Attack (≥ 50 nộ, đốt hết nộ)"],
+	 [["special"], "", "Đổi form (tốn 10 nộ)"],
+	 [["skill_1", "skill_2"], "", "Skill 1 / Skill 2 của form (tốn nộ, hồi chiêu)"],
+	 [["final_attack"], "", "Final Attack (60 nộ)"],
 	 [["menu"], "", "Về màn chọn màn · quay lại · về màn hình chính"],
 	 [[], "Enter", "Chọn trong menu, qua câu thoại"],
 	 [[], "Esc", "Bỏ qua hội thoại"]],
@@ -35,16 +36,15 @@ const KEY_ROWS := [
 ## Trang cảm ứng: [biểu tượng, tên nút, mô tả]
 const TOUCH_ROWS := [
 	["left", "◀ ▶", "Di chuyển"],
-	["up", "▲", "Nhảy · giữ để ngắm lên"],
-	["down", "▼", "Cúi / thủ thế · bấm đúp trên bệ để xuống"],
+	["up", "▲ ▼", "Nhảy, giữ ▲ ngắm lên · ▼ cúi, bấm đúp xuống bệ"],
 	["fist", "Đánh", "Chuỗi đấm rồi tự ra cú đá"],
-	["dodge", "Né", "Né đòn cận chiến"],
+	["dodge", "Né", "Né đòn cận chiến (bên phải pad di chuyển)"],
 	["slash", "Chém", "Form có kiếm · đúng lúc thì chém / phản đạn"],
 	["shoot", "Bắn", "Giữ để bắn (form có súng)"],
-	["skill", "Kỹ năng", "Đổi form (tốn nộ)"],
-	["ultimate", "Biến thân", "Nộ đầy: biến thân · đã biến thân: Final Attack"],
-	["menu", "Menu", "Về màn chọn màn · quay lại"],
-	["help", "?", "Mở bảng hướng dẫn này"],
+	["skill", "Kỹ năng", "Đổi form (tốn 10 nộ)"],
+	["skill1", "Skill 1 · Skill 2", "Skill của form, số ở góc = nộ cần"],
+	["ultimate", "Final · Biến thân", "Final Attack 60 nộ · dạng người: biến thân"],
+	["menu", "Menu · ?", "Về màn chọn màn · mở bảng này"],
 ]
 
 ## Bật bảng hướng dẫn ngoài bản web (xem trước trên máy, bot test).
@@ -185,7 +185,7 @@ func _draw_keys() -> void:
 		var rows: Array = KEY_ROWS[c]
 		for i in rows.size():
 			var row: Array = rows[i]
-			var y := PANEL.position.y + 56.0 + i * 23.0
+			var y := PANEL.position.y + 56.0 + i * 21.0
 			var keys := _keys_text(row[0])
 			var note := str(row[1])
 			if keys == "":

@@ -35,6 +35,30 @@ static func bleed(c: Control) -> Rect2:
 	return Rect2(-c.global_position, view(c))
 
 
+## Phần màn hình bị che (tai thỏ, góc bo, thanh vuốt khi bật edge_to_edge) ở 4 cạnh, theo đơn vị thiết kế:
+## Rect2(position = (trái, trên), size = (phải, dưới)). Máy tính / máy không tai thỏ: 0.
+static func safe_insets(ci: CanvasItem) -> Rect2:
+	var win := Rect2(Vector2(DisplayServer.window_get_position()), Vector2(DisplayServer.window_get_size()))
+	var safe := Rect2(DisplayServer.get_display_safe_area())
+	if win.size.x <= 0.0 or safe.size.x <= 0.0:
+		return Rect2()
+	var k := view(ci).y / win.size.y      # px màn hình → đơn vị thiết kế
+	var l := maxf(safe.position.x - win.position.x, 0.0) * k
+	var t := maxf(safe.position.y - win.position.y, 0.0) * k
+	var r := maxf(win.end.x - safe.end.x, 0.0) * k
+	var b := maxf(win.end.y - safe.end.y, 0.0) * k
+	return Rect2(l, t, r, b)
+
+
+## Một đơn vị thiết kế dài bao nhiêu mm trên màn hình thật (theo DPI máy). Không đọc được DPI thì 0.
+static func unit_mm(ci: CanvasItem) -> float:
+	var dpi := DisplayServer.screen_get_dpi()
+	var win_h := float(DisplayServer.window_get_size().y)
+	if dpi <= 0 or win_h <= 0.0:
+		return 0.0
+	return win_h / view(ci).y / dpi * 25.4
+
+
 ## Toạ độ chạm (toạ độ khung nhìn) đổi về toạ độ khung 480×270 của Control đã fit.
 static func local(c: Control, p: Vector2) -> Vector2:
 	return p - c.global_position

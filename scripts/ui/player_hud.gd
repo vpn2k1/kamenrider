@@ -4,8 +4,8 @@ extends Control
 ##   MÁU : dạng người màu đỏ. Khi biến thân: thanh chính là máu Rider (xanh lá),
 ##         thêm một vạch mảnh bên dưới cho máu dạng người.
 ##   NỘ  : cam. Dạng người: đầy thì nhấp nháy (biến thân được).
-##         Dạng Rider: vạch trắng đánh dấu mức Final Attack. Ở form đặc biệt thanh chuyển tím,
-##         hiện số giây còn lại trước khi về form gốc, dưới 25% thì nhấp nháy đỏ.
+##         Dạng Rider: vạch trắng đánh dấu mức Final Attack (60). Ở form tăng tốc thời gian (nộ tụt dần) thanh
+##         chuyển tím, hiện số giây còn lại trước khi về form gốc, dưới 25% thì nhấp nháy đỏ.
 
 const LABEL_W := 22.0
 const BAR_W := 90.0
@@ -53,7 +53,7 @@ func _draw() -> void:
 	var rage_ratio := player.rage / Player.GAUGE_MAX
 	var rage_color := COLOR_RAGE
 	var rage_text := "%d" % int(player.rage)
-	if player.in_special_form():
+	if player.rage_draining():
 		var low := player.rage < LOW_FUEL
 		rage_color = COLOR_RAGE_LOW if low and blink else COLOR_RAGE_FUEL
 		rage_text = "%ds" % ceili(player.rage / player.current_form.rage_drain())

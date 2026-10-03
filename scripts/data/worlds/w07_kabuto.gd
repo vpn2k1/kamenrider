@@ -48,9 +48,22 @@ const RIDER := {
 	"forms": {
 		&"rider": {"name": "Rider Form", "style": "brawler", "hp": 155.0, "armor": 22.0, "speed": 138.0,
 			"jump": 1.1, "atk": 1.05, "poise": 7.0, "final": "Rider Kick",
+			"skills": [
+				{"name": "Clock Up", "type": "buff", "buff": {"clock": "CLOCK UP", "time": 4.0}, "fx": "clock",
+					"color": Color(1.0, 0.3, 0.3)},
+				{"name": "Rider Kick (counter)", "type": "counter", "fx": "tachyon", "color": Color(1.0, 0.85, 0.4),
+					"icon": "kick"},
+			],
+			"final_type": "counter",
 			"fx": {"hit": "spark", "final": "tachyon", "color": Color(1.0, 0.35, 0.35)}},
 		&"hyper": {"name": "Hyper Form", "style": "brawler", "hp": 175.0, "armor": 30.0, "speed": 160.0,
 			"jump": 1.25, "atk": 1.3, "poise": 12.0, "final": "Hyper Kick",
+			"skills": [
+				{"name": "Hyper Clock Up", "type": "buff", "buff": {"clock": "HYPER CLOCK UP", "time": 6.0}, "fx": "clock",
+					"summon": "wings", "color": Color(0.85, 0.9, 1.0)},
+				{"name": "Perfect Zecter", "type": "aim", "move": "wave", "fx": "tachyon", "anim": "heavy",
+					"shot": {"style": "wave"}, "color": Color(1.0, 0.2, 0.25)},
+			],
 			"fx": {"hit": "spark", "final": "tachyon", "trail": true, "color": Color(0.85, 0.9, 1.0)},
 			"time_call": "HYPER CLOCK UP", "effect": "time"},
 	},

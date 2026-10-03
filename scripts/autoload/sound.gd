@@ -6,6 +6,8 @@ extends Node
 ##   Sound.henshin_ext("faiz")        tiếng biến thân lấy từ phim (audio/henshin_ext/, xem README ở đó); không có thì
 ##                                    trả false để người gọi dùng tiếng tự tạo
 ## Bus Music / SFX / Voice tạo lúc chạy, chỉnh bằng set_volume(bus, 0..1).
+## Cài đặt (màn Cài đặt, scripts/ui/settings_menu.gd): âm lượng chung (bus Master) và bật / tắt từng nhóm CATEGORIES.
+## Nhóm của một tiếng tính theo tên (category_of_sfx / category_of_voice). Lưu trong GameState.SETTINGS_PATH, mục "audio".
 
 const SFX_PATH := "res://audio/sfx/%s.wav"
 const VOICE_PATH := "res://audio/voice/%s.wav"
@@ -16,6 +18,23 @@ const SAME_SFX_GAP := 30         ## ms: cùng một tiếng không phát dày h�
 const MUSIC_DB := -10.0
 const FADE := 0.5
 const NO_LOOP := ["clear"]       ## nhạc ngắn không lặp
+## Nhóm âm thanh bật / tắt được, theo thứ tự hiện ở màn Cài đặt: [khóa, tên, tiếng nghe thử khi bật lại]
+const CATEGORIES := [
+	["music", "Nhạc nền", ""],
+	["combat", "Đánh, chém, bắn, trúng đòn", "punch"],
+	["skill", "Kỹ năng, đổi form, tuyệt chiêu", "final_charge"],
+	["henshin", "Biến thân (tiếng + giọng đai)", "henshin_flash"],
+	["enemy", "Quái (bắn, gục, trùm xuất hiện)", "enemy_die"],
+	["move", "Nhảy, né, bị thương", "jump"],
+	["ui", "Menu, hội thoại, nhặt đồ", "ui_ok"],
+]
+const SKILL_SFX := ["form_change", "final_charge", "final_impact", "clock_up", "rage_full"]
+const ENEMY_SFX := ["enemy_shot", "enemy_die", "boss_appear"]
+const MOVE_SFX := ["jump", "dodge", "hurt", "break", "ko"]
+const UI_SFX := ["ui_move", "ui_ok", "ui_back", "text_blip", "pickup", "pickup_key"]
+
+var master_volume := 1.0
+var enabled := {}                ## khóa nhóm → bool
 
 var _cache := {}
 var _pool: Array[AudioStreamPlayer] = []
@@ -48,6 +67,72 @@ func _ready() -> void:
 	_music.bus = "Music"
 	_music.volume_db = MUSIC_DB
 	add_child(_music)
+	for c in CATEGORIES:
+		enabled[c[0]] = true
+	load_settings()
+
+
+# --- Cài đặt ------------------------------------------------------------------
+
+## Nhóm của một hiệu ứng (audio/sfx/<tên>).
+static func category_of_sfx(sfx_name: String) -> String:
+	if sfx_name.begins_with("henshin_"):
+		return "henshin"
+	if SKILL_SFX.has(sfx_name):
+		return "skill"
+	if ENEMY_SFX.has(sfx_name):
+		return "enemy"
+	if MOVE_SFX.has(sfx_name):
+		return "move"
+	if UI_SFX.has(sfx_name):
+		return "ui"
+	return "combat"   # đấm, đá, chém, bắn, trúng đòn, chém đạn, hiệu ứng cháy / điện / băng / choáng
+
+
+## Nhóm của một giọng (audio/voice/<tên>): tiếng hô biến thân là "henshin", đổi form / tuyệt chiêu là "skill".
+static func category_of_voice(voice_name: String) -> String:
+	return "henshin" if voice_name.ends_with("_henshin") else "skill"
+
+
+func is_enabled(category: String) -> bool:
+	return bool(enabled.get(category, true))
+
+
+func set_enabled(category: String, on: bool) -> void:
+	enabled[category] = on
+	if category == "music":
+		var idx := AudioServer.get_bus_index("Music")
+		if idx >= 0:
+			AudioServer.set_bus_mute(idx, not on)
+
+
+func set_master_volume(value: float) -> void:
+	master_volume = clampf(value, 0.0, 1.0)
+	AudioServer.set_bus_volume_db(0, linear_to_db(maxf(master_volume, 0.0001)))
+	AudioServer.set_bus_mute(0, master_volume <= 0.001)
+
+
+func load_settings() -> void:
+	var cfg := ConfigFile.new()
+	if cfg.load(GameState.SETTINGS_PATH) == OK and GameState.persist:
+		master_volume = float(cfg.get_value("audio", "master", 1.0))
+		for c in CATEGORIES:
+			enabled[c[0]] = bool(cfg.get_value("audio", c[0], true))
+	set_master_volume(master_volume)
+	for c in CATEGORIES:
+		set_enabled(c[0], enabled[c[0]])
+
+
+## Ghi mục "audio", giữ các mục khác của file cài đặt (tên người chơi...).
+func save_settings() -> void:
+	if not GameState.persist:
+		return
+	var cfg := ConfigFile.new()
+	cfg.load(GameState.SETTINGS_PATH)
+	cfg.set_value("audio", "master", master_volume)
+	for c in CATEGORIES:
+		cfg.set_value("audio", c[0], enabled[c[0]])
+	cfg.save(GameState.SETTINGS_PATH)
 
 
 func _load(path: String) -> AudioStream:
@@ -65,6 +150,8 @@ func has_voice(voice_name: String) -> bool:
 
 
 func sfx(sfx_name: String, pitch_jitter := 0.06, volume_db := 0.0) -> void:
+	if not is_enabled(category_of_sfx(sfx_name)):
+		return
 	var stream := _load(SFX_PATH % sfx_name)
 	if stream == null:
 		return
@@ -85,6 +172,8 @@ func voice(voice_name: String, delay := 0.0) -> bool:
 	var stream := _load(VOICE_PATH % voice_name)
 	if stream == null:
 		return false
+	if not is_enabled(category_of_voice(voice_name)):
+		return true         # tắt nhóm này: coi như đã phát, không gọi giọng dự phòng
 	_voice_token += 1
 	if delay > 0.0:
 		get_tree().create_timer(delay, true, false, true).timeout.connect(_play_voice.bind(stream, _voice_token))
@@ -97,6 +186,8 @@ func henshin_ext(rider: String) -> bool:
 	var stream := _load(HENSHIN_EXT_PATH % rider)
 	if stream == null:
 		return false
+	if not is_enabled("henshin"):
+		return true
 	_voice_token += 1
 	_play_voice(stream, _voice_token)
 	return true

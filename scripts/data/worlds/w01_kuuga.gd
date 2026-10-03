@@ -91,12 +91,12 @@ const STORY := {
 			["pen", "Quái trong di tích đang giữ sức mạnh Dragon Form. Hạ chúng cho tới khi nó rơi ra!"],
 		],
 		"key": [
-			["godai", "Màu xanh! Dragon nhảy cao, chạy nhanh. Bấm Chém để quét gậy Dragon Rod, nhát cuối đẩy bay quái."],
+			["godai", "Dragon Form! Nhảy cao, chạy nhanh. Bấm Chém để quét gậy Dragon Rod, nhát cuối đẩy bay quái."],
 			["pen", "Form đặc biệt ăn nộ. Hết nộ là tự về Mighty, nhớ nhé."],
 		],
 		"clear": [
-			["godai", "Kuuga có nhiều màu lắm, mỗi màu là một cách để bảo vệ người khác."],
-			["godai", "Nhưng màu nào rồi cũng phai. Lúc đó cứ quay về màu đỏ, chỗ cậu bắt đầu."],
+			["godai", "Mỗi sức mạnh của Kuuga là một cách để bảo vệ người khác. Còn nhiều sức mạnh nữa, cứ khám phá dần."],
+			["godai", "Nhưng sức mạnh nào rồi cũng cạn. Lúc đó cứ quay về Mighty, chỗ cậu bắt đầu."],
 		],
 	},
 	"3": {
@@ -120,7 +120,7 @@ const STORY := {
 			["pen", "Tường cao thì Dragon, quái bay thì Pegasus. Còn giáp dày... phải có thứ gì đó nặng hơn."],
 		],
 		"key": [
-			["godai", "Màu tím! Titan chậm nhưng cứng như đá. Bấm Chém để đâm Titan Sword. Final đâm trúng là quái bị phong ấn, đứng im."],
+			["godai", "Titan Form! Chậm nhưng cứng như đá. Bấm Chém để đâm Titan Sword. Final đâm trúng là quái bị phong ấn, đứng im."],
 		],
 		"clear": [
 			["pen", "Tín hiệu Void mạnh nhất nằm sâu phía trước. Kẻ mạnh nhất Trái Đất này đang chờ."],

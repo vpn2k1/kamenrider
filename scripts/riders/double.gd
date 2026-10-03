@@ -70,16 +70,14 @@ func _next_form() -> StringName:
 			if _half_open(b):
 				return _form_id(soul, b)
 		return &""
-	# Vòng nửa trái: các Soul đã mở, rồi tới Xtreme (nếu có), rồi quay lại Cyclone.
+	# Nửa trái: các Soul đã mở (trừ Cyclone = form gốc) rồi tới Xtreme, lần lượt sau form dùng lần trước.
 	var slots: Array = []
 	for i in SOULS.size():
-		if _half_open(i):
+		if _half_open(i) and _form_id(i, body) != base_form():
 			slots.append(_form_id(i, body))
 	if has_form(&"xtreme"):
 		slots.append(&"xtreme")
-	if slots.size() < 2:
-		return &""
-	return slots[(slots.find(current_form_id()) + 1) % slots.size()]
+	return _after_last(slots)
 
 
 func _form_id(s: int, b: int) -> StringName:
@@ -131,6 +129,39 @@ func fx() -> Dictionary:
 	var hit: String = ["wind", "fire", "spark"][soul]
 	var color: Color = [Color(0.4, 1.0, 0.5), Color(1.0, 0.4, 0.25), Color(1.0, 0.9, 0.35)][soul]
 	return {"hit": hit, "final": "ring", "intro": "wind", "color": color}
+
+
+## Skill 1 theo nửa Soul (trái), Skill 2 theo nửa Body (phải); Xtreme có 2 skill riêng (docs/SKILLS.md).
+const SOUL_SKILLS := [
+	{"name": "Cyclone Gust", "type": "aim", "tags": [&"force"], "knockback": Vector2(280, -90), "fx": "wind",
+		"color": Color(0.3, 1.0, 0.5)},
+	{"name": "Heat Flare", "type": "area", "tags": [&"burn"], "fx": "fire", "color": Color(1.0, 0.4, 0.15)},
+	{"name": "Luna Stretch", "type": "lock", "range": 120.0, "fx": "chains", "color": Color(1.0, 0.92, 0.25),
+		"icon": "aura"},
+]
+const BODY_SKILLS := [
+	{"name": "Joker Rush", "type": "aim", "hits": 3, "fx": "spark", "color": Color(0.65, 0.3, 0.95)},
+	{"name": "Metal Shaft Twirl", "type": "area", "tags": [&"crush", &"heavy"], "anim": "slash", "hits": 2,
+		"fx": "slash", "color": Color(0.75, 0.8, 0.9)},
+	{"name": "Trigger Lock", "type": "lock_multi", "targets": 3, "tags": [&"ranged"], "fx": "ring",
+		"color": Color(0.3, 0.55, 1.0)},
+]
+const XTREME_SKILLS := [
+	{"name": "Prism Bicker", "type": "aim", "tags": [&"heavy", &"crush"], "fx": "diamond",
+		"color": Color(0.75, 0.95, 1.0), "icon": "slash"},
+	{"name": "Xtreme Analysis", "type": "buff", "buff": {"expose": true, "time": 6.0}, "fx": "graph",
+		"color": Color(0.4, 1.0, 0.6)},
+]
+
+
+func skill_specs() -> Array:
+	if xtreme:
+		return XTREME_SKILLS
+	return [SOUL_SKILLS[soul], BODY_SKILLS[body]]
+
+
+func final_type() -> String:
+	return "lock_multi" if body == 2 and not xtreme else "aim"
 
 
 func special_label() -> String:

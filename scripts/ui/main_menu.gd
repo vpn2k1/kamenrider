@@ -8,6 +8,7 @@ extends Control
 ## Nền phủ kín màn hình máy (ảnh nền lặp theo bề ngang), hai nút luôn ở giữa màn hình.
 ## ▲ ▼ (hoặc W / S, ◀ ▶) chọn, Enter / Space / Đánh (J) / chạm để vào.
 ## Bản web: nút "?" góc trên phải mở bảng hướng dẫn nút bấm (HelpOverlay).
+## Nút "⚙ Cài đặt" góc trên trái: âm lượng, bật / tắt từng nhóm âm thanh (SettingsMenu).
 
 const NAME_SCENE := "res://scenes/ui/name_entry.tscn"
 const BG_TEX := preload("res://art/backgrounds/tokyo.png")
@@ -19,6 +20,7 @@ const GOLD := Color(1, 0.85, 0.3)
 var _cards: Array[Button] = []
 var _message: Label
 var _help: HelpOverlay
+var _settings: SettingsMenu
 
 
 func _ready() -> void:
@@ -50,15 +52,13 @@ func _ready() -> void:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
 	center.add_child(box)
-	box.add_child(_label("CHRONO HENSHIN", 20, GOLD))
+	box.add_child(_label("VPN CHRONO", 20, GOLD))
 	box.add_child(_label("Kamen Rider fan game", 8, Color(0.75, 0.65, 1)))
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(0, 6)
 	box.add_child(spacer)
 	box.add_child(_card("CHƠI", "Hành trình qua 27 thế giới Rider", Color(0.62, 0.14, 0.18), NameEntry.Mode.PLAY))
-	var riders := GameState.selectable_riders().size()
-	box.add_child(_card("COMBAT", "1 VS 1 · ALL COMBAT 2–4 người cùng WiFi · %s" % ("%d Rider đã mở khoá" % riders if riders > 0
-		else "chưa mở: cần 1 Rider"), Color(0.2, 0.22, 0.55), NameEntry.Mode.VERSUS))
+	box.add_child(_card("COMBAT", "", Color(0.2, 0.22, 0.55), NameEntry.Mode.VERSUS))
 	box.add_child(_label("▲ ▼ chọn · Enter / Đánh để vào", 7, Color(0.75, 0.75, 0.85)))
 	if GameState.name_set:
 		var rename := Button.new()
@@ -74,37 +74,51 @@ func _ready() -> void:
 	_message.custom_minimum_size = Vector2(0, 12)
 	box.add_child(_message)
 	_cards[0 if NameEntry.mode == NameEntry.Mode.PLAY else 1].grab_focus()
+	# Nút góc: Cài đặt âm thanh (trên trái), Hướng dẫn (trên phải, chỉ bản web)
+	var settings_button := _corner_button("⚙ Cài đặt")
+	settings_button.position = Vector2(8, 8)
+	settings_button.pressed.connect(func() -> void: _settings.open())
 	if HelpOverlay.enabled():
-		var help_button := Button.new()
-		help_button.text = "? Hướng dẫn"
-		help_button.focus_mode = Control.FOCUS_NONE
-		help_button.add_theme_font_size_override("font_size", 8)
-		help_button.add_theme_color_override("font_color", GOLD)
-		help_button.add_theme_color_override("font_hover_color", Color.WHITE)
-		for state in ["normal", "hover", "pressed"]:
-			var sb := _pill(Color(0.12, 0.1, 0.22, 0.9 if state == "normal" else 1.0),
-				GOLD if state != "normal" else Color(0.6, 0.55, 0.8), 1, 9)
-			sb.content_margin_left = 8
-			sb.content_margin_right = 8
-			sb.content_margin_top = 3
-			sb.content_margin_bottom = 3
-			help_button.add_theme_stylebox_override(state, sb)
-		help_button.pressed.connect(func() -> void: _help.open())
-		add_child(help_button)
-		help_button.size = help_button.get_combined_minimum_size()
+		var help_button := _corner_button("? Hướng dẫn")
 		help_button.position = Vector2(VIEW.x - help_button.size.x - 8, 8)
+		help_button.pressed.connect(func() -> void: _help.open())
 		_help = HelpOverlay.new()
 		add_child(_help)
+	_settings = SettingsMenu.new()
+	add_child(_settings)
+
+
+## Nút nhỏ bo tròn ở góc màn hình.
+func _corner_button(text: String) -> Button:
+	var b := Button.new()
+	b.text = text
+	b.focus_mode = Control.FOCUS_NONE
+	b.add_theme_font_size_override("font_size", 8)
+	b.add_theme_color_override("font_color", GOLD)
+	b.add_theme_color_override("font_hover_color", Color.WHITE)
+	for state in ["normal", "hover", "pressed"]:
+		var sb := _pill(Color(0.12, 0.1, 0.22, 0.9 if state == "normal" else 1.0),
+			GOLD if state != "normal" else Color(0.6, 0.55, 0.8), 1, 9)
+		sb.content_margin_left = 8
+		sb.content_margin_right = 8
+		sb.content_margin_top = 3
+		sb.content_margin_bottom = 3
+		b.add_theme_stylebox_override(state, sb)
+	add_child(b)
+	b.size = b.get_combined_minimum_size()
+	return b
 
 
 func _process(_delta: float) -> void:
-	if HelpOverlay.is_showing():
+	if HelpOverlay.is_showing() or SettingsMenu.is_showing():
 		return
 	# W / S (A / D cũng được) và phím Đánh (J) dùng được như ở các màn chọn khác.
 	if Input.is_action_just_pressed("move_up") or Input.is_action_just_pressed("move_left"):
 		_cards[0].grab_focus()
 	elif Input.is_action_just_pressed("move_down") or Input.is_action_just_pressed("move_right"):
 		_cards[1].grab_focus()
+	elif Input.is_action_just_pressed("ui_cancel") and OS.has_feature("android"):
+		get_tree().quit()   # nút back của Android ở màn hình chính: thoát app
 	elif Input.is_action_just_pressed("attack_light"):
 		for c in _cards:
 			if c.has_focus():
@@ -131,9 +145,10 @@ func _card(title: String, desc: String, accent: Color, mode: NameEntry.Mode) -> 
 	var t := _label(title, 14, GOLD)
 	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(t)
-	var d := _label(desc, 7, Color(0.92, 0.92, 0.98))
-	d.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	col.add_child(d)
+	if desc != "":
+		var d := _label(desc, 7, Color(0.92, 0.92, 0.98))
+		d.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		col.add_child(d)
 	_cards.append(b)
 	return b
 

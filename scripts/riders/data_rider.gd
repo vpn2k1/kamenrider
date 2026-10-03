@@ -23,6 +23,10 @@ class_name DataRider
 ##       "effect": "time"      tùy chọn: tăng tốc thời gian (Faiz Axel, Kabuto Clock Up...): quái chậm còn 15%,
 ##                             Rider chạy và ra đòn nhanh ×1.6, để bóng mờ, màn hình ngả xanh, đòn mang tag &"time"
 ##                             (đánh trúng quái nhanh), nộ tụt 10/giây. "time_call": chữ hiện khi bật ("CLOCK UP")
+##       "skills": [skill 1, skill 2]  2 skill của form (khóa: xem Skills, docs/SKILLS.md)
+##       "skills_from": [rider, form]  thay cho "skills": mượn nguyên skill và kiểu Final của form Rider khác
+##                             (Decade Kamen Ride, Zi-O Armor)
+##       "final_type": "lock"  kiểu Final Attack (Skills), "final_targets": số quái của "lock_multi"
 ##       "fx": {...}           tùy chọn: hiệu ứng đánh của form (xem RiderForm.fx)
 ##       "final": "Rider Kick" tên Final Attack của form
 ##       Kỹ năng riêng theo nguyên tác (tùy chọn):
@@ -33,7 +37,7 @@ class_name DataRider
 ##                             "size", "offset", "knockback" (x âm = hút về phía Rider), "hits" (số nhịp trúng),
 ##                             "lunge", "startup", "active", "recovery"; "tags" thì cộng thêm
 ##       "guard": 0.5          nhận chừng này sát thương từ phía trước khi không đang ra đòn (khiên)
-##       "rage_drain": 6.0     nộ tụt mỗi giây ở form này (mặc định RiderForm.RAGE_DRAIN)
+##       "rage_drain": 6.0     nộ tụt mỗi giây ở form này (mặc định RiderForm.RAGE_DRAIN; form "time" tụt 10)
 ##   }},
 ##   "lv5": {"name": "Shining", "final_mult": 1.5}  Lv5: tên hiện kèm form + Final Attack mạnh hơn
 ##   "lv5": {"form": &"survive", ...}  Lv5 mở final form này (GameState.set_level), thay cho tên hiện kèm
@@ -48,7 +52,6 @@ class_name DataRider
 
 const TIME_ENEMY_SCALE := 0.15
 const TIME_SPEED_MULT := 1.6
-const TIME_RAGE_DRAIN := 10.0
 
 var data: Dictionary = {}
 var form: StringName = &""
@@ -111,7 +114,39 @@ func _is_time() -> bool:
 
 
 func rage_drain() -> float:
-	return TIME_RAGE_DRAIN if _is_time() else float(_stats().get("rage_drain", RAGE_DRAIN))
+	return TIME_RAGE_DRAIN if _is_time() else float(_stats().get("rage_drain", super()))
+
+
+func is_time_form() -> bool:
+	return _is_time()
+
+
+func skill_specs() -> Array:
+	var s := _stats()
+	if s.has("skills_from"):
+		var src: Array = s["skills_from"]
+		return RiderForm.borrowed(src[0], src[1])["skills"]
+	return s.get("skills", [])
+
+
+func final_type() -> String:
+	var s := _stats()
+	if s.has("final_type"):
+		return str(s["final_type"])
+	if s.has("skills_from"):
+		var src: Array = s["skills_from"]
+		return str(RiderForm.borrowed(src[0], src[1])["final_type"])
+	return "aim"
+
+
+func final_targets() -> int:
+	var s := _stats()
+	if s.has("final_targets"):
+		return int(s["final_targets"])
+	if s.has("skills_from"):
+		var src: Array = s["skills_from"]
+		return int(RiderForm.borrowed(src[0], src[1])["final_targets"])
+	return 3
 
 
 func special_available() -> bool:

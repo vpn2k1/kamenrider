@@ -4,7 +4,8 @@ class_name TouchButton
 ## trong InputMap, thả = nhả, nên Player xử lý y như khi bấm phím.
 ##
 ## Vẽ bằng _draw: nền tròn, biểu tượng pixel, chữ ngắn bên dưới, vòng hồi chiêu (quạt tối + số giây),
-## mờ đi khi chưa dùng được (thiếu nộ...), viền sáng nhấp nháy khi là tuyệt chiêu sẵn sàng.
+## mờ đi khi chưa dùng được (thiếu nộ...), viền sáng nhấp nháy khi là tuyệt chiêu sẵn sàng, số nộ cần ở góc
+## (skill / Final, Player.action_cost).
 ## Nút tự ẩn khi Player.is_action_visible() = false (kỹ năng chưa mở khóa).
 
 @export var action := "attack_light"
@@ -22,11 +23,15 @@ var _touch_index := -1
 var _pressed := false
 
 const GROUP := &"touch_buttons"
+const LABEL_MAX := 13          ## tên skill dài hơn thì cắt (…), tránh đè chữ nút bên cạnh
 
 
 ## Nhả mọi nút ảo đang giữ (trước khi dừng màn: nút bị dừng không nhận được lúc nhả tay, action sẽ bị kẹt).
 static func release_all(tree: SceneTree) -> void:
 	for b in tree.get_nodes_in_group(GROUP):
+		if b is TouchPad:
+			(b as TouchPad).release()
+			continue
 		var tb := b as TouchButton
 		if tb._pressed:
 			tb._touch_index = -1
@@ -34,7 +39,7 @@ static func release_all(tree: SceneTree) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if not visible:
+	if not is_visible_in_tree():
 		return
 	if event is InputEventScreenTouch:
 		var touch := event as InputEventScreenTouch
@@ -101,16 +106,31 @@ func _draw() -> void:
 		ring = Color(1.0, 0.85, 0.3)
 	draw_arc(Vector2.ZERO, r, 0.0, TAU, 32, ring, 1.5)
 
-	if icon:
-		var s := icon.get_size() * (2.0 if radius >= 16.0 else 1.5)
+	var tex := icon
+	var skill_tex := player.action_icon(action) if player else null
+	if skill_tex:
+		tex = skill_tex
+	if tex:
 		var tint := Color(1, 1, 1) if usable and not cooling else Color(0.55, 0.55, 0.6, 0.8)
-		draw_texture_rect(icon, Rect2(-s / 2.0, s), false, tint)
+		var s := tex.get_size() * (2.0 if radius >= 16.0 else 1.5)
+		if tex.get_width() > 24:
+			# Icon skill (48×48): vừa khít lòng nút, nền tròn tối phía sau.
+			s = Vector2.ONE * r * 1.7
+		draw_texture_rect(tex, Rect2(-s / 2.0, s), false, tint)
 
 	var text := label
 	if player:
 		var dynamic := player.action_label(action)
 		if dynamic != "":
-			text = dynamic
+			text = dynamic if dynamic.length() <= LABEL_MAX else dynamic.left(LABEL_MAX - 1) + "…"
+		var cost := player.action_cost(action)
+		if cost > 0:
+			# Số nộ cần ở góc trên phải nút (đỏ khi chưa đủ).
+			var font := ThemeDB.fallback_font
+			var cpos := Vector2(r * 0.55, -r * 0.6)
+			var ccol := Color(1, 0.85, 0.4) if player.rage >= cost else Color(1, 0.4, 0.4)
+			draw_circle(cpos + Vector2(4, -3), 6.0, Color(0.05, 0.04, 0.1, 0.85))
+			draw_string(font, cpos + Vector2(-4, 0), str(cost), HORIZONTAL_ALIGNMENT_CENTER, 16, 7, ccol)
 	if text != "":
 		var font := ThemeDB.fallback_font
 		var col := Color(1, 1, 1, 0.95) if usable and not cooling else Color(0.7, 0.7, 0.75, 0.8)

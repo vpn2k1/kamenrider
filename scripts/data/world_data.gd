@@ -36,8 +36,15 @@ class_name WorldData
 ## Mỗi màn chỉ một loại quái đặc biệt vì mỗi màn chỉ mang được một form biến đổi (cộng item).
 ## w["main_count"] = số màn chính (không tính EX).
 ## "sprite": tiền tố animation trong art/characters/enemy_frames.tres. Thiếu thì hiện khối màu tạm.
+##
+## Thế giới phụ (SIDE_WORLDS, dữ liệu ở scripts/data/side_worlds.gd): nhánh rẽ từ một thế giới chính, chỉ số tiếp sau
+## WORLDS (world_at(i) đọc cả hai). Màn StageType.DUEL: quái của thế giới Rider đối thủ, cuối đường đấu chính Rider đó,
+## thắng thì nhặt form ("form") cho Rider của thế giới phụ. Màn khóa "source_world" (thế giới của Rider đối thủ) mở khi
+## đã giải cứu thế giới đó; "level_world" = thế giới tính cấp quái (thế giới cha hoặc thế giới đối thủ, lấy cái sau hơn).
 
-enum StageType { AWAKEN, TRAINING, BOSS, CHALLENGE }
+enum StageType { AWAKEN, TRAINING, BOSS, CHALLENGE, DUEL }
+const SIDE := preload("res://scripts/data/side_worlds.gd")
+const DUEL_WAVES := [["basic", "fast", "basic"], ["boss"]]
 
 ## Thứ tự năm phát sóng. Đổi thứ tự / chèn thế giới mới = sửa danh sách này (số màn và chuỗi Driver tự tính lại).
 const FILES := [
@@ -112,10 +119,18 @@ static var stories := {}       ## mã màn "4-2" -> {nhịp: [câu thoại]}
 static var world_clear := {}   ## id thế giới -> [câu thoại trên bản đồ]
 static var speakers := {}      ## người nói của các thế giới
 static var WORLDS: Array = _build()
+static var SIDE_WORLDS: Array = _build_side()
 
 
 ## Bậc 0..4 của màn thứ `si` trong `count` màn: 0 Thức tỉnh, 4 Trùm, màn luyện tập chia đều vào 1..3.
 ## Thế giới 5 màn: bậc = vị trí màn. OOO 9 màn: 0, 1, 1, 1, 2, 2, 3, 3, 4.
+## Độ khó 0..1 của màn bậc `tier` (0..4) ở thế giới thứ `wi` (0..26): tăng đều theo thế giới, trong một thế giới
+## tăng thêm theo bậc màn (Trùm khó nhất). StageBuilder / StageRun dùng để chỉnh mật độ quái, lính bắn, độ hung hăng,
+## quái tinh nhuệ và cấp quái thêm (GameState.current_enemy_level).
+static func difficulty_of(wi: int, tier: int) -> float:
+	return clampf((wi + tier / 4.0) / float(maxi(FILES.size() - 1, 1)), 0.0, 1.0)
+
+
 static func tier_of(si: int, count: int) -> int:
 	if si == 0:
 		return 0
@@ -147,6 +162,7 @@ static func _build() -> Array:
 			st["type"] = StageType.AWAKEN if si == 0 else (StageType.BOSS if suffix == "B" else StageType.TRAINING)
 			var tier := tier_of(si, src.size())
 			st["tier"] = tier
+			st["difficulty"] = difficulty_of(i, tier)
 			st["reward_level"] = tier + 1
 			if not st.has("route"):
 				# Màn luyện tập thêm (trùng bậc với màn trước) lấy lộ trình kế tiếp trong danh sách để không lặp y hệt.
@@ -188,6 +204,84 @@ static func _build() -> Array:
 	return out
 
 
+## Thế giới phụ: chỉ số WORLDS.size() + thứ tự trong SideWorlds.WORLDS (xem đầu file).
+static func _build_side() -> Array:
+	var out: Array = []
+	for k in SIDE.WORLDS.size():
+		var src: Dictionary = SIDE.WORLDS[k]
+		var parent_i := world_index_of(src["parent"])
+		var parent: Dictionary = WORLDS[parent_i]
+		var n := WORLDS.size() + k + 1
+		var w := {
+			"id": src["id"], "side": true, "parent_world": parent_i, "number": n, "year": parent["year"],
+			"name": src["name"], "motto": src["motto"], "title": src["title"], "rider": parent["rider"],
+			"rider_name": parent["rider_name"], "driver_name": parent["driver_name"], "color": parent["color"],
+			"enemies": parent["enemies"], "unlocks": parent["unlocks"],
+		}
+		var forms: Dictionary = rider_data(parent["rider"]).get("forms", {})
+		var stories_src: Dictionary = SIDE.STORY.get(src["id"], {})
+		var stages: Array = []
+		for duel in src["duels"]:
+			var si := world_index_of(duel)
+			if si < 0:
+				continue
+			var foe: Dictionary = WORLDS[si]
+			var form := StringName(String(duel) + str(src["form_suffix"]))
+			var form_title: String = (forms.get(form, {}) as Dictionary).get("name", String(form))
+			var foe_name := str(foe["rider_name"])
+			var level_world := maxi(parent_i, si)
+			var boss: Dictionary = DEFAULT_BOSS.duplicate()
+			boss.merge(SIDE.DUEL_BOSS, true)
+			boss["name"] = "Kamen Rider %s" % foe_name
+			boss["color"] = foe["color"]
+			boss["sprite"] = "rider_%s" % duel
+			boss["traits"] = (src.get("boss_traits", {}) as Dictionary).get(duel, [])
+			boss["hp"] = float(boss["hp"]) * (1.0 + BOSS_HP_PER_WORLD * level_world)
+			boss["damage"] = float(boss["damage"]) * (1.0 + BOSS_DMG_PER_WORLD * level_world)
+			var foe_stages: Array = foe["stages"]
+			var st := {
+				"id": "%d-%d" % [n, stages.size() + 1],
+				"name": str(src["stage_name"]).replace("{rider}", foe_name).replace("{year}", str(foe["year"])),
+				"type": StageType.DUEL, "tier": 4, "reward_level": 0, "source_world": si, "level_world": level_world,
+				"form": form, "form_name": form_title, "enemies": foe["enemies"], "boss": boss, "foe_name": foe_name,
+				"route": DEFAULT_ROUTES[4][stages.size() % DEFAULT_ROUTES[4].size()], "waves": DUEL_WAVES,
+				"bg": foe_stages[mini(1, foe_stages.size() - 1)]["bg"],
+			}
+			var own: Dictionary = stories_src.get(duel, {})
+			var beats := {}
+			for beat in src["template"]:
+				var lines: Array = own.get(beat, src["template"][beat])
+				var filled: Array = []
+				for line in lines:
+					filled.append([line[0], str(line[1]).replace("{rider}", foe_name).replace("{form}", form_title)
+						.replace("{year}", str(foe["year"]))])
+				beats[beat] = filled
+			stories[st["id"]] = beats
+			stages.append(st)
+		w["stages"] = stages
+		w["main_count"] = stages.size()
+		out.append(w)
+	return out
+
+
+## Thế giới theo chỉ số: thế giới chính (0..WORLDS.size()-1) rồi tới thế giới phụ.
+static func world_at(i: int) -> Dictionary:
+	return WORLDS[i] if i < WORLDS.size() else SIDE_WORLDS[i - WORLDS.size()]
+
+
+static func is_side(i: int) -> bool:
+	return i >= WORLDS.size()
+
+
+## Chỉ số các thế giới phụ rẽ ra từ thế giới chính w.
+static func sides_of(w: int) -> Array[int]:
+	var out: Array[int] = []
+	for k in SIDE_WORLDS.size():
+		if int(SIDE_WORLDS[k]["parent_world"]) == w:
+			out.append(WORLDS.size() + k)
+	return out
+
+
 ## Màn EX của thế giới thứ i (đếm từ 0), dựng sau các màn chính (xem đầu file).
 static func _challenge_stage(w: Dictionary, i: int, stages: Array) -> Dictionary:
 	var over: Dictionary = w.get("challenge", {})
@@ -205,6 +299,7 @@ static func _challenge_stage(w: Dictionary, i: int, stages: Array) -> Dictionary
 		"id": "%d-EX" % (i + 1),
 		"type": StageType.CHALLENGE,
 		"tier": CHALLENGE_TIER,
+		"difficulty": difficulty_of(i, 4),
 		"reward_level": 0,
 		"bg": "res://art/backgrounds/%s.png" % str(over["bg"]) if over.has("bg") else last_training["bg"],
 	}
@@ -221,7 +316,7 @@ static func challenge_of(w: int) -> Dictionary:
 
 ## Tên hiển thị của một form đặc biệt (tra từ các màn có "form"). Không có thì trả về "".
 static func form_name(rider: StringName, form: StringName) -> String:
-	for world in WORLDS:
+	for world in WORLDS + SIDE_WORLDS:
 		if world["rider"] != rider:
 			continue
 		for stage in world["stages"]:

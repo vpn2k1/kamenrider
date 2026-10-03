@@ -5,7 +5,7 @@ extends Node
 ##
 ## Bot chạy sang phải, giữ nút bắn (chỉ có tác dụng khi form có súng), nhảy khi phía trước là vực,
 ## đấm khi quái áp sát, thấy vật phẩm rơi thì đi nhặt. Theo mốc thời gian nó thử: nhặt Driver rơi từ quái,
-## mở form + đổi form bằng nộ, Final Attack, cạn nộ về form gốc, đổi Rider, nhặt form (biến thân ngay),
+## mở form + đổi form bằng nộ, Skill 1 / Skill 2, Final Attack, cạn nộ (form thường giữ nguyên), đổi Rider, nhặt form (biến thân ngay),
 ## vỡ giáp, biến thân lại, cúi, chạm nút trên màn hình. In tóm tắt ở cuối.
 ##
 ## Chế độ quay hình (có cửa sổ): mở sẵn Kuuga để thấy đủ tính năng.
@@ -179,6 +179,14 @@ func _milestones() -> void:
 			_special()
 		1200:
 			_log("form hiện tại %s · có súng=%s" % [_form_name(), player.has_gun()])
+		1260, 1380:
+			# Skill 1 / Skill 2 của form (docs/SKILLS.md)
+			player.add_rage(100.0)
+			var i := 0 if frame == 1260 else 1
+			var name := str(player.skills.skill(i).get("name", "?"))
+			var ok := player.try_skill(i)
+			_log("Skill %d %s ở %s: %s · nộ=%d" % [i + 1, name, _form_name(), "tung" if ok else "chưa tung (đang ra đòn, state %d)" % player.state,
+				int(player.rage)])
 		1500:
 			_log("Final Attack (%s)" % _form_name())
 			player.add_rage(100.0)
@@ -193,7 +201,7 @@ func _milestones() -> void:
 			_clear_items()
 			player.add_rage(-100.0)
 		2000:
-			_log("→ %s (mong đợi form gốc)" % _form_name())
+			_log("→ %s (form thường không tụt nộ: giữ nguyên form)" % _form_name())
 		2100:
 			_log("kích hoạt Faiz + W, dùng W (mỗi màn một Rider: Đổi Rider không làm gì)")
 			GameState.activate_driver(&"faiz")
@@ -223,7 +231,7 @@ func _milestones() -> void:
 			player.try_final_attack()
 			_log("Final ở %s: nộ=%d" % [_form_name(), int(player.rage)])
 		3500:
-			_log("sau Final: %s (mong đợi form gốc)" % _form_name())
+			_log("sau Final: %s · nộ=%d (Final tốn 60, giữ form)" % [_form_name(), int(player.rage)])
 		3560:
 			_log("ép vỡ giáp (Henshin Break)")
 			if player.current_form:

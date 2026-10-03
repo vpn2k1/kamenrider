@@ -1,7 +1,8 @@
 extends RefCounted
 class_name RiderCaps
-## Form nào khắc chế được quái đặc biệt nào (Enemy.SPECIALS): gom tag của mọi đòn (Đánh, đá, Chém, Final), đạn
-## (&"ranged" + tag của đạn) và RiderForm.special_tags() của form, rồi so với "needs" của từng loại quái.
+## Form nào khắc chế được quái đặc biệt nào (Enemy.SPECIALS): gom tag của mọi đòn (Đánh, đá, Chém), đạn
+## (&"ranged" + tag của đạn), 2 skill của form (skill_tags) và RiderForm.special_tags() của form, rồi so với "needs"
+## của từng loại quái.
 ## Dùng ở màn chọn màn (màn EX: "Phù hợp: Kuuga Pegasus..."), màn chọn form / item (dòng "Khắc chế") và
 ## tools/validate_worlds.gd (Rider của thế giới phải tự qua được màn EX của thế giới mình).
 
@@ -25,7 +26,28 @@ static func form_tags(rider: StringName, form_id: StringName) -> Array:
 	if not shot.is_empty():
 		tags.append(&"ranged")
 		tags.append_array(shot.get("tags", []))
+	for sk in f.get_skills():
+		tags.append_array(skill_tags(sk))
 	f.free()
+	return tags
+
+
+## Tag một skill đánh ra được (SkillCaster): tag của skill, đạn = &"ranged", buff Clock Up = &"time" (mọi đòn trong
+## lúc buff), Element Shift = cả ba nguyên tố. Buff Xtreme Analysis (expose) bỏ kháng nên khắc chế mọi loại.
+static func skill_tags(sk: Dictionary) -> Array:
+	var tags: Array = (sk.get("tags", []) as Array).duplicate()
+	var type := str(sk["type"])
+	if type == "aim" and str(sk.get("move", "dash")) not in ["dash", "pull", "leap"]:
+		tags.append(&"ranged")
+	if type == "bind" and str(sk.get("via", "lock")) == "shot":
+		tags.append(&"ranged")
+	var buff: Dictionary = sk.get("buff", {})
+	if buff.has("clock"):
+		tags.append(&"time")
+	if buff.has("elements"):
+		tags.append_array([&"burn", &"freeze", &"shock"])
+	if buff.has("expose"):
+		tags.append_array([&"ranged", &"crush", &"time", &"burn"])
 	return tags
 
 

@@ -1,5 +1,5 @@
 extends Node2D
-## Vẽ màn khởi động (thay logo Godot) theo phong cách màn hình chính: trời sao, phố Tokyo, chữ CHRONO HENSHIN.
+## Vẽ màn khởi động (thay logo Godot) theo phong cách màn hình chính: trời sao, phố Tokyo, chữ VPN CHRONO.
 ## Chạy CÓ cửa sổ (headless không vẽ được), đúng cỡ khung 480×270 rồi phóng ×4 giữ nét pixel:
 ##   godot --path . --resolution 480x270 res://tools/gen_splash.tscn
 ##   → art/ui/brand/splash_480.png; tools/gen_splash.py phóng thành art/ui/brand/splash.png (1920×1080) và vẽ icon.
@@ -20,7 +20,7 @@ func _draw() -> void:
 	draw_texture(CITY, Vector2((VIEW.x - CITY.get_width()) / 2.0, VIEW.y - CITY.get_height()))
 	draw_rect(Rect2(Vector2.ZERO, VIEW), Color(0.03, 0.02, 0.08, 0.55))
 	var font := ThemeDB.fallback_font
-	_title(font, Vector2(0, 168), "CHRONO HENSHIN", 34, GOLD)
+	_title(font, Vector2(0, 168), "VPN CHRONO", 34, GOLD)
 	_title(font, Vector2(0, 190), "Kamen Rider fan game", 10, Color(0.75, 0.65, 1))
 
 

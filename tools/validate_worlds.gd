@@ -8,7 +8,8 @@ extends SceneTree
 ## khi đó màn luyện tập nào cũng phải rơi form), form của màn có trong RIDER, mỗi form phụ rơi ra ở đúng một màn
 ## luyện tập, kiểu đòn / hiệu ứng hợp lệ, chỉ số trong khoảng, tên nền "<id>_1".."<id>_<N-1>", "<id>_b" và kiểu nền có trong
 ## tools/gen_backgrounds.py, người nói trong STORY có khai báo, câu thoại không quá dài, không trùng người nói /
-## tên nền giữa các file.
+## tên nền giữa các file. Thế giới phụ (scripts/data/side_worlds.gd): Rider cha / Rider đối thủ có thật, form thắng được
+## có trong RIDER.forms của Rider cha, thoại hợp lệ. Form rơi ở thế giới phụ tính là "rơi ra ở một màn".
 
 const DIR := "res://scripts/data/worlds/"
 const CUSTOM := ["kuuga", "faiz", "double"]       ## Rider có script riêng, RIDER để trống
@@ -17,9 +18,15 @@ const GUN_KEYS := ["damage", "speed", "cooldown", "count", "spread", "radius", "
 const FORM_TAGS := [&"stun", &"freeze", &"burn", &"shock", &"force", &"heavy"]   ## tag form được thêm (xem DataRider)
 const ATTACK_KEYS := ["damage", "size", "offset", "knockback", "hits", "lunge", "startup", "active", "recovery", "tags"]
 const BEATS := ["start", "goal", "key", "clear"]
+const SKILL_KEYS := ["name", "type", "move", "via", "bind", "targets", "range", "radius", "dmg", "hits", "tags", "knockback",
+	"anim", "fx", "summon", "shot", "buff", "special", "charge", "slow", "window", "color", "cost", "cooldown", "heal", "icon"]
+const SKILL_TAGS := [&"stun", &"freeze", &"burn", &"shock", &"force", &"heavy", &"crush", &"time", &"ranged", &"bind"]
+const BUFF_KEYS := ["time", "atk", "speed", "guard", "superarmor", "clock", "homing", "clones", "fly", "invis", "phase",
+	"liquid", "dodge_next", "expose", "taunt", "elements", "heal", "behind"]
 const BASE_SPEAKERS := ["narrator", "hero", "pen", "void"]
 const MAX_LINE := 165
 const MAX_STAGES := 9                              ## 1 Thức tỉnh + tối đa 7 màn luyện tập + Trùm
+const SIDE := preload("res://scripts/data/side_worlds.gd")
 const RANGES := {"hp": [110.0, 220.0], "armor": [0.0, 65.0], "speed": [75.0, 185.0], "jump": [0.75, 1.5],
 	"atk": [0.75, 1.5], "poise": [2.0, 22.0]}
 
@@ -61,6 +68,7 @@ func _initialize() -> void:
 				seen_bg[str(st.get("bg", ""))] = f
 			continue
 		_check_world(w, c, themes, seen_speakers, seen_bg, f)
+	_check_side(files, seen_speakers)
 	print("[validate] %d file · %s" % [files.size(), "TẤT CẢ OK" if errors == 0 else "%d lỗi" % errors])
 	quit(errors)
 
@@ -120,7 +128,7 @@ func _check_world(w: Dictionary, c: Dictionary, themes: Array, seen_speakers: Di
 		for fid in forms:
 			if fid == rider.get("base", &"") or fid == (rider.get("lv5", {}) as Dictionary).get("form", &""):
 				continue
-			var drops := 0
+			var drops := _side_drops(id, fid)
 			for i in range(1, last):
 				if (stages[i] as Dictionary).get("form", &"") == fid:
 					drops += 1
@@ -208,6 +216,58 @@ func _check_world(w: Dictionary, c: Dictionary, themes: Array, seen_speakers: Di
 		_check_line(line, sps, "WORLD_CLEAR")
 
 
+## Số màn đấu Rider ở thế giới phụ rơi form `fid` cho Rider `rider`.
+func _side_drops(rider: String, fid: StringName) -> int:
+	var n := 0
+	for sw in SIDE.WORLDS:
+		if str(sw["parent"]) != rider:
+			continue
+		for duel in sw["duels"]:
+			if StringName(str(duel) + str(sw["form_suffix"])) == fid:
+				n += 1
+	return n
+
+
+func _check_side(files: Array, speakers: Dictionary) -> void:
+	var consts := {}
+	for f in files:
+		var c: Dictionary = (load(DIR + f) as GDScript).get_script_constant_map()
+		consts[str(c["WORLD"]["id"])] = c
+	for sw in SIDE.WORLDS:
+		_file = "side_worlds.gd [%s]" % sw.get("id", "?")
+		for k in ["id", "parent", "name", "motto", "title", "stage_name", "form_suffix", "duels", "template"]:
+			if not sw.has(k):
+				_err("thiếu khóa %s" % k)
+		var parent := str(sw.get("parent", ""))
+		if not consts.has(parent):
+			_err("Rider cha \"%s\" không có thế giới" % parent)
+			continue
+		var forms: Dictionary = consts[parent]["RIDER"].get("forms", {})
+		var all_speakers := speakers.duplicate()
+		for duel in sw["duels"]:
+			if not consts.has(str(duel)):
+				_err("Rider đối thủ \"%s\" không có thế giới" % duel)
+			if str(duel) == parent:
+				_err("Rider cha không tự đấu chính mình")
+			var fid := StringName(str(duel) + str(sw["form_suffix"]))
+			if not forms.has(fid):
+				_err("form %s chưa có trong RIDER.forms của %s" % [fid, parent])
+		for b in sw["template"]:
+			if not BEATS.has(b):
+				_err("template nhịp \"%s\" không hợp lệ" % b)
+			for line in sw["template"][b]:
+				_check_line(line, all_speakers, "template.%s" % b)
+		var own: Dictionary = SIDE.STORY.get(sw["id"], {})
+		for duel in own:
+			if not (sw["duels"] as Array).has(duel):
+				_err("STORY có Rider %s không nằm trong duels" % duel)
+			for b in own[duel]:
+				if not BEATS.has(b):
+					_err("STORY[%s] nhịp \"%s\" không hợp lệ" % [duel, b])
+				for line in own[duel][b]:
+					_check_line(line, all_speakers, "STORY[%s].%s" % [duel, b])
+
+
 func _check_line(line, sps: Dictionary, where: String) -> void:
 	if not (line is Array) or (line as Array).size() != 2:
 		_err("%s: câu thoại phải là [người nói, lời]" % where)
@@ -218,6 +278,43 @@ func _check_line(line, sps: Dictionary, where: String) -> void:
 	var text := str(line[1])
 	if text.length() > MAX_LINE:
 		_err("%s: câu dài %d ký tự (tối đa %d): %s..." % [where, text.length(), MAX_LINE, text.left(40)])
+
+
+## Skill của form (docs/SKILLS.md, Skills): 2 skill hoặc "skills_from" trỏ tới form có thật của Rider khác.
+func _check_skills(fid: StringName, fm: Dictionary) -> void:
+	if fm.has("skills_from"):
+		var src: Array = fm["skills_from"]
+		if fm.has("skills") or src.size() != 2:
+			_err("form %s: skills_from phải là [rider, form] và không kèm skills" % fid)
+			return
+		var src_forms: Dictionary = WorldData.rider_data(src[0]).get("forms", {})
+		if not CUSTOM.has(String(src[0])) and not src_forms.has(src[1]):
+			_err("form %s: skills_from trỏ tới form không có %s" % [fid, src])
+		return
+	var list: Array = fm.get("skills", [])
+	if list.size() != 2:
+		_err("form %s: cần đúng 2 skill (\"skills\"), đang có %d" % [fid, list.size()])
+	for sk in list:
+		var d: Dictionary = sk
+		if not d.has("name") or not Skills.TYPES.has(str(d.get("type", ""))):
+			_err("form %s: skill thiếu name hoặc type lạ: %s" % [fid, d])
+			continue
+		for k in d:
+			if not SKILL_KEYS.has(k):
+				_err("form %s: skill %s có khóa lạ \"%s\"" % [fid, d["name"], k])
+		if d.has("move") and not Skills.MOVES.has(str(d["move"])):
+			_err("form %s: skill %s move \"%s\" lạ" % [fid, d["name"], d["move"]])
+		for fk in ["fx", "summon"]:
+			if d.has(fk) and not str(d[fk]) in Fx.KINDS:
+				_err("form %s: skill %s %s \"%s\" không có trong Fx.KINDS" % [fid, d["name"], fk, d[fk]])
+		for tag in d.get("tags", []):
+			if not SKILL_TAGS.has(tag):
+				_err("form %s: skill %s tag %s lạ" % [fid, d["name"], tag])
+		for bk in (d.get("buff", {}) as Dictionary):
+			if not BUFF_KEYS.has(bk):
+				_err("form %s: skill %s buff có khóa lạ \"%s\"" % [fid, d["name"], bk])
+	if fm.has("final_type") and not str(fm["final_type"]) in ["aim", "lock", "lock_multi", "bind", "area", "counter"]:
+		_err("form %s: final_type \"%s\" lạ" % [fid, fm["final_type"]])
 
 
 func _check_rider(r: Dictionary) -> void:
@@ -254,6 +351,7 @@ func _check_rider(r: Dictionary) -> void:
 				_err("form %s: fx.%s \"%s\" không có trong Fx.KINDS" % [fid, fk, fx[fk]])
 		if fx.has("shot") and not str(fx["shot"]) in Fx.SHOTS:
 			_err("form %s: fx.shot \"%s\" không có trong Fx.SHOTS" % [fid, fx["shot"]])
+		_check_skills(fid, fm)
 		for gk in (fm.get("gun", {}) as Dictionary):
 			if not GUN_KEYS.has(gk):
 				_err("form %s: gun có khóa lạ \"%s\"" % [fid, gk])

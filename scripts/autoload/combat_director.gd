@@ -11,6 +11,9 @@ signal skill_used(label: String, color: Color)         ## đổi form / kỹ nă
 signal shake_requested(strength: float)
 
 const MAX_ATTACK_TOKENS := 2
+## Màn chơi đặt theo độ khó (StageRun._apply_difficulty): thế giới sau thêm quái đánh cùng lúc, nghỉ giữa hai đòn ngắn hơn.
+var max_attack_tokens := MAX_ATTACK_TOKENS
+var token_rest := 1.0
 
 var enemy_time_scale := 1.0
 
@@ -39,7 +42,7 @@ func shake(strength: float) -> void:
 
 func has_free_token(enemy: Node) -> bool:
 	_cleanup_tokens()
-	return _token_holders.has(enemy) or _token_holders.size() < MAX_ATTACK_TOKENS
+	return _token_holders.has(enemy) or _token_holders.size() < max_attack_tokens
 
 
 func request_attack_token(enemy: Node) -> bool:

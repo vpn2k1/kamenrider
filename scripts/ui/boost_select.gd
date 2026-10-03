@@ -110,10 +110,10 @@ func _draw() -> void:
 		var sel := i == _index
 		draw_rect(r, Color(0.12, 0.1, 0.2) if sel else Color(0.07, 0.06, 0.12))
 		draw_rect(r, GOLD if sel else Color(0.35, 0.33, 0.45), false, 2.0 if sel else 1.0)
-		var have := GameState.bonus_count(_form.rider_id, _form.current_form_id(), stat)
+		var have := GameState.bonus_value(_form.rider_id, _form.current_form_id(), stat) * 100.0
 		_text(Vector2(r.position.x, r.position.y + 20), str(GameState.BOOST_STATS[stat]), 10,
 			Color.WHITE if sel else Color(0.8, 0.8, 0.88), r.size.x)
-		_text(Vector2(r.position.x, r.position.y + 36), "đã +%d%% → +%d%%" % [have, have + 1], 7,
+		_text(Vector2(r.position.x, r.position.y + 36), "đã +%.2f%% → +%.2f%%" % [have, have + GameState.BOOST_STEP * 100.0], 7,
 			GOLD if sel else Color(0.65, 0.65, 0.75), r.size.x)
 	draw_rect(BUTTON, Color(0.85, 0.25, 0.25, 0.95))
 	draw_string(font, Vector2(BUTTON.position.x, BUTTON.position.y + 15), "CỘNG", HORIZONTAL_ALIGNMENT_CENTER,

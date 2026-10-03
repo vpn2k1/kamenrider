@@ -6,7 +6,7 @@ extends Control
 ##   tokyo      : Tokyo 2026, bầu trời nứt, Arcle rơi xuống Shibuya
 ##   pen        : Pen (Chrono Pass) xuất hiện, giao nhiệm vụ; Grongi kéo tới
 ##   mission    : bản đồ Chuỗi Trái Đất (EarthMap), chặng đầu là Trái Đất Kuuga
-## Sau cùng là thẻ tựa "CHRONO HENSHIN", bấm để vào màn 1-1.
+## Sau cùng là thẻ tựa "VPN CHRONO", bấm để vào màn 1-1.
 ## Esc / "BỎ QUA" lúc nào cũng được: nhảy tới thẻ tựa.
 ## Vẽ theo khung 480×270 đặt giữa màn hình (Screen.fit), phần màn hình dư ngoài khung tô màu nền vũ trụ.
 
@@ -386,7 +386,7 @@ func _draw_title(rect: Rect2) -> void:
 		draw_line(c + Vector2.from_angle(a) * 48.0, c + Vector2.from_angle(a) * 52.0, Color(GOLD, 0.6), 1.0)
 	draw_line(c, c + Vector2.from_angle(_t * 2.0 - PI / 2.0) * 44.0, GOLD, 1.5)
 	_title_text(Vector2(0, 40), "KAMEN RIDER", 12, GOLD)
-	_title_text(Vector2(0, 176), "CHRONO HENSHIN", 22, Color.WHITE, SEAL)
+	_title_text(Vector2(0, 176), "VPN CHRONO", 22, Color.WHITE, SEAL)
 	_title_text(Vector2(0, 196), "Hành trình qua các Trái Đất bắt đầu", 9, Color(0.8, 0.8, 0.95))
 	if _waiting_start and fmod(_t, 1.0) < 0.65:
 		_title_text(Vector2(0, 238), "Đánh / Enter / chạm để bắt đầu", 8, Color(1.0, 0.95, 0.7))

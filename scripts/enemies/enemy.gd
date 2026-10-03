@@ -12,7 +12,14 @@ class_name Enemy
 ##   &"phantom"  : siêu tốc, để bóng mờ. Chỉ trúng khi tăng tốc thời gian (&"time" hoặc quái đang bị làm chậm)
 ##   &"spectral" : bóng ma trong suốt. Chỉ nhận đòn nguyên tố (&"burn", &"freeze", &"shock")
 ## Đòn bị chặn: tiếng giáp, quái chớp xám, hiện chữ gợi ý trên đầu, đạn bật ra (DamageInfo.blocked), phát immune_hit.
-## Rider ở form gốc vẫn tích BLOCKED_RAGE nộ như đòn trúng thường, để còn nộ vào form khắc chế khi chỉ còn quái đặc biệt.
+## Rider vẫn tích BLOCKED_RAGE nộ như đòn trúng thường, để còn nộ vào form khắc chế khi chỉ còn quái đặc biệt.
+##
+## Skill của Rider (SkillCaster, docs/SKILLS.md):
+##   trói (&"bind" + DamageInfo.bind_time / apply_bind): đứng im, không ra đòn, có vòng xích quanh người. Trùm / khổng lồ
+##   chỉ bị trói BOSS_STATUS_MULT thời gian; trói xong miễn trói BIND_IMMUNE giây (không trói liền 2 lần).
+##   dấu khoá (mark_lock): khung ngắm đỏ trên quái trước khi skill khoá ra đòn.
+##   lộ điểm yếu (expose, Xtreme Analysis...): mất giáp và kháng quái đặc biệt một lúc.
+##   làm chậm (slow, Aqua Field...): mọi cử động chậm còn SLOW_MULT.
 ##
 ## behavior (kiểu Contra):
 ##   "melee"   : đuổi theo người chơi, xin lượt rồi đánh cận chiến (mặc định)
@@ -45,7 +52,7 @@ const DAMAGE_PER_LEVEL := 0.15
 const BAR_WIDTH := 30.0
 const JUMP_VELOCITY := -330.0  ## cùng sức nhảy với người chơi (đơn vị thiết kế)
 const ENGAGE_RANGE := 70.0     ## quái chạy ào tới gần người chơi chừng này (cùng độ cao) thì dừng lại đuổi đánh
-const TOKEN_REST := 1.0        ## đánh xong nghỉ chừng này giây mới xin lượt tấn công mới
+const TOKEN_REST := 1.0        ## đánh xong nghỉ chừng này giây mới xin lượt tấn công mới (độ khó cao thì ngắn hơn: CombatDirector.token_rest)
 const WALL_JUMP_WINDOW := 1.2  ## nhảy qua vật chắn mà trong chừng này giây vẫn vướng ở cùng độ cao = tường cao
 const SHOT_HIGH_Y := -40.0     ## đạn cao: trúng người đứng (hurtbox cao 50), bay qua người cúi (cao 30)
 const SHOT_LOW_Y := -8.0       ## đạn thấp: sát đất, cúi vẫn trúng, phải nhảy
@@ -83,6 +90,9 @@ const DIVE_TIME := 0.6
 const SPECTRAL_ALPHA := 0.5
 const BLOCKED_RAGE := 0.5         ## đòn bị chặn cho chừng này phần nộ so với đòn trúng
 const GHOST_EVERY := 0.07       ## quái siêu tốc để bóng mờ mỗi chừng này giây khi đang chạy
+const BIND_IMMUNE := 3.0
+const SLOW_MULT := 0.45
+const LOCK_COLOR := Color(1.0, 0.25, 0.3)
 
 @export var display_name := "Grongi"
 ## Tiền tố animation trong enemy_frames.tres, ví dụ "grongi_zu" → "grongi_zu_run". Để trống = hiện hình tạm.
@@ -137,6 +147,11 @@ var _burn := 0.0
 var _burn_tick := 0.0
 var _burn_damage := 0.0
 var _immune_time := 0.0
+var _bound := 0.0
+var _bind_immune := 0.0
+var _lock_mark := 0.0
+var _exposed := 0.0
+var _slow := 0.0
 var _immune_hint := ""
 var _ghost_timer := 0.0
 var _bob_phase := randf() * TAU
@@ -167,7 +182,7 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	var ts: float = CombatDirector.enemy_time_scale
+	var ts: float = CombatDirector.enemy_time_scale * (SLOW_MULT if _slow > 0.0 else 1.0)
 	var d := delta * ts
 	sprite.speed_scale = ts   # Clock Up / Axel: cả cử động của quái cũng chậm lại, không chỉ bước đi
 	_token_rest = maxf(_token_rest - d, 0.0)
@@ -177,6 +192,8 @@ func _physics_process(delta: float) -> void:
 		velocity.y += _gravity * d
 	if _player == null or not is_instance_valid(_player):
 		_player = get_tree().get_first_node_in_group("player") as Node2D
+	if _player is Player and (_player as Player).is_hidden():
+		_player = null      # tàng hình (Attack Ride: Invisible): quái mất dấu
 	match state:
 		State.IDLE:
 			_state_idle()
@@ -210,6 +227,8 @@ func _physics_process(delta: float) -> void:
 		modulate = Color(2.5, 2.5, 2.5)            # chớp trắng khi trúng đòn
 	elif _frozen > 0.0:
 		modulate = Color(0.6, 1.3, 2.0)            # đóng băng: xanh băng
+	elif _bound > 0.0:
+		modulate = Color(1.3, 1.15, 1.6)           # bị trói: ánh tím
 	elif _stunned > 0.0:
 		modulate = Color(1.8, 1.7, 0.6) if Engine.get_process_frames() % 12 < 6 else Color.WHITE   # choáng: nháy vàng
 	elif _burn > 0.0:
@@ -223,7 +242,7 @@ func _physics_process(delta: float) -> void:
 	if traits.has(&"spectral") and state != State.DEAD:
 		modulate.a = SPECTRAL_ALPHA + 0.15 * sin(float(Time.get_ticks_msec()) * 0.005 + _bob_phase)
 	_trail(d)
-	if aiming or behavior == "flyer" or _immune_time > 0.0:
+	if aiming or behavior == "flyer" or _immune_time > 0.0 or _bound > 0.0 or _lock_mark > 0.0 or _exposed > 0.0:
 		queue_redraw()
 	# Nhân vận tốc với time scale: Faiz Axel / Clock Up làm quái chậm mà không ảnh hưởng người chơi.
 	velocity *= ts
@@ -390,7 +409,7 @@ func _state_attack(d: float) -> void:
 			_timer = recover_time
 		State.RECOVER:
 			CombatDirector.release_attack_token(self)
-			_token_rest = TOKEN_REST
+			_token_rest = CombatDirector.token_rest
 			state = State.CHASE
 			if behavior == "shooter":
 				_timer = shoot_interval
@@ -401,7 +420,7 @@ func _state_hurt(d: float) -> void:
 	if behavior == "flyer":
 		velocity.y = move_toward(velocity.y, 0.0, 500.0 * Units.SCALE * d)
 	_timer -= d
-	if _timer <= 0.0 and _frozen <= 0.0 and _stunned <= 0.0:
+	if _timer <= 0.0 and _frozen <= 0.0 and _stunned <= 0.0 and _bound <= 0.0:
 		state = State.CHASE
 		_play("idle")
 
@@ -411,7 +430,7 @@ func take_hit(info: DamageInfo) -> bool:
 	if state == State.DEAD:
 		return false
 	var slowed: bool = CombatDirector.enemy_time_scale < 1.0
-	var special := unmet_special(info, slowed)
+	var special := unmet_special(info, slowed) if _exposed <= 0.0 else &""
 	if special != &"":
 		_block(info, special)
 		return false
@@ -419,7 +438,7 @@ func take_hit(info: DamageInfo) -> bool:
 		evaded.emit()
 		return false
 	var dmg := info.damage
-	if traits.has(&"armored") and not (info.has_tag(&"heavy") or info.has_tag(&"final")):
+	if traits.has(&"armored") and _exposed <= 0.0 and not (info.has_tag(&"heavy") or info.has_tag(&"final")):
 		dmg *= ARMORED_DAMAGE_MULT
 		Sound.sfx("hit_guard", 0.05, -4.0)   # giáp đỡ đòn: tiếng kim loại
 	hp -= dmg
@@ -466,8 +485,8 @@ func _block(info: DamageInfo, special: StringName) -> void:
 	_immune_time = 1.0
 	_immune_hint = str(SPECIALS[special]["hint"])
 	var rider := info.source as Player
-	if rider and rider.current_form and not rider.in_special_form():
-		rider.add_rage(info.damage * Player.RAGE_ON_DEAL * BLOCKED_RAGE * (0.5 if info.has_tag(&"ranged") else 1.0))
+	if rider and rider.current_form and not info.has_tag(&"skill"):
+		rider.gain_rage(info.damage * Player.RAGE_ON_DEAL * BLOCKED_RAGE * (0.5 if info.has_tag(&"ranged") else 1.0))
 	immune_hit.emit(special)
 	queue_redraw()
 
@@ -547,7 +566,7 @@ func _state_dive(d: float) -> void:
 			velocity = velocity.move_toward(Vector2.ZERO, 400.0 * Units.SCALE * d)
 			if _timer <= 0.0:
 				CombatDirector.release_attack_token(self)
-				_token_rest = TOKEN_REST
+				_token_rest = CombatDirector.token_rest
 				state = State.CHASE
 				_timer = shoot_interval
 
@@ -567,6 +586,39 @@ func _apply_status(info: DamageInfo) -> void:
 		_burn_tick = BURN_TICK
 	if info.has_tag(&"shock"):
 		_chain_shock(info)
+	if info.has_tag(&"bind") and info.bind_time > 0.0:
+		apply_bind(info.bind_time)
+
+
+## Trói `duration` giây (trùm / khổng lồ ngắn hơn). Đang miễn trói (vừa bị trói xong) thì bỏ qua. Trả true nếu trói được.
+func apply_bind(duration: float) -> bool:
+	if state == State.DEAD or _bind_immune > 0.0 or _bound > 0.0:
+		return false
+	var t := duration * (BOSS_STATUS_MULT if _is_tough() else 1.0)
+	_hold(t)
+	_bound = t
+	_bind_immune = t + BIND_IMMUNE
+	return true
+
+
+func is_bound() -> bool:
+	return _bound > 0.0
+
+
+## Dấu khoá của skill [K] / [T] hiện trên đầu quái chừng này giây.
+func mark_lock(duration: float) -> void:
+	_lock_mark = maxf(_lock_mark, duration)
+	queue_redraw()
+
+
+## Mất giáp và kháng quái đặc biệt `duration` giây (Xtreme Analysis).
+func expose(duration: float) -> void:
+	_exposed = maxf(_exposed, duration)
+
+
+## Mọi cử động chậm lại `duration` giây (Aqua Field, Fire Extinguish...).
+func slow(duration: float) -> void:
+	_slow = maxf(_slow, duration * (BOSS_STATUS_MULT if _is_tough() else 1.0))
 
 
 ## Choáng / đóng băng: dừng mọi đòn, đứng tại chỗ tới khi hết.
@@ -597,6 +649,12 @@ func _chain_shock(info: DamageInfo) -> void:
 func _update_status(d: float) -> void:
 	_frozen = maxf(_frozen - d, 0.0)
 	_stunned = maxf(_stunned - d, 0.0)
+	_bound = maxf(_bound - d, 0.0)
+	_bind_immune = maxf(_bind_immune - d, 0.0)
+	var real := d / maxf(CombatDirector.enemy_time_scale * (SLOW_MULT if _slow > 0.0 else 1.0), 0.01)
+	_lock_mark = maxf(_lock_mark - real, 0.0)
+	_exposed = maxf(_exposed - real, 0.0)
+	_slow = maxf(_slow - real, 0.0)
 	sprite.speed_scale = 0.0 if _frozen > 0.0 else sprite.speed_scale
 	if _burn <= 0.0 or state == State.DEAD:
 		return
@@ -650,6 +708,7 @@ func _draw() -> void:
 		var pulse := 1.5 if Engine.get_process_frames() % 10 < 5 else 0.0
 		draw_circle(_muzzle(), 3.0 + pulse, SHOT_LOW_COLOR if _shot_low else SHOT_HIGH_COLOR)
 	var top := -_sprite_height() - 4.0
+	_draw_skill_marks()
 	var ratio := clampf(hp / max_hp, 0.0, 1.0)
 	var bw := BAR_WIDTH * (GIANT_SCALE if traits.has(&"giant") else 1.0)
 	draw_rect(Rect2(-bw / 2.0 - 1.0, top - 1.0, bw + 2.0, 4.0), Color(0.05, 0.04, 0.08))
@@ -665,6 +724,31 @@ func _draw() -> void:
 		draw_string_outline(font, Vector2(-w / 2.0, y), _immune_hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 8, 3,
 			Color(0, 0, 0, c.a))
 		draw_string(font, Vector2(-w / 2.0, y), _immune_hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 8, c)
+
+
+## Vòng trói, khung khoá mục tiêu, dấu lộ điểm yếu (skill của Rider).
+func _draw_skill_marks() -> void:
+	var h := _sprite_height()
+	var mid := Vector2(0, -h * 0.5)
+	if _bound > 0.0:
+		var t := float(Time.get_ticks_msec()) * 0.004
+		for i in 2:
+			var y := mid.y + (i * 2 - 1) * h * 0.18
+			draw_set_transform(Vector2(0, y), 0.0, Vector2(1.0, 0.35))
+			draw_arc(Vector2.ZERO, h * 0.42, t + i, t + i + TAU * 0.85, 20, Color(0.85, 0.7, 1.0, 0.9), 2.0)
+			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	if _lock_mark > 0.0:
+		var r := h * 0.45 + 4.0 * _lock_mark
+		var c := LOCK_COLOR if Engine.get_process_frames() % 8 < 5 else Color(1, 1, 1)
+		for sx in [-1.0, 1.0]:
+			for sy in [-1.0, 1.0]:
+				var corner := mid + Vector2(sx * r, sy * r)
+				draw_line(corner, corner - Vector2(sx * 6.0, 0), c, 1.5)
+				draw_line(corner, corner - Vector2(0, sy * 6.0), c, 1.5)
+		draw_circle(mid, 1.5, c)
+	if _exposed > 0.0:
+		var c := Color(1.0, 0.95, 0.3, 0.5 + 0.4 * sin(float(Time.get_ticks_msec()) * 0.01))
+		draw_arc(mid, h * 0.55, 0.0, TAU, 24, c, 1.0)
 
 
 ## Đôi cánh vỗ sau lưng quái bay (vẽ trước sprite nên nằm phía sau).

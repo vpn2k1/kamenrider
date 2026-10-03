@@ -12,11 +12,13 @@ class_name Player
 ## Chém (K / nút Chém): chỉ form có kiếm / vũ khí cận chiến (RiderForm.has_blade): chuỗi slash_count() nhát rồi nhát kết
 ##   &"slash_finish", animation "slash" (vũ khí chỉ hiện trong animation này).
 ## Thanh tài nguyên: MÁU · NỘ
-##   Nộ: tích khi đánh trúng và khi bị đánh.
+##   Nộ: tích khi đánh trúng và khi bị đánh (đòn skill và Final không cộng nộ).
 ##       Dạng người: nộ đầy thì biến thân (I) vào form gốc của Rider ở ô đầu (không mất nộ).
-##       Dạng Rider: nộ là nhiên liệu của form đặc biệt. Đổi form (L) cần ≥ FORM_ENTER_MIN_RAGE
-##           và tốn FORM_SWITCH_COST; ở form đặc biệt nộ tụt dần (RiderForm.rage_drain), về 0 thì
-##           tự về form gốc. Final Attack (U) cần ≥ FINAL_MIN_RAGE và đốt hết nộ.
+##       Dạng Rider: từ form gốc đổi sang form đặc biệt (L) tốn FORM_SWITCH_COST; ở form đặc biệt nút L ẩn. Ở mọi form đặc biệt nộ tụt dần
+##           (RiderForm.rage_drain: RAGE_DRAIN, form tăng tốc thời gian nhanh hơn), về 0 thì tự về form gốc. Lúc nộ đang tụt vẫn tích được nộ
+##           (đánh trúng, bị đánh, hạ quái, chém đạn) nhưng chỉ DRAIN_GAIN_MULT lượng thường và mỗi giây không quá
+##           DRAIN_GAIN_SHARE lượng bị trừ (gain_rage), nên nộ vẫn luôn giảm.
+##           Skill 1 (U) / Skill 2 (Y) tốn nộ và có hồi chiêu, Final Attack (O) tốn Skills.FINAL_COST (SkillCaster).
 ##   Nhặt Driver / form lần đầu (transform_into): nộ đầy và biến thân ngay vào form đó.
 ## Bắn: chỉ form có súng (RiderForm.get_shot khác {}). Dạng người không bắn được. Hình súng (RiderForm.gun_look,
 ##   art/characters/weapons/) hiện ở tay theo hướng ngắm suốt lúc giữ nút Bắn, thả nút thì cất sau GUN_SHOW_TIME giây.
@@ -50,6 +52,7 @@ signal died
 signal net_hit(info: DamageInfo)                 ## net_puppet bị đánh trúng: chuyển đòn sang máy của người chơi đó
 signal shot_fired(projectile: Projectile)        ## vừa bắn một viên đạn (chế độ đấu gửi bản sao sang máy kia)
 signal parried(perfect: bool)                    ## vừa chém tan (false) hoặc phản (true) một viên đạn
+signal lock_marked(targets: Array, time: float)  ## skill khoá vừa hiện dấu khoá lên các mục tiêu (chế độ đấu báo đối thủ)
 
 enum State { NORMAL, ATTACK, DODGE, HURT, HENSHIN, SWAP, BREAK, KO, CROUCH, RELEASE }
 
@@ -96,6 +99,9 @@ const REFLECT_VERSUS_DAMAGE := 8.0   ## chế độ đấu: sát thương gốc 
 const PARRY_RAGE := 4.0
 const PERFECT_PARRY_RAGE := 10.0
 const PARRY_NET_GRACE := 0.5
+const MELEE_BACK := 8.0          ## đòn cận chiến phủ ra sau tâm người chừng này (đơn vị thiết kế ≈ 14 px)
+const TURN_CHECK_FRONT := 50.0   ## px: trước mặt có quái trong chừng này thì không tự quay lại
+const TURN_CHECK_BACK := 36.0    ## px: quái sát sau lưng trong chừng này thì tự quay lại khi bấm đánh
 
 # Cúi người = thế thủ: đứng yên, thân thấp lại (đạn cao bay qua đầu), đòn cận chiến chỉ còn 40% và không bị đẩy lùi.
 const CROUCH_DAMAGE_MULT := 0.4
@@ -103,12 +109,17 @@ const CROUCH_HURTBOX_HEIGHT := 30.0
 
 # Nộ
 const RAGE_ON_HIT_HUMAN := 8.0
-const RAGE_ON_DEAL := 0.7                    ## × sát thương gây ra ở form gốc (đạn chỉ tính một nửa)
+const RAGE_ON_DEAL := 0.7                    ## × sát thương gây ra (đạn chỉ tính một nửa)
 const RAGE_ON_DAMAGE := 0.8                  ## × máu mất
-## Ở form đặc biệt nộ chỉ tụt, đánh trúng hay bị đánh đều không được cộng: thanh nộ là đồng hồ đếm ngược.
-const FORM_ENTER_MIN_RAGE := 20.0            ## nộ tối thiểu để vào form đặc biệt
+const RAGE_ON_KILL := 4.0                    ## hạ một quái
+const DRAIN_GAIN_MULT := 0.25                ## form đang tụt nộ: nộ tích được chỉ bằng chừng này lượng thường
+const DRAIN_GAIN_SHARE := 0.6                ## và mỗi giây không quá chừng này phần nộ bị trừ (nộ vẫn luôn giảm)
+const FORM_ENTER_MIN_RAGE := 10.0            ## nộ tối thiểu để vào form đặc biệt
 const FORM_SWITCH_COST := 10.0               ## nộ tốn mỗi lần đổi sang form đặc biệt
-const FINAL_MIN_RAGE := 50.0                 ## nộ tối thiểu để tung Final Attack (đốt hết nộ)
+const FINAL_MIN_RAGE := Skills.FINAL_COST    ## nộ của Final Attack (vạch trắng trên thanh nộ)
+const VERSUS_BIND_TIME := 1.2                ## chế độ đấu: bị skill trói đứng im tối đa chừng này giây
+const FLY_SPEED := 120.0                     ## buff bay (Hurricane Fly...): tốc độ lên / xuống
+const HIDDEN_ALPHA := 0.3
 
 @export var max_hp := 100
 ## Hiệu ứng mặc định, form ghi đè từng khóa qua RiderForm.fx().
@@ -169,9 +180,13 @@ var _gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 var _stand_hurtbox_height := 0.0
 var _ghost_timer := 0.0
 var _feather_timer := 0.0
+var _drain_gain_budget := 0.0  ## form đang tụt nộ: lượng nộ còn được tích thêm (gain_rage)
 var _parry_timer := 0.0        ## thời gian còn lại của cửa sổ chém đạn (0 = đòn hiện tại không chém đạn)
 var _parry_tokens := 0         ## chế độ đấu: số đòn đạn sắp báo về sẽ bỏ qua (đã chém bản sao trên máy này)
 var _parry_token_timer := 0.0
+var _parry_force := false      ## thế phản đòn [P]: đạn trong tầm luôn bị phản
+var _lock_mark := 0.0          ## đang bị đối thủ khoá (chế độ đấu): vẽ khung ngắm
+var skills: SkillCaster        ## thi triển Skill 1 / Skill 2 / Final (null ở bản sao mạng)
 
 
 func _ready() -> void:
@@ -183,6 +198,8 @@ func _ready() -> void:
 		set_physics_process(false)
 		return
 	hitbox.hit_landed.connect(_on_hit_landed)
+	skills = SkillCaster.new(self)
+	add_child(skills)
 	_gun = Sprite2D.new()
 	_gun.centered = false
 	_gun.visible = false
@@ -200,6 +217,15 @@ func _draw() -> void:
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.28))
 	draw_circle(Vector2.ZERO, 17.0, Color(0, 0, 0, 0.35))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	if _lock_mark > 0.0:
+		# Bị đối thủ khoá (skill [K] / [T]): khung ngắm đỏ nhấp nháy để kịp Né.
+		var mid := Vector2(0, -30)
+		var c := Enemy.LOCK_COLOR if Engine.get_process_frames() % 8 < 5 else Color.WHITE
+		for sx in [-1.0, 1.0]:
+			for sy in [-1.0, 1.0]:
+				var corner := mid + Vector2(sx * 24.0, sy * 28.0)
+				draw_line(corner, corner - Vector2(sx * 7.0, 0), c, 1.5)
+				draw_line(corner, corner - Vector2(0, sy * 7.0), c, 1.5)
 
 
 func _physics_process(delta: float) -> void:
@@ -211,7 +237,12 @@ func _physics_process(delta: float) -> void:
 		_jump_buffer = maxf(_jump_buffer - delta, 0.0)
 	if current_form:
 		current_form.update(delta)
-	if not is_on_floor():
+	if skills and skills.flying() and state != State.KO:
+		# Buff bay: giữ Nhảy / ↑ bay lên, ↓ hạ xuống, thả thì lơ lửng.
+		var up := Input.is_action_pressed("jump") or Input.is_action_pressed("move_up")
+		var vy := -1.0 if up and not input_locked else (1.0 if Input.is_action_pressed("move_down") else 0.0)
+		velocity.y = move_toward(velocity.y, vy * FLY_SPEED * Units.SCALE, 900.0 * Units.SCALE * delta)
+	elif not is_on_floor():
 		velocity.y += _gravity * delta
 	_update_fx(delta)
 	match state:
@@ -241,7 +272,9 @@ func current_armor() -> float:
 
 
 func current_speed() -> float:
-	return (current_form.move_speed * current_form.bonus("speed") if current_form else human_speed) * speed_mult * Units.SCALE
+	var buff := skills.speed_mult() if skills else 1.0
+	return (current_form.move_speed * current_form.bonus("speed") if current_form else human_speed * GameState.human_bonus("speed")) \
+		* speed_mult * buff * Units.SCALE
 
 
 # --- Tài nguyên -----------------------------------------------------------
@@ -251,11 +284,29 @@ func can_henshin() -> bool:
 
 
 func can_final() -> bool:
-	return current_form != null and rage >= FINAL_MIN_RAGE
+	return current_form != null and rage >= Skills.FINAL_COST
 
 
 func add_rage(amount: float) -> void:
 	_set_rage(rage + amount)
+
+
+## Nộ tích từ giao chiến (đánh trúng, bị đánh, hạ quái, chém đạn). Form đang tụt nộ: giảm còn DRAIN_GAIN_MULT và
+## giới hạn theo _drain_gain_budget (tích DRAIN_GAIN_SHARE × lượng trừ mỗi giây), nên tích luôn ít hơn trừ.
+func gain_rage(amount: float) -> void:
+	if amount <= 0.0:
+		return
+	if rage_draining() and in_special_form():
+		amount = minf(amount * DRAIN_GAIN_MULT, _drain_gain_budget)
+		_drain_gain_budget -= amount
+		if amount <= 0.0:
+			return
+	add_rage(amount)
+
+
+## Hạ một quái (màn chơi gọi).
+func on_enemy_killed() -> void:
+	gain_rage(RAGE_ON_KILL)
 
 
 func _set_rage(value: float) -> void:
@@ -266,12 +317,21 @@ func _set_rage(value: float) -> void:
 
 
 func _gain_from_damage(damage_taken: float) -> void:
-	if not in_special_form():
-		add_rage(damage_taken * RAGE_ON_DAMAGE)
+	gain_rage(damage_taken * RAGE_ON_DAMAGE)
 
 
 func in_special_form() -> bool:
 	return current_form != null and current_form.is_special_form()
+
+
+## Form hiện tại tụt nộ theo thời gian (tăng tốc thời gian...): nộ là đồng hồ đếm ngược (tích thêm rất ít, gain_rage).
+func rage_draining() -> bool:
+	return current_form != null and current_form.rage_drain() > 0.0
+
+
+## Trả nộ cho skill / Final (SkillCaster).
+func pay_rage(amount: float) -> void:
+	_set_rage(rage - amount)
 
 
 func has_gun() -> bool:
@@ -280,6 +340,8 @@ func has_gun() -> bool:
 
 ## RiderForm gọi khi đổi sang form đặc biệt. Đủ nộ thì trừ phí và trả về true.
 func pay_form_switch() -> bool:
+	if rage_draining():
+		return true       # đang ở form đặc biệt: đổi tiếp không tốn thêm (nộ vẫn đang tụt)
 	if rage < FORM_ENTER_MIN_RAGE:
 		notice.emit("Cần %d nộ để đổi form" % int(FORM_ENTER_MIN_RAGE))
 		return false
@@ -334,7 +396,7 @@ func _state_normal(delta: float) -> void:
 			_drop_through()            # ↓ + nhảy trên bệ = xuống khỏi bệ (như Contra)
 			return
 		_air_time = COYOTE_TIME + 1.0   # đã nhảy: hết quyền nhảy trên không tới khi chạm đất lại
-		velocity.y = jump_velocity * Units.SCALE * (current_form.jump_mult * current_form.bonus("jump") if current_form else 1.0)
+		velocity.y = jump_velocity * Units.SCALE * (current_form.jump_mult * current_form.bonus("jump") if current_form else GameState.human_bonus("jump"))
 		Sound.sfx("jump", 0.03, -4.0)
 	if Input.is_action_just_pressed("move_down") and is_on_floor():
 		# Bấm đúp ↓ trên bệ = xuống khỏi bệ (nút cảm ứng không bấm được ↓ cùng lúc với nhảy).
@@ -361,6 +423,10 @@ func _state_normal(delta: float) -> void:
 		try_swap()
 	elif Input.is_action_just_pressed("final_attack"):
 		try_final_attack()
+	elif Input.is_action_just_pressed("skill_1"):
+		try_skill(0)
+	elif Input.is_action_just_pressed("skill_2"):
+		try_skill(1)
 	elif Input.is_action_just_pressed("ultimate"):
 		# Nút tuyệt chiêu trên màn hình: dạng người thì biến thân, dạng Rider thì Final Attack.
 		if current_form:
@@ -385,7 +451,18 @@ func _state_attack(delta: float) -> void:
 	if _parry_timer > 0.0:
 		_check_parry()
 		_parry_timer -= delta * speed_mult
+	if skills and skills.drum_active() and not input_locked and Input.is_action_just_pressed("attack_light"):
+		skills.drum_hit()
 	var cancellable: bool = not _attack.get("no_cancel", false)
+	if _attack_phase == 2 and not input_locked and current_form and _skill_pressed() >= 0:
+		# Hồi chiêu của đòn thường / skill: bấm skill thì tung ngay (huỷ hồi chiêu).
+		var i := _skill_pressed()
+		hitbox.deactivate()
+		invincible = false
+		state = State.NORMAL
+		if try_skill(i):
+			return
+		state = State.ATTACK
 	if cancellable:
 		if input_locked:
 			pass
@@ -411,7 +488,13 @@ func _state_attack(delta: float) -> void:
 			if _attack.has("lunge"):
 				var lunge: Vector2 = _attack["lunge"]
 				velocity = Vector2(lunge.x * facing, lunge.y) * Units.SCALE
-			_fire_hitbox()
+			if _attack.has("on_active"):
+				# Skill: ra đòn bằng hàm riêng (đòn chắc trúng, bắn đạn, bật buff) thay cho hitbox.
+				_hits_left = 1
+				_state_timer = _attack["active"]
+				(_attack["on_active"] as Callable).call()
+			else:
+				_fire_hitbox()
 		1:
 			_hits_left -= 1
 			if _hits_left > 0:
@@ -420,6 +503,9 @@ func _state_attack(delta: float) -> void:
 				hitbox.deactivate()
 				_attack_phase = 2
 				_state_timer = _attack["recovery"]
+				_parry_force = false
+				if _attack.has("on_end"):
+					(_attack["on_end"] as Callable).call()
 		2:
 			invincible = false
 			state = State.NORMAL
@@ -452,6 +538,11 @@ func _state_crouch(delta: float) -> void:
 	elif Input.is_action_just_pressed("dodge"):
 		_set_crouch(false)
 		start_dodge()
+	elif Input.is_action_just_pressed("skill_1") or Input.is_action_just_pressed("skill_2"):
+		try_skill(0 if Input.is_action_just_pressed("skill_1") else 1)
+	elif Input.is_action_just_pressed("final_attack"):
+		_set_crouch(false)
+		try_final_attack()
 
 
 func _set_crouch(on: bool) -> void:
@@ -518,6 +609,8 @@ func _state_swap(delta: float) -> void:
 
 ## kind &"light" = nút Đánh: đấm theo chuỗi, đủ punch_count đòn thì ra cú đá (&"kick") rồi chuỗi về đầu.
 func start_attack(kind: StringName) -> void:
+	if kind == &"light" or kind == &"slash":
+		_face_close_enemy()
 	var chain := 0
 	if kind == &"light":
 		var punches := current_form.punch_count() if current_form else HUMAN_PUNCHES
@@ -565,7 +658,8 @@ func try_shoot() -> void:
 		p.source = self
 		if shot.has("tags"):
 			p.tags = p.tags + Array(shot["tags"])   # đạn mang hiệu ứng của form (&"burn"...)
-		p.tags = p.tags + current_form.special_tags()
+		p.tags = p.tags + current_form.special_tags() + skills.extra_tags()
+		p.homing = skills.homing()
 		p.style = str(current_fx()["shot"])
 		p.hit_fx = str(current_fx()["hit"])
 		var offset: float = (i - (count - 1) / 2.0) * float(shot["spread"])
@@ -624,6 +718,10 @@ static func _weapon_texture(look: String) -> Texture2D:
 
 ## Hướng bắn. Nút ▲ cảm ứng bấm cùng lúc "jump" và "move_up": đang giữ nhảy thì "move_up" là của nút nhảy, không
 ## tính là ngắm lên (nếu không, nhảy mà bắn thì đạn bay thẳng lên trời). Ngắm lên bằng W / ↑ trên bàn phím.
+func aim_dir() -> Vector2:
+	return _aim_dir()
+
+
 func _aim_dir() -> Vector2:
 	var x := Input.get_axis("move_left", "move_right")
 	var y := 0.0
@@ -672,7 +770,12 @@ func take_fall_damage(ratio: float) -> bool:
 
 ## Bất tử vì đang né / biến thân / tung chiêu, hoặc vừa hồi sinh.
 func is_invulnerable() -> bool:
-	return invincible or _grace_timer > 0.0
+	return invincible or _grace_timer > 0.0 or (skills != null and skills.invulnerable())
+
+
+## Tàng hình (Attack Ride: Invisible): quái mất dấu.
+func is_hidden() -> bool:
+	return skills != null and skills.hidden()
 
 
 ## Đưa về điểm an toàn sau khi rơi vực, bất tử một lúc (đếm riêng, không đụng cờ invincible của các trạng thái).
@@ -726,6 +829,8 @@ func _henshin_sound(form: RiderForm) -> void:
 func on_form_changed(form: RiderForm) -> void:
 	if net_puppet:
 		return
+	if form == current_form:
+		skills.clear()
 	Sound.sfx("form_change", 0.0)
 	Sound.voice("%s_%s" % [form.rider_id, form.current_form_id()])
 	if form == current_form:
@@ -766,13 +871,15 @@ func reset_for_stage() -> void:
 	if current_form:
 		_to_human()
 	_set_crouch(false)
-	max_hp = int(round(BASE_HUMAN_HP * GameState.human_power()))
+	max_hp = int(round(BASE_HUMAN_HP * GameState.human_power() * GameState.human_bonus("hp")))
 	hp = max_hp
 	hp_changed.emit(hp, max_hp)
 	_set_rage(GAUGE_MAX)
 	swap_cooldown = 0.0
 	dodge_cooldown = 0.0
 	shoot_cooldown = 0.0
+	if skills:
+		skills.clear(true)
 	_combo = 0
 	combo_changed.emit(0)
 	active_slot = 0
@@ -801,17 +908,36 @@ func try_swap() -> void:
 	_play("swap")
 
 
+## Final Attack (O / nút Tuyệt chiêu): kiểu đòn theo form (SkillCaster.try_final).
 func try_final_attack() -> void:
-	if not can_final():
-		return
-	_set_rage(0.0)   # ở form đặc biệt: đánh xong thì về form gốc (_tick_rage)
+	if skills and can_final():
+		skills.try_final()
+
+
+## Skill 1 / Skill 2 của form (U / Y). Trả true nếu đã tung.
+func try_skill(i: int) -> bool:
+	if skills == null or current_form == null or state not in [State.NORMAL, State.CROUCH]:
+		return false
+	_set_crouch(false)
+	return skills.try_skill(i)
+
+
+func _skill_pressed() -> int:
+	if Input.is_action_just_pressed("skill_1"):
+		return 0
+	if Input.is_action_just_pressed("skill_2"):
+		return 1
+	return -1
+
+
+## Tiếng nạp, giọng đai, dấu hiệu tuyệt chiêu quanh Rider và phông tuyệt chiêu lúc tung Final.
+func final_fanfare() -> void:
 	Sound.sfx("final_charge", 0.0)
 	Sound.voice("%s_final" % current_form.rider_id)
 	var fx := current_fx()
 	if str(fx["intro"]) != "":       # dấu hiệu tuyệt chiêu riêng quanh Rider (rồng lửa Ryuki, vòng Medal OOO...)
 		Fx.spawn(get_parent(), global_position + Vector2(0, -30) * Units.SCALE, str(fx["intro"]), fx["color"], facing, 1.2)
 	CombatDirector.final_attack_started.emit(current_form.rider_id, current_form.final_attack_name())
-	start_attack(&"final")
 
 
 ## Được Hurtbox gọi. Trả về true nếu đòn trúng.
@@ -832,10 +958,12 @@ func take_hit(info: DamageInfo) -> bool:
 	var dodging_bullet := state == State.DODGE and _grace_timer <= 0.0 and info.has_tag(&"ranged")
 	if is_invulnerable() and not dodging_bullet:
 		return false
+	if skills and skills.intercept_hit(info):
+		return false      # phản đòn [P], tự né (Prediction), thân lỏng (Liquid)
 	var blocking := state == State.CROUCH
 	var mult := CROUCH_DAMAGE_MULT if blocking else 1.0
 	if current_form:
-		var dmg := current_form.modify_incoming_damage(info) * mult
+		var dmg := current_form.modify_incoming_damage(info) * mult * skills.guard_mult()
 		if not blocking:
 			_grace_timer = maxf(_grace_timer, HIT_INVULN_RIDER)
 		rider_hp -= dmg
@@ -845,8 +973,10 @@ func take_hit(info: DamageInfo) -> bool:
 		if rider_hp <= 0.0:
 			_henshin_break()
 			return true
-		if info.damage < current_form.poise * current_form.bonus("poise"):
+		if info.damage < current_form.poise * current_form.bonus("poise") and not info.has_tag(&"bind"):
 			return true   # siêu giáp: đòn nhẹ không làm Rider khựng
+		if skills.superarmor() and not info.has_tag(&"bind"):
+			return true   # buff thân thép (Metal Trilobite): không bị khựng
 	else:
 		var dmg := info.damage * 100.0 / (100.0 + HUMAN_ARMOR) * mult
 		if not blocking:
@@ -861,11 +991,16 @@ func take_hit(info: DamageInfo) -> bool:
 	if blocking:
 		return true   # đang thủ thế: không bị khựng, không bị đẩy
 	hitbox.deactivate()
+	skills.interrupt()      # đang tụ skill / thế đỡ / đánh trống: hỏng
 	_light_chain = 0
 	_slash_chain = 0
 	state = State.HURT
 	_state_timer = HURT_TIME
 	velocity = Vector2(info.knockback.x * _knock_dir(info), info.knockback.y) * Units.SCALE
+	if info.has_tag(&"bind") and info.bind_time > 0.0:
+		# Bị đối thủ trói (chế độ đấu): đứng im.
+		_state_timer = minf(info.bind_time, VERSUS_BIND_TIME)
+		velocity = Vector2.ZERO
 	_play("hurt")
 	return true
 
@@ -882,6 +1017,9 @@ func cooldown_of(action: String) -> Vector2:
 		"special":
 			if current_form:
 				return Vector2(current_form.special_timer, current_form.special_cooldown)
+		"skill_1", "skill_2":
+			if skills:
+				return skills.cooldown_of(0 if action == "skill_1" else 1)
 	return Vector2.ZERO
 
 
@@ -889,12 +1027,16 @@ func cooldown_of(action: String) -> Vector2:
 func is_action_available(action: String) -> bool:
 	match action:
 		"special":
-			return current_form != null and current_form.special_available() \
-				and (in_special_form() or rage >= FORM_ENTER_MIN_RAGE)
+			return current_form != null and current_form.special_available() and not in_special_form() \
+				and rage >= FORM_ENTER_MIN_RAGE
 		"swap_rider":
 			return current_form != null and equipped.size() >= 2
 		"ultimate":
 			return can_final() or can_henshin()
+		"final_attack":
+			return can_final()
+		"skill_1", "skill_2":
+			return skills != null and skills.can_use(0 if action == "skill_1" else 1)
 	return true
 
 
@@ -906,11 +1048,15 @@ func is_action_visible(action: String) -> bool:
 		"attack_slash":
 			return current_form != null and current_form.has_blade()
 		"special":
-			return current_form != null and current_form.special_available()
+			return current_form != null and current_form.special_available() and not in_special_form()
 		"swap_rider":
 			return current_form != null and equipped.size() >= 2
 		"ultimate":
-			return current_form != null or not equipped.is_empty()
+			return current_form == null and not equipped.is_empty()
+		"final_attack":
+			return current_form != null
+		"skill_1", "skill_2":
+			return skills != null and not skills.skill(0 if action == "skill_1" else 1).is_empty()
 		"help":
 			return HelpOverlay.enabled()
 	return true
@@ -924,6 +1070,129 @@ func action_label(action: String) -> String:
 		"ultimate":
 			return "Tuyệt chiêu" if current_form else "Biến thân"
 	return ""
+
+
+## Hình trên nút skill / Final (SkillIcons). null = dùng biểu tượng mặc định của nút.
+func action_icon(action: String) -> Texture2D:
+	match action:
+		"skill_1", "skill_2":
+			if skills:
+				var sk := skills.skill(0 if action == "skill_1" else 1)
+				if not sk.is_empty():
+					return SkillIcons.texture(SkillIcons.pick(sk))
+		"final_attack":
+			return SkillIcons.texture("kick")
+	return null
+
+
+## Số nộ action cần (vẽ trên nút). 0 = không tốn nộ.
+func action_cost(action: String) -> int:
+	match action:
+		"skill_1", "skill_2":
+			if skills:
+				return int(skills.skill(0 if action == "skill_1" else 1).get("cost", 0))
+		"final_attack":
+			return int(Skills.FINAL_COST)
+	return 0
+
+
+# --- Cho SkillCaster gọi --------------------------------------------------
+
+## Ra đòn skill / Final theo dữ liệu make_attack (kèm "on_active", "on_end", "parry", "bind_time" tùy chọn).
+func begin_skill(kind: StringName, data: Dictionary) -> void:
+	_set_crouch(false)
+	_light_chain = 0
+	_slash_chain = 0
+	_begin_attack(kind, data)
+
+
+## Tag cộng thêm vào đòn skill đánh thẳng (không qua hitbox): tag đặc tính form và buff.
+func attack_tags(base: Array) -> Array:
+	var tags := base.duplicate()
+	var extra: Array = current_form.special_tags() if current_form else []
+	if skills:
+		extra = extra + skills.extra_tags()
+	for t in extra:
+		if not tags.has(t):
+			tags.append(t)
+	return tags
+
+
+## Đạn của skill: sát thương gốc `damage` (nhân sức đánh như đòn thường), bay theo `vel`.
+func spawn_projectile(damage: float, vel: Vector2, radius: float, color: Color, pierce: bool, life: float,
+		style: String, tags: Array) -> Projectile:
+	var p := Projectile.new()
+	p.team = team
+	p.damage = damage * _damage_mult()
+	p.radius = radius
+	p.color = color
+	p.pierce = pierce
+	p.life = life
+	p.source = self
+	p.style = style
+	p.hit_fx = str(current_fx()["hit"])
+	p.tags = attack_tags([&"ranged"] + tags)
+	p.velocity = vel
+	p.hit_landed.connect(_on_hit_landed)
+	get_parent().add_child(p)
+	p.global_position = global_position + _muzzle(vel.normalized())
+	shot_fired.emit(p)
+	return p
+
+
+func on_skill_hit(target: Node, info: DamageInfo) -> void:
+	_on_hit_landed(target, info)
+
+
+## Phản đòn [P] vừa bắt được đòn: tung đòn đáp trả, bất tử ngắn.
+func counter_pose(final: bool) -> void:
+	hitbox.deactivate()
+	_grace_timer = maxf(_grace_timer, 0.4)
+	_attack_phase = 2
+	_state_timer = 0.35
+	_parry_force = false
+	_play("final" if final else "heavy", "", true)
+	Sound.sfx("parry_perfect", 0.0)
+	if team == &"player":
+		CombatDirector.hit_stop(0.08, 0.1)
+
+
+## Buff Prediction: tự né đòn vừa tới.
+func auto_dodge() -> void:
+	dodge_cooldown = 0.0
+	if state == State.ATTACK:
+		hitbox.deactivate()
+		state = State.NORMAL
+	start_dodge()
+	_grace_timer = maxf(_grace_timer, dodge_time)
+
+
+## Hồi `ratio` phần máu Rider tối đa (Kiva Bat...).
+func heal_rider(ratio: float) -> void:
+	if current_form == null:
+		return
+	rider_hp = minf(rider_hp + current_form.get_max_hp() * ratio, current_form.get_max_hp())
+	rider_hp_changed.emit(rider_hp, current_form.get_max_hp())
+
+
+func face(dir: int) -> void:
+	facing = 1 if dir >= 0 else -1
+	sprite.flip_h = facing < 0
+
+
+func play_anim(action: String) -> void:
+	_play(action, "", true)
+
+
+## Buff bật / tắt: bóng mờ tàng hình, chữ trạng thái.
+func on_buffs_changed() -> void:
+	sprite.modulate.a = HIDDEN_ALPHA if is_hidden() else 1.0
+
+
+## Bị đối thủ khoá (chế độ đấu, versus.gd gọi theo tin nhắn mạng): hiện khung ngắm `time` giây.
+func mark_lock(time: float) -> void:
+	_lock_mark = maxf(_lock_mark, time)
+	queue_redraw()
 
 
 # --- Cho RiderForm gọi ----------------------------------------------------
@@ -1027,9 +1296,12 @@ func _begin_attack(kind: StringName, data: Dictionary) -> void:
 	_attack_phase = 0
 	_state_timer = data["startup"]
 	_parry_timer = PARRY_WINDOW if current_form and not net_puppet and current_form.can_parry(kind) else 0.0
+	_parry_force = bool(data.get("parry", false)) and not net_puppet
+	if _parry_force:
+		_parry_timer = float(data["active"]) + 0.05
 	_buffered = &""
 	state = State.ATTACK
-	invincible = kind in [&"final", &"swap_in", &"henshin"]
+	invincible = kind in [&"final", &"swap_in", &"henshin"] and not data.has("parry")
 	_play(str(data.get("anim", kind)), "", true)
 	var fx := current_fx()
 	var swing := str(fx["swing"])
@@ -1044,6 +1316,8 @@ func _check_parry() -> void:
 	var size: Vector2 = _attack.get("size", Vector2(18, 12))
 	var off: Vector2 = _attack.get("offset", Vector2(14, -14))
 	var reach := (absf(off.x) + size.x / 2.0) * Units.SCALE + PARRY_PAD
+	if _parry_force:
+		reach = maxf(reach, 40.0 * Units.SCALE)
 	var elapsed := PARRY_WINDOW - _parry_timer
 	for node in get_tree().get_nodes_in_group(Projectile.GROUP):
 		var p := node as Projectile
@@ -1059,6 +1333,7 @@ func _check_parry() -> void:
 
 
 func _parry(p: Projectile, perfect: bool) -> void:
+	perfect = perfect or _parry_force
 	var at := p.global_position
 	var target: Node2D = p.source as Node2D if is_instance_valid(p.source) else null
 	if p.visual_only:
@@ -1079,8 +1354,7 @@ func _parry(p: Projectile, perfect: bool) -> void:
 	if perfect:
 		Fx.spawn(get_parent(), at, "ring", Projectile.REFLECT_COLOR, facing, 0.8)
 	Sound.sfx("parry_perfect" if perfect else "parry", 0.05)
-	if not in_special_form():
-		add_rage(PERFECT_PARRY_RAGE if perfect else PARRY_RAGE)
+	gain_rage(PERFECT_PARRY_RAGE if perfect else PARRY_RAGE)
 	if perfect:
 		notice.emit("PHẢN ĐẠN!")
 		if team == &"player":
@@ -1111,6 +1385,38 @@ func _shoot_reflected(from: Projectile, target: Node2D) -> void:
 	shot_fired.emit(p)
 
 
+## Đòn cận chiến: kéo mép sau của vùng đòn ra sau tâm người tới MELEE_BACK (đơn vị thiết kế), để quái đi xuyên vào
+## giữa người (quái không va chạm với người chơi) vẫn bị đánh trúng. Đòn bắn xa giữ nguyên. Trả về [size, offset].
+func _melee_box(size: Vector2, offset: Vector2, ranged: bool) -> Array:
+	var back := offset.x - size.x / 2.0
+	if ranged or back <= -MELEE_BACK:
+		return [size, offset]
+	var front := offset.x + size.x / 2.0
+	return [Vector2(front + MELEE_BACK, size.y), Vector2((front - MELEE_BACK) / 2.0, offset.y)]
+
+
+## Bấm đánh mà không giữ hướng: trước mặt không có quái mà sát sau lưng có thì quay lại (quái đi xuyên qua người).
+func _face_close_enemy() -> void:
+	if net_puppet or input_locked or Input.get_axis("move_left", "move_right") != 0.0:
+		return
+	var behind := false
+	for e in get_tree().get_nodes_in_group("enemies"):
+		var en := e as Node2D
+		if en == null or (en is Enemy and (en as Enemy).state == Enemy.State.DEAD):
+			continue
+		var d := en.global_position - global_position
+		if absf(d.y) > 40.0:
+			continue
+		var ahead := d.x * facing
+		if ahead >= -4.0 and ahead <= TURN_CHECK_FRONT:
+			return            # trước mặt có quái: giữ hướng
+		if ahead < -4.0 and ahead >= -TURN_CHECK_BACK:
+			behind = true
+	if behind:
+		facing = -facing
+		sprite.flip_h = facing < 0
+
+
 func _fire_hitbox() -> void:
 	_state_timer = _attack["active"]
 	var base_tags: Array = _attack["tags"]
@@ -1118,20 +1424,33 @@ func _fire_hitbox() -> void:
 	if _attack_kind == &"final":
 		tags.append(&"final")
 	if current_form:
-		for t in current_form.special_tags():   # &"crush" form nặng, &"time" form tăng tốc (quái đặc biệt)
+		for t in current_form.special_tags() + skills.extra_tags():   # &"crush" form nặng, &"time" tăng tốc...
 			if not tags.has(t):
 				tags.append(t)
 	var dmg: float = _attack["damage"] * _damage_mult()
 	var info := DamageInfo.new(dmg, _attack["knockback"], facing, tags, self)
-	hitbox.activate(info, _attack["size"], _attack["offset"])
+	info.bind_time = float(_attack.get("bind_time", 0.0))
+	var box := _melee_box(_attack["size"], _attack["offset"], tags.has(&"ranged"))
+	hitbox.activate(info, box[0], box[1])
+	if skills and current_form:
+		skills.on_hitbox_fired(info, _attack["size"], _attack["offset"])
+
+
+## Skill bật hitbox của đòn đang ra (khi on_active cần thêm việc khác, như vùng làm chậm).
+func fire_attack_hitbox() -> void:
+	_fire_hitbox()
+
+
+func damage_mult() -> float:
+	return _damage_mult()
 
 
 func _damage_mult() -> float:
 	var m := 1.0 + minf(_combo * COMBO_BONUS_PER_HIT, COMBO_BONUS_MAX)
 	if current_form:
-		m *= current_form.attack_mult * current_form.level_mult()
+		m *= current_form.attack_mult * current_form.level_mult() * (skills.damage_mult() if skills else 1.0)
 	else:
-		m *= HUMAN_ATTACK_MULT * GameState.human_power()
+		m *= HUMAN_ATTACK_MULT * GameState.human_power() * GameState.human_bonus("atk")
 	return m
 
 
@@ -1161,10 +1480,14 @@ func _leave_form() -> void:
 
 ## Ở form đặc biệt thì nộ tụt dần; về 0 thì trở về form gốc (đợi Final Attack đánh xong, đòn thường thì ngắt).
 func _tick_rage(delta: float) -> void:
-	if not in_special_form() or state in [State.HENSHIN, State.SWAP, State.KO]:
+	if not rage_draining() or not in_special_form() or state in [State.HENSHIN, State.SWAP, State.KO]:
 		return
 	if rage > 0.0:
-		_set_rage(rage - current_form.rage_drain() * delta)
+		var drain := current_form.rage_drain() * delta
+		_set_rage(rage - drain)
+		# Quỹ nộ được tích thêm: tối đa DRAIN_GAIN_SHARE lượng vừa trừ, không để dồn quá 1 giây
+		_drain_gain_budget = minf(_drain_gain_budget + drain * DRAIN_GAIN_SHARE,
+			current_form.rage_drain() * DRAIN_GAIN_SHARE)
 	if rage > 0.0 or (state == State.ATTACK and _attack_kind == &"final"):
 		return
 	if state == State.ATTACK:
@@ -1180,6 +1503,8 @@ func _tick_rage(delta: float) -> void:
 
 ## Rời Rider về dạng người (dùng chung cho Henshin Break và giải trừ biến thân khi qua màn).
 func _to_human() -> void:
+	if skills:
+		skills.clear()
 	if current_form:
 		_leave_form()
 	current_form = null
@@ -1234,6 +1559,11 @@ func _tick_timers(delta: float) -> void:
 		if _parry_token_timer <= 0.0:
 			_parry_tokens = 0
 	_tick_rage(delta)
+	if skills:
+		skills.tick(delta)
+	if _lock_mark > 0.0:
+		_lock_mark = maxf(_lock_mark - delta, 0.0)
+		queue_redraw()
 	if _combo > 0:
 		_combo_timer -= delta
 		if _combo_timer <= 0.0:
@@ -1254,6 +1584,10 @@ func _on_hit_landed(target: Node, info: DamageInfo) -> void:
 			if str(fx["signature"]) != "":   # dấu ấn trên quái (phong ấn Kuuga, Φ của Faiz...)
 				Fx.spawn(get_parent(), at, str(fx["signature"]), fx["color"], facing, 1.3)
 			Fx.spawn(get_parent(), at, str(fx["hit"]), fx["color"], facing, 1.4)
+		elif info.has_tag(&"skill") and state == State.ATTACK and _attack.has("hit_fx"):
+			# Skill có hiệu ứng riêng ("fx" của skill, SkillCaster): hiện thay cho hiệu ứng trúng của form.
+			Fx.spawn(get_parent(), at, str(_attack["hit_fx"]), _attack.get("fx_color", fx["color"]), facing, 1.2)
+			Fx.spawn(get_parent(), at, "spark", _attack.get("fx_color", fx["color"]), facing, 0.7)
 		else:
 			Fx.spawn(get_parent(), at, str(fx["hit"]), fx["color"], facing, 1.2 if info.has_tag(&"heavy") else 1.0)
 			if info.has_tag(&"heavy") and str(fx["hit"]) != "ring":
@@ -1262,11 +1596,11 @@ func _on_hit_landed(target: Node, info: DamageInfo) -> void:
 	_combo_timer = COMBO_WINDOW
 	combo_changed.emit(_combo)
 	var ranged := info.has_tag(&"ranged")
-	if not info.has_tag(&"final") and not in_special_form():
+	if not info.has_tag(&"final") and not info.has_tag(&"skill"):
 		if current_form == null:
-			add_rage(RAGE_ON_HIT_HUMAN)
+			gain_rage(RAGE_ON_HIT_HUMAN)
 		else:
-			add_rage(info.damage * RAGE_ON_DEAL * (0.5 if ranged else 1.0))
+			gain_rage(info.damage * RAGE_ON_DEAL * (0.5 if ranged else 1.0))
 	var heavy := info.has_tag(&"heavy") or info.has_tag(&"final")
 	if not ranged or heavy:
 		CombatDirector.hit_stop(0.08 if heavy else 0.035)

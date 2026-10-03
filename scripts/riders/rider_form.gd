@@ -4,8 +4,9 @@ class_name RiderForm
 ## Player chỉ gọi các hàm khai báo ở đây, nên thêm Rider mới không phải sửa Player.
 ##
 ## Form: mỗi Rider có một FORM GỐC (Kuuga Mighty, Faiz, W CycloneJoker) và các FORM ĐẶC BIỆT
-## mở khi nhặt được ở màn (GameState.unlock_form). Ở form đặc biệt, thanh nộ tụt dần theo
-## rage_drain(); nộ về 0 thì Player đưa Rider về form gốc. Special (L) đổi form, xem try_special().
+## mở khi nhặt được ở màn (GameState.unlock_form). Vào form đặc biệt từ form gốc tốn nộ một lần; ở mọi form đặc biệt
+## nộ tụt dần theo rage_drain() (form tăng tốc thời gian tụt nhanh hơn), về 0 thì Player đưa Rider về form gốc.
+## Special (L) đổi form, xem try_special(). Mỗi form có 2 skill và một kiểu Final Attack (get_skills, final_type).
 ##
 ## Súng: get_shot() trả {} = form không có súng (không bắn được). Chỉ form cầm súng mới ghi đè. Hình súng (gun_look)
 ## chỉ hiện ở tay lúc bắn.
@@ -21,7 +22,8 @@ class_name RiderForm
 
 const MAX_LEVEL := 5
 const HP_PER_LEVEL := 0.08     ## mỗi cấp +8% máu Rider
-const RAGE_DRAIN := 4.0        ## nộ tụt mỗi giây ở form đặc biệt (đầy thanh dùng được 25 giây)
+const RAGE_DRAIN := 5.0        ## nộ tụt mỗi giây ở form đặc biệt (đầy thanh dùng được 20 giây nếu không tích thêm)
+const TIME_RAGE_DRAIN := 10.0  ## nộ tụt mỗi giây ở form tăng tốc thời gian (đầy thanh dùng được 10 giây)
 
 var rider_id: StringName = &""
 var display_name := ""
@@ -40,6 +42,7 @@ var power := 1.0
 
 var player: Player = null
 var special_timer := 0.0
+var last_special: StringName = &""   ## form đặc biệt vào lần trước: lần bấm Special sau vào form kế tiếp nó
 
 
 func on_enter(p: Player) -> void:
@@ -115,9 +118,14 @@ func is_special_form() -> bool:
 	return current_form_id() != base_form()
 
 
-## Nộ tụt mỗi giây khi đang ở form đặc biệt (Faiz Axel tụt nhanh hơn).
+## Nộ tụt mỗi giây ở form hiện tại: form gốc 0, form đặc biệt RAGE_DRAIN, form tăng tốc thời gian TIME_RAGE_DRAIN.
 func rage_drain() -> float:
-	return RAGE_DRAIN
+	return TIME_RAGE_DRAIN if is_time_form() else (RAGE_DRAIN if is_special_form() else 0.0)
+
+
+## Form hiện tại là form tăng tốc thời gian (Faiz Axel, Clock Up...).
+func is_time_form() -> bool:
+	return false
 
 
 ## Form dùng được trong màn: form gốc, form đã mở, item thì phải đang mang theo (GameState.form_usable).
@@ -131,6 +139,8 @@ func set_form(form_id: StringName) -> void:
 	var before := current_form_id()
 	_set_form(form_id)
 	_notify_max_hp(old_max)
+	if is_special_form():
+		last_special = current_form_id()
 	if player and player.current_form == self and current_form_id() != before:
 		player.on_form_changed(self)
 
@@ -140,10 +150,10 @@ func reset_to_base() -> void:
 		set_form(base_form())
 
 
-## Special (L) = đổi sang form kế tiếp trong vòng các form đã mở.
-## Vào form đặc biệt phải có đủ nộ (Player.pay_form_switch); quay về form gốc thì miễn phí.
+## Special (L): chỉ bấm được ở form gốc, vào form đặc biệt kế tiếp (_next_form), tốn nộ (Player.pay_form_switch).
+## Ở form đặc biệt nút bị ẩn: Rider giữ form đó tới khi nộ tụt về 0 thì Player đưa về form gốc.
 func try_special() -> void:
-	if special_timer > 0.0 or player == null:
+	if special_timer > 0.0 or player == null or is_special_form():
 		return
 	var target := _next_form()
 	if target == &"" or target == current_form_id():
@@ -220,16 +230,23 @@ func get_max_hp() -> float:
 	return max_hp * (1.0 + HP_PER_LEVEL * (level - 1)) * power * bonus("hp")
 
 
-## Hệ số tăng sức mạnh của form đang dùng (GameState.form_bonus, nhận khi chơi lại màn đã qua). stat: GameState.BOOST_STATS.
+## Hệ số tăng sức mạnh của form đang dùng (GameState.form_bonus: hạ quái, chơi lại màn). stat: GameState.BOOST_STATS.
 func bonus(stat: String) -> float:
 	return GameState.bonus_mult(rider_id, current_form_id(), stat)
 
 
-## Cộng một điểm tăng sức mạnh vào form đang dùng, giữ nguyên tỉ lệ máu.
-func add_bonus(stat: String) -> void:
+## Cộng `amount` vào chỉ số `stat` của form đang dùng, giữ nguyên tỉ lệ máu.
+func add_bonus(stat: String, amount := GameState.BOOST_STEP, save := true) -> void:
 	var old_max := get_max_hp()
-	GameState.add_bonus(rider_id, current_form_id(), stat)
+	GameState.add_bonus(rider_id, current_form_id(), stat, amount, save)
 	_notify_max_hp(old_max)
+
+
+## Cộng `amount` vào một chỉ số ngẫu nhiên của form đang dùng. Trả về khóa chỉ số.
+func add_random_bonus(amount: float, save := true) -> String:
+	var stat: String = GameState.BOOST_STATS.keys().pick_random()
+	add_bonus(stat, amount, save)
+	return stat
 
 
 ## Đổi form hoặc lên cấp làm máu tối đa thay đổi → báo Player giữ nguyên tỉ lệ máu hiện có.
@@ -270,12 +287,61 @@ func final_attack_name() -> String:
 	return "Rider Kick"
 
 
-## Vòng đổi form mặc định: đi lần lượt qua các form đã mở theo thứ tự `order`.
+# --- Skill (docs/SKILLS.md, Skills) ---------------------------------------------
+
+static var _borrow_cache := {}
+
+
+## Hai skill của form hiện tại đã điền mặc định (Skills.resolve): [Skill 1, Skill 2]. [] = form chưa có skill.
+func get_skills() -> Array:
+	var specs := skill_specs()
+	var out: Array = []
+	for i in mini(specs.size(), 2):
+		out.append(Skills.resolve(specs[i], i))
+	return out
+
+
+## Ghi đè: dữ liệu skill thô của form hiện tại (xem Skills).
+func skill_specs() -> Array:
+	return []
+
+
+## Kiểu Final Attack của form hiện tại (Skills: "aim" | "lock" | "lock_multi" | "bind" | "area" | "counter").
+func final_type() -> String:
+	return "aim"
+
+
+## Số quái Final kiểu "lock_multi" khoá được.
+func final_targets() -> int:
+	return 3
+
+
+## Skill và kiểu Final của form `form_id` thuộc Rider `rider` (Decade Kamen Ride / Zi-O Armor mượn sức Rider gốc).
+## {"skills": [...], "final_type", "final_targets"}, có cache vì dữ liệu là hằng.
+static func borrowed(rider: StringName, form_id: StringName) -> Dictionary:
+	var key := "%s/%s" % [rider, form_id]
+	if not _borrow_cache.has(key):
+		var out := {"skills": [], "final_type": "aim", "final_targets": 3}
+		var f := GameState.create_form(rider)
+		if f != null:
+			if form_id != &"" and form_id != f.base_form():
+				f._set_form(form_id)
+			out = {"skills": f.skill_specs(), "final_type": f.final_type(), "final_targets": f.final_targets()}
+			f.free()
+		_borrow_cache[key] = out
+	return _borrow_cache[key]
+
+
+## Form đặc biệt kế tiếp mặc định: các form đặc biệt đã mở theo thứ tự `order` (bỏ form gốc), lần lượt sau
+## form dùng lần trước (last_special); lần đầu là form đặc biệt đầu tiên.
 func _cycle(order: Array) -> StringName:
-	var owned: Array = order.filter(func(f): return has_form(f))
-	if owned.size() < 2:
+	return _after_last(order.filter(func(f): return f != base_form() and has_form(f)))
+
+
+func _after_last(specials: Array) -> StringName:
+	if specials.is_empty():
 		return &""
-	return owned[(owned.find(current_form_id()) + 1) % owned.size()]
+	return specials[(specials.find(last_special) + 1) % specials.size()]
 
 
 static func make_attack(damage: float, startup: float, active: float, recovery: float,

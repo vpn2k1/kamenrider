@@ -9,6 +9,8 @@ class_name StageSelect
 ##     ◀ ▶ đổi thế giới · Đánh / Enter vào. Chạm vòng để chọn, chạm lần nữa (hoặc nút VÀO) để vào.
 ##     Esc / Menu / nút "◀ MENU" góc trái trên: về màn hình chính (để vào COMBAT hoặc đổi tên).
 ##     Dưới dải: bảng thông tin thế giới đang chọn (tên, số màn đã qua).
+##     Thế giới phụ (WorldData.SIDE_WORLDS): nhánh rẽ nhỏ chéo dưới thế giới cha (Decade: lá thẻ, Zi-O: mặt đồng hồ),
+##     ▼ từ thế giới cha xuống nhánh, ▲ về lại. Mở khi đã giải cứu thế giới cha; màn mở theo thế giới đã giải cứu.
 ##   Bước 2 · màn: lưới dọc 2 ô một hàng, mỗi màn một ô vuông bo góc 1 · 2 · 3 · 4 · B (OOO tới 8 · B).
 ##     Lưới dài hơn màn hình thì kéo dọc để cuộn. Ô đã qua: viền vàng + dấu ✓. Ô đã mở chưa qua: sáng. Ô chưa mở: xám.
 ##     ◀ ▶ ▲ ▼ đổi màn · Đánh / Enter vào · Esc / nút "◀ THẾ GIỚI" về bước 1.
@@ -50,7 +52,9 @@ const BUTTON := Rect2(340, 228, 110, 30)
 const BACK := Rect2(220, 228, 110, 30)
 const MENU_BTN := Rect2(8, 8, 66, 20)   ## nút ◀ MENU ở bước 1
 
-const TYPE_NAMES := {0: "Thức tỉnh", 1: "Luyện tập", 2: "Trùm", 3: "Đặc biệt"}
+const TYPE_NAMES := {0: "Thức tỉnh", 1: "Luyện tập", 2: "Trùm", 3: "Đặc biệt", 4: "Đấu Rider"}
+const SIDE_OFFSET := Vector2(37, 30)   ## nhánh rẽ: chéo xuống bên phải thế giới cha, giữa hai hành tinh, dưới đường nối
+const SIDE_R := 10.0
 
 var mode := Mode.WORLD
 var _world := 0
@@ -77,7 +81,7 @@ func _init() -> void:
 
 ## Mở ở bước chọn thế giới, con trỏ ở `world`; `stage` là màn chọn sẵn khi vào thế giới đó.
 func open(world: int, stage: int) -> void:
-	_world = clampi(world, 0, _last_world())
+	_world = world if WorldData.is_side(world) and _world_unlocked(world) else clampi(world, 0, _last_world())
 	_stage = stage if GameState.is_stage_unlocked(_world, stage) else 0
 	mode = Mode.WORLD
 	Screen.fit(self)
@@ -87,6 +91,14 @@ func open(world: int, stage: int) -> void:
 	_notice = ""
 	_focus(true)
 	queue_redraw()
+
+
+## Mở thẳng ở bước chọn màn của thế giới `world`, con trỏ ở `stage` (quay lại từ màn chọn Rider / form / item).
+func open_at_stage(world: int, stage: int) -> void:
+	open(world, stage)
+	if _world_unlocked(_world):
+		mode = Mode.STAGE
+		_focus(true)
 
 
 ## Chọn thẳng một màn (bot test).
@@ -105,16 +117,28 @@ func _world_count() -> int:
 
 
 func _world_unlocked(w: int) -> bool:
-	return w <= _last_world()
+	return GameState.is_world_unlocked(w) if WorldData.is_side(w) else w <= _last_world()
+
+
+## Thế giới chính đứng trên dải ở chỗ của w (thế giới phụ: thế giới cha).
+func _strip_index(w: int) -> int:
+	return int(WorldData.world_at(w)["parent_world"]) if WorldData.is_side(w) else w
 
 
 ## Màn chọn sẵn khi vào một thế giới: màn xa nhất đã mở nếu là thế giới đang mở dở, không thì màn 1.
+## Thế giới phụ: màn đầu tiên đã mở mà chưa qua.
 func _default_stage(w: int) -> int:
+	if WorldData.is_side(w):
+		var stages: Array = WorldData.world_at(w)["stages"]
+		for s in stages.size():
+			if GameState.is_stage_unlocked(w, s) and not GameState.cleared_stages.has(str(stages[s]["id"])):
+				return s
+		return 0
 	return GameState.frontier_stage if w == GameState.frontier_world else 0
 
 
 func _stage_count() -> int:
-	return (WorldData.WORLDS[_world]["stages"] as Array).size()
+	return (WorldData.world_at(_world)["stages"] as Array).size()
 
 
 # --- Cuộn ---------------------------------------------------------------------
@@ -129,7 +153,7 @@ func _max_scroll() -> float:
 ## Trượt dải / lưới tới lựa chọn hiện tại (instant: nhảy ngay, dùng khi mở hoặc đổi bước).
 func _focus(instant := false) -> void:
 	if mode == Mode.WORLD:
-		_scroll_target = _world * SPACING
+		_scroll_target = _strip_index(_world) * SPACING
 	else:
 		# Chỉ cuộn khi hàng đang chọn khuất khỏi khung lưới
 		var row := _stage / COLS
@@ -168,10 +192,16 @@ func _process(delta: float) -> void:
 
 func _process_world() -> void:
 	var w := _world
+	var at := _strip_index(_world)
+	var sides := WorldData.sides_of(at)
 	if Input.is_action_just_pressed("move_left"):
-		w = maxi(_world - 1, 0)
+		w = maxi(at - 1, 0)
 	elif Input.is_action_just_pressed("move_right"):
-		w = mini(_world + 1, _last_world())
+		w = mini(at + 1, _last_world())
+	elif Input.is_action_just_pressed("move_down") and not WorldData.is_side(_world) and not sides.is_empty():
+		w = sides[0]
+	elif (Input.is_action_just_pressed("move_up") or Input.is_action_just_pressed("jump")) and WorldData.is_side(_world):
+		w = at
 	elif Input.is_action_just_pressed("attack_light") or Input.is_action_just_pressed("ui_accept"):
 		_enter_world()
 		return
@@ -209,7 +239,10 @@ func _process_stage() -> void:
 
 func _enter_world() -> void:
 	if not _world_unlocked(_world):
-		_show_notice("Thế giới này còn bị phong ấn · qua thế giới trước để mở")
+		if WorldData.is_side(_world):
+			_show_notice("Nhánh rẽ mở khi giải cứu Thế giới %s" % WorldData.WORLDS[_strip_index(_world)]["rider_name"])
+		else:
+			_show_notice("Thế giới này còn bị phong ấn · qua thế giới trước để mở")
 		return
 	mode = Mode.STAGE
 	_scroll = 0.0
@@ -288,6 +321,13 @@ func _tap(p: Vector2) -> void:
 		if BUTTON_CENTER.has_point(p):
 			_enter_world()
 			return
+		for w in _side_indices():
+			if _side_pos(w).distance_to(p) <= SIDE_R + 6.0:
+				if w == _world:
+					_enter_world()
+				else:
+					_set_world(w)
+				return
 		for w in _world_count():
 			if _orb_pos(w).distance_to(p) <= ORB_R_SEL + 4.0:
 				if w == _world:
@@ -307,7 +347,8 @@ func _tap(p: Vector2) -> void:
 	for s in _stage_count():
 		if _cell_rect(s).has_point(p):
 			if not GameState.is_stage_unlocked(_world, s):
-				_show_notice("Màn chưa mở · qua màn trước để mở")
+				_show_notice("Màn chưa mở · giải cứu thế giới của Rider này để mở" if WorldData.is_side(_world)
+					else "Màn chưa mở · qua màn trước để mở")
 			elif s == _stage:
 				_confirm()
 			else:
@@ -329,6 +370,19 @@ func _confirm() -> void:
 ## Tâm vòng tròn của thế giới w trên dải (cuộn ngang, thế giới đang chọn ở giữa màn hình).
 func _orb_pos(w: int) -> Vector2:
 	return Vector2(size.x / 2.0 + w * SPACING - _scroll, STRIP_Y + sin(w * 1.3) * 8.0)
+
+
+## Chỉ số mọi thế giới phụ (sau WORLDS).
+func _side_indices() -> Array[int]:
+	var out: Array[int] = []
+	for k in WorldData.SIDE_WORLDS.size():
+		out.append(WorldData.WORLDS.size() + k)
+	return out
+
+
+## Tâm biểu tượng nhánh rẽ (thế giới phụ w) dưới thế giới cha.
+func _side_pos(w: int) -> Vector2:
+	return _orb_pos(_strip_index(w)) + SIDE_OFFSET
 
 
 func _cell_rect(s: int) -> Rect2:
@@ -378,6 +432,11 @@ func _draw_worlds() -> void:
 			for j in range(1, links):
 				var p := a.lerp(b, float(j) / float(links))
 				_diamond(p, 2.5, Color(SEAL, 0.45 + 0.35 * sin(_t * 3.0 + float(j + w * 3))))
+	for w in _side_indices():
+		var p := _side_pos(w)
+		if p.x < full.position.x - SPACING or p.x > full.end.x + SPACING:
+			continue
+		_draw_side(w, p)
 	for w in _world_count():
 		var p := _orb_pos(w)
 		if p.x < full.position.x - ORB_R_SEL * 2.0 or p.x > full.end.x + ORB_R_SEL * 2.0:
@@ -398,6 +457,57 @@ func _draw_worlds() -> void:
 	_pill(MENU_BTN, "◀ MENU", Color(0.25, 0.25, 0.35, 0.95))
 	_pill(BUTTON_CENTER, "VÀO" if _world_unlocked(_world) else "BỊ KHOÁ",
 		Color(0.85, 0.22, 0.25, 0.95) if _world_unlocked(_world) else Color(0.25, 0.25, 0.32, 0.95))
+
+
+## Nhánh rẽ: nối xuống từ thế giới cha, biểu tượng lá thẻ (Decade) hoặc mặt đồng hồ (Zi-O). Khoá: nhuộm xám + khoá tím.
+func _draw_side(w: int, p: Vector2) -> void:
+	var world := WorldData.world_at(w)
+	var col := WorldData.rider_color(world["rider"])
+	var open := _world_unlocked(w)
+	var sel := w == _world
+	var parent := _orb_pos(_strip_index(w))
+	var top := parent + (p - parent).normalized() * (ORB_R + 2.0)
+	var end := p - (p - parent).normalized() * SIDE_R
+	if open:
+		draw_line(top, end, Color(GOLD, 0.7), 2.0)
+	else:
+		for j in range(1, 4):
+			_diamond(top.lerp(end, j / 4.0), 2.0, Color(SEAL, 0.6))
+	var body := col if open else PLANET_LOCKED
+	if sel:
+		draw_circle(p, SIDE_R + 5.0, Color(GOLD, 0.25 + 0.15 * sin(_t * 4.0)))
+	if str(world["rider"]) == "decade":
+		var card := Rect2(p - Vector2(7, SIDE_R), Vector2(14, SIDE_R * 2.0))
+		_round(card, body.darkened(0.35), 2, GOLD if sel else body.lightened(0.3), 1)
+		for i in 3:
+			draw_rect(Rect2(card.position.x + 3, card.position.y + 4 + i * 4, 8, 2), body.lightened(0.4))
+	else:
+		draw_circle(p, SIDE_R, body.darkened(0.35))
+		draw_arc(p, SIDE_R, 0.0, TAU, 32, GOLD if sel else body.lightened(0.3), 1.5)
+		var a := _t * 1.5
+		draw_line(p, p + Vector2(sin(a), -cos(a)) * (SIDE_R - 3.0), Color.WHITE, 1.0)
+		draw_line(p, p + Vector2(0, -SIDE_R * 0.5), body.lightened(0.5), 1.5)
+	if not open:
+		_diamond(p, 4.0, SEAL)
+	elif _side_has_new(w):
+		var pulse := 0.5 + 0.5 * sin(_t * 5.0)
+		draw_circle(p + Vector2(SIDE_R, -SIDE_R), 3.0, Color(1, 0.4, 0.3, 0.6 + 0.4 * pulse))
+
+
+## Thế giới phụ còn màn đã mở mà chưa qua (chấm đỏ báo mới).
+func _side_has_new(w: int) -> bool:
+	var stages: Array = WorldData.world_at(w)["stages"]
+	for s in stages.size():
+		if GameState.is_stage_unlocked(w, s) and not GameState.cleared_stages.has(str(stages[s]["id"])):
+			return true
+	return false
+
+
+## Dòng tiêu đề của thế giới: "THẾ GIỚI N · RIDER", thế giới phụ dùng "title" của nó.
+func _world_title(world: Dictionary) -> String:
+	if world.get("side", false):
+		return "%s · %s" % [world["title"], str(world["name"]).to_upper()]
+	return "THẾ GIỚI %d · %s" % [int(world["number"]), str(world["rider_name"]).to_upper()]
 
 
 func _draw_orb(w: int, p: Vector2) -> void:
@@ -432,13 +542,15 @@ func _draw_orb(w: int, p: Vector2) -> void:
 
 
 func _draw_world_info() -> void:
-	var world: Dictionary = WorldData.WORLDS[_world]
+	var world: Dictionary = WorldData.world_at(_world)
+	var side: bool = world.get("side", false)
 	var col := WorldData.rider_color(world["rider"])
 	var open := _world_unlocked(_world)
 	_round(INFO, Color(0.08, 0.07, 0.15, 0.95), 10, col.lightened(0.2) if open else LOCKED, 1)
-	_text(Vector2(INFO.position.x, INFO.position.y + 15), "THẾ GIỚI %d · %s" % [int(world["number"]),
-		str(world["rider_name"]).to_upper()], 10, col.lightened(0.4) if open else Color(0.6, 0.6, 0.7), INFO.size.x)
-	_text(Vector2(INFO.position.x, INFO.position.y + 28), str(world["name"]) if open else "??? · bị phong ấn", 7,
+	_text(Vector2(INFO.position.x, INFO.position.y + 15), _world_title(world), 10,
+		col.lightened(0.4) if open else Color(0.6, 0.6, 0.7), INFO.size.x)
+	var sub := str(world["motto"]) if side else str(world["name"])
+	_text(Vector2(INFO.position.x, INFO.position.y + 28), sub if open or side else "??? · bị phong ấn", 7,
 		Color(0.8, 0.8, 0.9), INFO.size.x)
 	var stages: Array = world["stages"]
 	var cleared := 0
@@ -454,6 +566,9 @@ func _draw_world_info() -> void:
 		var c := GOLD if done else (col.darkened(0.2) if GameState.is_stage_unlocked(_world, s) else LOCKED)
 		_round(Rect2(x0 + s * (dot + gap), INFO.position.y + 36, dot, dot), c, 3)
 	var status := "Đã giải cứu" if _world < GameState.frontier_world else ("Đang tới" if open else "Chưa mở")
+	if side:
+		status = "Nhánh rẽ · ▲ về thế giới chính" if open else "Mở khi giải cứu Thế giới %s" % \
+			WorldData.WORLDS[_strip_index(_world)]["rider_name"]
 	_text(Vector2(INFO.position.x, INFO.position.y + 59), "%s · %d / %d màn" % [status, cleared, stages.size()], 7,
 		GOLD if cleared == stages.size() else Color(0.8, 0.8, 0.88), INFO.size.x)
 
@@ -461,7 +576,7 @@ func _draw_world_info() -> void:
 # --- Bước 2: màn --------------------------------------------------------------
 
 func _draw_stages() -> void:
-	var world: Dictionary = WorldData.WORLDS[_world]
+	var world: Dictionary = WorldData.world_at(_world)
 	var col := WorldData.rider_color(world["rider"])
 	var stages: Array = world["stages"]
 	for s in stages.size():
@@ -485,9 +600,9 @@ func _draw_stages() -> void:
 		var h := track.size.y * frac
 		var y := track.position.y + (track.size.y - h) * (_scroll / _max_scroll())
 		_round(Rect2(track.position.x, y, 3, h), Color(GOLD, 0.6), 1)
-	_text(Vector2(0, 16), "THẾ GIỚI %d · %s" % [int(world["number"]), str(world["rider_name"]).to_upper()], 10,
-		col.lightened(0.35), size.x)
-	_text(Vector2(0, 29), str(world["name"]), 7, Color(0.8, 0.8, 0.9), size.x)
+	_text(Vector2(0, 16), _world_title(world), 10, col.lightened(0.35), size.x)
+	_text(Vector2(0, 29), str(world["motto"] if world.get("side", false) else world["name"]), 7, Color(0.8, 0.8, 0.9),
+		size.x)
 	_draw_info()
 	_pill(BACK, "◀ THẾ GIỚI", Color(0.25, 0.25, 0.35, 0.95))
 	_pill(BUTTON, "VÀO", Color(0.85, 0.22, 0.25, 0.95))
@@ -508,7 +623,8 @@ func _draw_cell(s: int, stage: Dictionary, r: Rect2, col: Color) -> void:
 	var label: String = str(stage["id"]).get_slice("-", 1) if open else "—"
 	_text(Vector2(r.position.x, r.position.y + 34), label, 18,
 		Color(1, 0.9, 0.5) if cleared else (Color.WHITE if open else Color(0.45, 0.45, 0.52)), r.size.x)
-	_text(Vector2(r.position.x, r.position.y + 50), TYPE_NAMES.get(int(stage["type"]), "") if open else "khoá", 6,
+	var kind: String = stage.get("foe_name", TYPE_NAMES.get(int(stage["type"]), ""))   # màn đấu Rider: tên đối thủ
+	_text(Vector2(r.position.x, r.position.y + 50), kind if open else "khoá", 6,
 		Color(0.8, 0.8, 0.9) if open else Color(0.45, 0.45, 0.52), r.size.x)
 	if cleared:
 		var b := Vector2(r.end.x - 15, r.position.y + 4)
@@ -519,7 +635,7 @@ func _draw_cell(s: int, stage: Dictionary, r: Rect2, col: Color) -> void:
 
 ## Thông tin màn đang chọn: tên, loại màn, món quái rơi.
 func _draw_info() -> void:
-	var world: Dictionary = WorldData.WORLDS[_world]
+	var world: Dictionary = WorldData.world_at(_world)
 	var stage: Dictionary = world["stages"][_stage]
 	var rider: StringName = world["rider"]
 	var col := WorldData.rider_color(rider)
@@ -535,6 +651,9 @@ func _draw_info() -> void:
 	var drop := ""
 	if int(stage["type"]) == WorldData.StageType.AWAKEN:
 		drop = "Quái rơi: %s%s" % [world["driver_name"], " ✓" if GameState.is_active(rider) else ""]
+	elif int(stage["type"]) == WorldData.StageType.DUEL:
+		drop = "Thắng %s: %s%s" % [stage["boss"]["name"], stage["form_name"],
+			" ✓" if GameState.owns_form(rider, stage["form"]) else ""]
 	elif stage.has("form"):
 		var kind := "item" if GameState.is_item(rider, stage["form"]) else "form"
 		drop = "Quái rơi %s: %s%s" % [kind, stage["form_name"], " ✓" if GameState.has_form(rider, stage["form"]) else ""]
@@ -548,6 +667,10 @@ func _draw_info() -> void:
 		y += 14
 	if int(stage["type"]) == WorldData.StageType.BOSS:
 		_text(Vector2(x + 8, y), "Hạ trùm rơi: %s" % world["next_driver_name"], 8, Color(1, 0.85, 0.4), w - 16)
+		y += 14
+	if int(stage["type"]) == WorldData.StageType.DUEL and not GameState.is_stage_unlocked(_world, _stage):
+		_text(Vector2(x + 8, y), "Mở khi giải cứu Thế giới %s" % WorldData.WORLDS[int(stage["source_world"])]["rider_name"],
+			8, Color(0.75, 0.75, 0.85), w - 16)
 		y += 14
 	if GameState.cleared_stages.has(str(stage["id"])):
 		_text(Vector2(x, y), "✓ Đã qua màn này", 8, GOLD, w)

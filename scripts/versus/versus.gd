@@ -34,6 +34,7 @@ extends Node2D
 ##   Mọi RPC nằm trên node gốc của cảnh này (cùng đường dẫn trên mọi máy): sảnh, phòng và trận ở chung một cảnh.
 
 const PLAYER_SCENE := preload("res://scenes/player/player.tscn")
+const SKILL_VERSUS_MULT := 0.6   ## sát thương skill lên người chơi
 const MENU_SCENE := "res://scenes/ui/main_menu.tscn"
 const TOUCH_SCRIPT := preload("res://scripts/ui/touch_controls.gd")
 const TOP_TEX := preload("res://art/tiles/street_top.png")
@@ -104,8 +105,15 @@ var _status_menu: Label
 var _status_room: Label
 var _room_list: VBoxContainer
 var _ip_edit: LineEdit
+var _ip_keyboard: GameKeyboard
 var _host_button: Button
-var _host_all_button: Button
+var _join_button: Button
+var _count_first: Button
+var _count_edit: LineEdit          ## sảnh / tạo phòng: số người tối đa (2–MAX_PLAYERS)
+var _count_hint: Label
+var _page_home: VBoxContainer      ## sảnh: trang chính (TẠO PHÒNG / VÀO PHÒNG)
+var _page_create: VBoxContainer    ## sảnh: chọn số người khi tạo phòng
+var _page_join: VBoxContainer      ## sảnh: danh sách phòng + nhập IP
 var _room_title: Label
 var _room_ip: Label
 var _slot_labels: Array[Label] = []
@@ -145,15 +153,16 @@ func _exit_tree() -> void:
 
 # --- Sảnh: tạo / tìm / vào phòng ------------------------------------------
 
-## mode "duel" = 1 VS 1, "all" = ALL COMBAT.
-func _on_host(mode: String) -> void:
+## Tạo phòng cho tối đa `count` người: 2 = 1 VS 1 ("duel"), 3–4 = hỗn chiến ALL COMBAT ("all").
+func _on_host(count: int) -> void:
+	var mode := "duel" if count <= 2 else "all"
 	var err := lan.host(GameState.player_name)
 	if err != OK:
 		_status_menu.text = "Không tạo được phòng (lỗi %d). Cổng %d có thể đang bận." % [err, VersusLan.GAME_PORT]
 		return
 	lan.stop_listening()
 	room_mode = mode
-	max_players = 2 if mode == "duel" else MAX_PLAYERS
+	max_players = clampi(count, 2, MAX_PLAYERS)
 	lan.mode = mode
 	lan.max_players = max_players
 	players = {1: {"name": GameState.player_name, "rider": "", "slot": 0}}
@@ -528,6 +537,7 @@ func _build_fighters() -> void:
 	me.form_status_changed.connect(_on_my_status)
 	me.notice.connect(_on_notice)
 	me.shot_fired.connect(_on_my_shot)
+	me.lock_marked.connect(_on_my_lock)
 	touch.player = me
 	_on_my_form_changed(&"")
 
@@ -628,7 +638,7 @@ func _snapshot() -> Array:
 	var f := me.current_form
 	return [me.global_position, String(me.sprite.animation), me.sprite.frame, me.sprite.flip_h, me.sprite.visible,
 		me.sprite.modulate.a, me.modulate, me.facing, int(me.state), me.is_invulnerable(),
-		me.hp, me.max_hp, me.rider_hp, f.get_max_hp() if f else 0.0, me.rage, me.in_special_form(),
+		me.hp, me.max_hp, me.rider_hp, f.get_max_hp() if f else 0.0, me.rage, me.rage_draining(),
 		f.rage_drain() if f else 1.0, String(f.rider_id) if f else "", _status_text()]
 
 
@@ -677,24 +687,43 @@ func _on_foe_hit(info: DamageInfo, peer_id: int) -> void:
 	var tags: Array = []
 	for t in info.tags:
 		tags.append(String(t))
-	_net_hit.rpc_id(peer_id, info.damage, info.knockback, info.direction, tags)
+	_net_hit.rpc_id(peer_id, info.damage, info.knockback, info.direction, tags, info.bind_time)
 
 
 @rpc("any_peer", "call_remote", "reliable")
-func _net_hit(damage: float, knockback: Vector2, direction: int, tags: Array) -> void:
+func _net_hit(damage: float, knockback: Vector2, direction: int, tags: Array, bind_time := 0.0) -> void:
 	if me == null or screen != Screen.MATCH:
 		return
 	var t: Array = []
 	for x in tags:
 		t.append(StringName(str(x)))
 	var attacker: Player = foes.get(multiplayer.get_remote_sender_id())
-	if not me.take_hit(DamageInfo.new(damage, knockback, direction, t, attacker)):
+	if t.has(&"skill"):
+		damage *= SKILL_VERSUS_MULT     # skill lên người chơi nhẹ hơn lên quái (docs/SKILLS.md)
+	var info := DamageInfo.new(damage, knockback, direction, t, attacker)
+	info.bind_time = bind_time
+	if not me.take_hit(info):
 		return
 	var heavy := t.has(&"heavy") or t.has(&"final")
 	Fx.spawn(world, me.global_position + Vector2(0, -34), "spark", Color(1.0, 0.85, 0.5), -direction,
 		1.3 if heavy else 1.0)
 	if heavy:
 		_shake = maxf(_shake, 5.0 if t.has(&"final") else 3.0)
+
+
+## Skill khoá của mình vừa nhắm đối thủ: báo máy của họ hiện khung ngắm trên nhân vật thật (kịp Né).
+func _on_my_lock(targets: Array, time: float) -> void:
+	if not lan.is_online():
+		return
+	for id in foes:
+		if targets.has(foes[id]):
+			_net_lock.rpc_id(id, time)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _net_lock(time: float) -> void:
+	if me != null and screen == Screen.MATCH:
+		me.mark_lock(time)
 
 
 func _on_my_shot(p: Projectile) -> void:
@@ -820,7 +849,7 @@ func _process(delta: float) -> void:
 func _my_info() -> Dictionary:
 	var f := me.current_form
 	return {"hp": me.hp, "max_hp": me.max_hp, "rider_hp": me.rider_hp, "rider_max": f.get_max_hp() if f else 0.0,
-		"rage": me.rage, "special": me.in_special_form(), "drain": f.rage_drain() if f else 1.0,
+		"rage": me.rage, "special": me.rage_draining(), "drain": f.rage_drain() if f else 1.0,
 		"status": _status_text()}
 
 
@@ -1006,39 +1035,82 @@ func _build_ui() -> void:
 	layer.add_child(ui)
 	ui.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
-	# Sảnh
+	# Sảnh: 3 trang trong cùng một màn hình (_menu_page): chính / tạo phòng / vào phòng
 	var box := _screen(ui)
 	_menu_root = box.get_parent().get_parent() as Control
-	box.add_child(_label("ĐẤU CÙNG WIFI", 16, Color(1, 0.85, 0.3)))
-	box.add_child(_label("Tên của bạn: %s" % GameState.player_name, 8, Color(0.75, 0.65, 1)))
-	var host_row := HBoxContainer.new()
-	host_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	_host_button = _button("TẠO PHÒNG 1 VS 1", _on_host.bind("duel"))
-	_host_all_button = _button("TẠO PHÒNG ALL COMBAT (2–%d người)" % MAX_PLAYERS, _on_host.bind("all"))
-	host_row.add_child(_host_button)
-	host_row.add_child(_host_all_button)
-	box.add_child(host_row)
+	box.add_child(_label("COMBAT", 18, Color(1, 0.85, 0.3)))
+	box.add_child(_label("Mọi người chơi phải kết nối CÙNG MỘT MẠNG WIFI", 8, Color(0.55, 0.9, 1.0)))
+	box.add_child(_label("Bạn: %s" % GameState.player_name, 7, Color(0.75, 0.65, 1)))
+	# Trang chính: hai nút lớn
+	_page_home = VBoxContainer.new()
+	_page_home.add_theme_constant_override("separation", 6)
+	_host_button = _big_button("TẠO PHÒNG", "Bạn làm chủ phòng, chọn số người", Color(0.62, 0.14, 0.18),
+		func() -> void: _menu_page(_page_create))
+	_page_home.add_child(_host_button)
+	_join_button = _big_button("VÀO PHÒNG", "Vào phòng bạn bè đã tạo trong WiFi", Color(0.2, 0.22, 0.55),
+		func() -> void: _menu_page(_page_join))
+	_page_home.add_child(_join_button)
 	if not VersusLan.can_host():
 		_host_button.disabled = true
-		_host_all_button.disabled = true
-		box.add_child(_label("Trình duyệt không tạo phòng được: tạo phòng trên bản cài (máy tính / Android).", 7,
+		_page_home.add_child(_label("Trình duyệt không tạo phòng được: tạo phòng trên bản cài (máy tính / Android).", 7,
 			Color(1, 0.7, 0.6)))
-	box.add_child(_label("Phòng trong mạng WiFi:", 8, Color(0.85, 0.85, 0.95)))
+	_page_home.add_child(_button("◀ QUAY LẠI", _on_back))
+	box.add_child(_page_home)
+	# Trang tạo phòng: chọn số người tối đa (2 = 1 VS 1, 3–4 = hỗn chiến ALL COMBAT)
+	_page_create = VBoxContainer.new()
+	_page_create.add_theme_constant_override("separation", 6)
+	_page_create.add_child(_label("TẠO PHÒNG · SỐ NGƯỜI", 11, Color(1, 0.85, 0.3)))
+	# Nhập số người: − / + hoặc gõ số (bàn phím số trong game trên điện thoại), giới hạn 2–MAX_PLAYERS.
+	var counts := HBoxContainer.new()
+	counts.alignment = BoxContainer.ALIGNMENT_CENTER
+	counts.add_theme_constant_override("separation", 6)
+	var minus := _big_button("−", "", Color(0.2, 0.22, 0.55), func() -> void: _set_count(_room_count() - 1), Vector2(36, 32))
+	_count_edit = LineEdit.new()
+	_count_edit.custom_minimum_size = Vector2(54, 32)
+	_count_edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_count_edit.max_length = 1
+	_count_edit.add_theme_font_size_override("font_size", 16)
+	_count_edit.text_changed.connect(func(_t: String) -> void: _update_count_hint())
+	_count_edit.text_submitted.connect(func(_t: String) -> void: _on_host(_room_count()))
+	var plus := _big_button("+", "", Color(0.2, 0.22, 0.55), func() -> void: _set_count(_room_count() + 1), Vector2(36, 32))
+	counts.add_child(minus)
+	counts.add_child(_count_edit)
+	counts.add_child(plus)
+	_page_create.add_child(counts)
+	_count_hint = _label("", 7, Color(0.85, 0.85, 0.95))
+	_page_create.add_child(_count_hint)
+	_count_first = _big_button("TẠO PHÒNG", "", Color(0.62, 0.14, 0.18), func() -> void: _on_host(_room_count()))
+	_page_create.add_child(_count_first)
+	_set_count(2)
+	_page_create.add_child(_button("◀ QUAY LẠI", func() -> void: _menu_page(_page_home)))
+	box.add_child(_page_create)
+	# Trang vào phòng: phòng tìm thấy trong WiFi, hoặc nhập IP chủ phòng (bàn phím số trong game trên điện thoại)
+	_page_join = VBoxContainer.new()
+	_page_join.add_theme_constant_override("separation", 4)
+	_page_join.add_child(_label("VÀO PHÒNG", 11, Color(1, 0.85, 0.3)))
+	_page_join.add_child(_label("Phòng tìm thấy trong WiFi (chạm để vào):", 7, Color(0.85, 0.85, 0.95)))
 	_room_list = VBoxContainer.new()
 	_room_list.add_theme_constant_override("separation", 2)
-	box.add_child(_room_list)
+	_page_join.add_child(_room_list)
+	_page_join.add_child(_label("Không thấy phòng? Nhập IP hiện trên máy chủ phòng:", 7, Color(0.85, 0.85, 0.95)))
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	_ip_edit = LineEdit.new()
-	_ip_edit.custom_minimum_size = Vector2(150, 16)
-	_ip_edit.placeholder_text = "IP chủ phòng, vd 192.168.1.5"
+	_ip_edit.custom_minimum_size = Vector2(150, 18)
+	_ip_edit.placeholder_text = "vd 192.168.1.5"
 	_ip_edit.text_submitted.connect(_join)
 	row.add_child(_ip_edit)
 	row.add_child(_button("VÀO", func() -> void: _join(_ip_edit.text)))
-	box.add_child(row)
-	box.add_child(_button("◀ QUAY LẠI", _on_back))
+	_page_join.add_child(row)
+	_page_join.add_child(_button("◀ QUAY LẠI", func() -> void: _menu_page(_page_home)))
+	box.add_child(_page_join)
+	var keyboard := GameKeyboard.new()      # điện thoại: bàn phím số trong game cho ô IP (thêm vào ui sau cùng)
+	keyboard.attach(_ip_edit, GameKeyboard.Mode.NUMBER)
+	keyboard.attach(_count_edit, GameKeyboard.Mode.NUMBER)
+	_ip_keyboard = keyboard
 	_status_menu = _label("", 7, Color(1, 0.9, 0.6))
 	box.add_child(_status_menu)
+	_menu_page(_page_home)
 
 	# Phòng
 	box = _screen(ui)
@@ -1081,6 +1153,7 @@ func _build_ui() -> void:
 	_weapon_select.hint = "Vũ khí dùng bằng nút Kỹ năng (L) như đổi form · không mang thì bấm XONG luôn"
 	_weapon_select.done.connect(_on_weapons_chosen)
 	ui.add_child(_weapon_select)
+	ui.add_child(_ip_keyboard)   # sau cùng: nằm trên mọi màn hình khác, nhận chạm trước
 
 
 ## Một màn hình giao diện: nền tối phủ đấu trường + cột giữa. Trả về cột (VBoxContainer).
@@ -1100,6 +1173,66 @@ func _screen(parent: Control) -> VBoxContainer:
 	box.add_theme_constant_override("separation", 5)
 	center.add_child(box)
 	return box
+
+
+## Số người đang nhập ở trang tạo phòng, ép về 2–MAX_PLAYERS.
+func _room_count() -> int:
+	return clampi(_count_edit.text.strip_edges().to_int(), 2, MAX_PLAYERS)
+
+
+func _set_count(n: int) -> void:
+	_count_edit.text = str(clampi(n, 2, MAX_PLAYERS))
+	_update_count_hint()
+
+
+func _update_count_hint() -> void:
+	var raw := _count_edit.text.strip_edges()
+	var n := _room_count()
+	var note := "1 VS 1" if n == 2 else "hỗn chiến %d người" % n
+	if raw != "" and raw.to_int() != n:
+		note = "chỉ từ 2 đến %d người · sẽ tạo phòng %d người" % [MAX_PLAYERS, n]
+	_count_hint.text = note
+
+
+## Hiện một trang của sảnh, ẩn hai trang kia; đặt con trỏ bàn phím / tay cầm vào nút đầu của trang.
+func _menu_page(page: VBoxContainer) -> void:
+	for p in [_page_home, _page_create, _page_join]:
+		p.visible = p == page
+	if _ip_keyboard:
+		_ip_keyboard.close()
+	_status_menu.text = ""
+	if page == _page_home:
+		(_host_button if not _host_button.disabled else _join_button).grab_focus()
+	elif page == _page_create:
+		_count_first.grab_focus()
+	else:
+		_refresh_rooms()
+
+
+## Nút lớn của sảnh: chữ to + dòng mô tả nhỏ, nền màu bo tròn (cùng kiểu thẻ ở màn hình chính).
+func _big_button(title: String, desc: String, color: Color, action: Callable, min_size := Vector2(200, 36)) -> Button:
+	var b := _button("%s\n%s" % [title, desc], action)
+	b.custom_minimum_size = min_size
+	b.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	b.add_theme_font_size_override("font_size", 9)
+	for state in ["normal", "hover", "pressed", "focus", "disabled"]:
+		var sb := StyleBoxFlat.new()
+		sb.set_corner_radius_all(10)
+		match state:
+			"normal":
+				sb.bg_color = Color(color, 0.9)
+			"hover":
+				sb.bg_color = color.lightened(0.12)
+			"pressed":
+				sb.bg_color = color.darkened(0.3)
+			"focus":
+				sb.bg_color = Color.TRANSPARENT
+				sb.border_color = Color(1, 0.85, 0.3)
+				sb.set_border_width_all(2)
+			"disabled":
+				sb.bg_color = Color(0.2, 0.2, 0.25, 0.9)
+		b.add_theme_stylebox_override(state, sb)
+	return b
 
 
 func _label(text: String, font_size: int, color: Color) -> Label:
@@ -1130,16 +1263,13 @@ func _show_menu(message: String) -> void:
 	hud.visible = false
 	touch.visible = false
 	lan.start_listening()
-	_refresh_rooms()
+	_menu_page(_page_home)
 	_status_menu.text = message
-	if VersusLan.can_host():
-		_host_button.grab_focus()
-	else:
-		_ip_edit.grab_focus()
 
 
 func _show_room(message: String) -> void:
 	screen = Screen.ROOM
+	_ip_keyboard.close()
 	_menu_root.visible = false
 	_room_root.visible = true
 	_rider_select.visible = false

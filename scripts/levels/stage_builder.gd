@@ -19,10 +19,11 @@ class_name StageBuilder
 ##   solids      : [{rect: Rect2, kind: "ground" | "wall" | "block"}] vật cứng (lớp world)
 ##   platforms   : [Vector3(x, y_mặt_trên, rộng)] bệ một chiều
 ##   path, path_s: các điểm gấp của đường camera và quãng đường s tại từng điểm; length = tổng
-##   spawns      : [{s, kind, count, behavior, side, floor, dir, limit, pos}] camera tới s lần đầu thì thả quái
+##   spawns      : [{s, kind, count, behavior, side, floor, dir, limit, back, pos}] camera tới s lần đầu thì thả quái
 ##                 side "ahead"/"behind": thả ở mép màn hình phía trước/sau; "at": thả tại pos (trên bệ giếng)
+##                 limit / back: x cuối / đầu đoạn ngang. Quái thả ở mép phải nằm trong khoảng này: lọt ra ngoài
+##                 (vào lòng giếng, sau vách giếng) thì quái không về được chỗ người chơi
 ##   shooters    : [{s, pos, kind}] lính bắn đứng gác
-##   checkpoints : [{s, pos}] điểm hồi sinh khi gục
 ##   waypoints   : [{pos, s}] các điểm cần đi qua theo thứ tự (bot test dùng để tìm đường)
 ##   start, start_dir, goal_x, goal_dir, goal_s0, exit_floor, is_boss, bottom
 ##   overlaps    : [String] lỗi bố cục: vật cứng của đoạn này chắn vào khoảng trống của đoạn khác
@@ -48,7 +49,6 @@ const PLATFORM_MAX_H := 95.0
 const CLIMB_STEP_MAX := 56.0            ## Titan (nhảy ×0.8) cao tối đa ~70 px, còn dư ~14 px
 const DROP_STEP_MIN := 70.0
 const DROP_STEP_MAX := 90.0
-const CHECKPOINT_EVERY := 900.0
 
 
 static func build(stage: Dictionary, stage_index: int) -> Dictionary:
@@ -177,12 +177,12 @@ class _Gen:
 	var path_len := 0.0
 	var spawns: Array = []
 	var shooters: Array = []
-	var checkpoints: Array = []
 	var waypoints: Array = []
 	var pool: Array = []
 	var idx := 0
 	var is_boss := false
 	var is_awaken := false
+	var diff := 0.0               ## độ khó 0..1 của màn (WorldData.difficulty_of): quái dày hơn, nhiều lính bắn hơn
 	var start := Vector2.ZERO
 	var start_dir := 1
 	var goal_x := 0.0
@@ -197,8 +197,9 @@ class _Gen:
 	func run(stage: Dictionary, stage_index: int) -> void:
 		rng.seed = hash(str(stage["id"]))
 		idx = stage_index
-		is_boss = stage["type"] == WorldData.StageType.BOSS
+		is_boss = stage["type"] == WorldData.StageType.BOSS or stage["type"] == WorldData.StageType.DUEL
 		is_awaken = stage["type"] == WorldData.StageType.AWAKEN
+		diff = float(stage.get("difficulty", 0.0))
 		pool = StageBuilder._enemy_pool(stage)
 		var route := _normalize(stage.get("route", ["right"]))
 		var has_shaft := route.has("up") or route.has("down")
@@ -355,43 +356,32 @@ class _Gen:
 		var limit: float = w.call(length - 20.0) if not last else w.call(ground_to - 20.0)
 		if last and is_boss:
 			limit = w.call(length + ARENA_W - 20.0)
+		# Đầu đoạn: đoạn đầu tiên có mặt đất lùi ra sau điểm xuất phát; đoạn vào từ giếng thì bắt đầu ngay cửa giếng
+		var back: float = w.call(ground_from + 40.0) if first else w.call(24.0)
 		d = 360.0 if first else 200.0
 		while true:
-			d += rng.randf_range(250.0, 420.0) - 10.0 * idx
+			d += rng.randf_range(250.0, 420.0) * (1.0 - 0.3 * diff) - 10.0 * idx
 			if d > length - (250.0 if last else 120.0):
 				break
 			spawns.append({
 				"s": s_of.call(w.call(d - HALF_W)),
 				"kind": pool[rng.randi() % pool.size()],
-				"count": rng.randi_range(1, 2 + int(idx / 2.0)),
+				"count": rng.randi_range(1 + int(diff * 1.5), 2 + int(idx / 2.0) + int(diff * 2.0)),
 				"behavior": "runner" if rng.randf() < runner_share else "melee",
-				"side": "behind" if rng.randf() < 0.12 else "ahead",
-				"floor": fy, "dir": h, "limit": limit, "pos": Vector2.ZERO,
+				"side": "behind" if rng.randf() < 0.12 + 0.18 * diff else "ahead",
+				"floor": fy, "dir": h, "limit": limit, "back": back, "pos": Vector2.ZERO,
 			})
 
 		# Lính bắn đứng gác trên mặt đất (không sát vực, không đứng trên / trong khối)
-		var shooter_chance := 0.2 + 0.12 * idx
+		var shooter_chance := 0.2 + 0.12 * idx + 0.25 * diff
 		d = 520.0 if first else 320.0
 		while true:
-			d += rng.randf_range(300.0, 520.0)
+			d += rng.randf_range(300.0, 520.0) * (1.0 - 0.25 * diff)
 			if d > length - 200.0:
 				break
 			if rng.randf() < shooter_chance and not on_pit.call(d, 40.0) and not on_block.call(d, 40.0):
 				shooters.append({"s": s_of.call(w.call(d) - h * (HALF_W + 40.0)), "pos": Vector2(w.call(d), fy),
 					"kind": pool[rng.randi() % pool.size()]})
-
-		# Checkpoint: đầu đoạn (nếu vào từ giếng) và mỗi CHECKPOINT_EVERY
-		var cp_ds: Array = [] if first else [60.0]
-		d = CHECKPOINT_EVERY
-		while d < length - 300.0:
-			cp_ds.append(d)
-			d += CHECKPOINT_EVERY
-		for cd in cp_ds:
-			var dd: float = cd
-			while on_pit.call(dd, 32.0) or on_block.call(dd, 24.0):
-				dd += 32.0
-			var pos := Vector2(w.call(dd), fy - 2.0)
-			checkpoints.append({"s": s_of.call(pos.x + h * 40.0), "pos": pos})
 
 		add_point(Vector2(cam_end_x, cam_y))
 		waypoints.append({"pos": Vector2(w.call(length), fy - 2.0), "s": s_of.call(w.call(length))})
@@ -513,13 +503,11 @@ class _Gen:
 					"behavior": "melee", "side": "at", "floor": py, "dir": 0, "limit": 0.0,
 					"pos": Vector2(px + pw / 2.0, py - 40.0)})
 
-		# Điểm vào / checkpoint / điểm ra
+		# Điểm vào / điểm ra
 		var in_x := inner0 + 60.0 if in_left else sx1 - WALL_T - 60.0
 		if first:
 			start = Vector2(in_x, y_in - 2.0)
 			start_dir = exit_h
-		else:
-			checkpoints.append({"s": s_start, "pos": Vector2(in_x, y_in - 2.0)})
 		var out_x := sx1 if out_right else sx0
 		var s_end := s_start + height
 		if vdir < 0:
@@ -551,7 +539,6 @@ class _Gen:
 			path_s.append(path_s[0] + 1.0)
 		spawns.sort_custom(func(a, b): return a["s"] < b["s"])
 		shooters.sort_custom(func(a, b): return a["s"] < b["s"])
-		checkpoints.sort_custom(func(a, b): return a["s"] < b["s"])
 		var bottom := -INF
 		for so in solids:
 			bottom = maxf(bottom, (so["rect"] as Rect2).end.y)
@@ -563,7 +550,7 @@ class _Gen:
 					overlaps.append("%s của đoạn %d chắn vào đoạn %d tại %s" % [so["kind"], so["sec"], i, str((so["rect"] as Rect2).position)])
 		return {
 			"solids": solids, "platforms": platforms, "path": path, "path_s": path_s, "length": path_s.back(),
-			"spawns": spawns, "shooters": shooters, "checkpoints": checkpoints, "waypoints": waypoints,
+			"spawns": spawns, "shooters": shooters, "waypoints": waypoints,
 			"start": start, "start_dir": start_dir, "goal_x": goal_x, "goal_dir": goal_dir, "goal_s0": goal_s0,
 			"exit_floor": exit_floor, "is_boss": is_boss, "bottom": bottom, "overlaps": overlaps,
 		}

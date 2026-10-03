@@ -50,19 +50,45 @@ const RIDER := {
 	"forms": {
 		&"ground": {"name": "Ground Form", "style": "brawler", "hp": 160.0, "armor": 25.0, "speed": 130.0,
 			"jump": 1.05, "atk": 1.05, "poise": 7.0, "final": "Rider Kick",
+			"skills": [
+				{"name": "Agito Crest", "type": "buff", "buff": {"atk": 1.25, "time": 6.0}, "fx": "crest",
+					"color": Color(1.0, 0.85, 0.3)},
+				{"name": "Ground Uppercut", "type": "aim", "knockback": Vector2(80, -320), "tags": [&"force"], "anim": "heavy",
+					"fx": "ring", "color": Color(1.0, 0.55, 0.15), "icon": "punch"},
+			],
 			"fx": {"hit": "spark", "final": "ring", "color": Color(1.0, 0.8, 0.25)}},
 		&"storm": {"name": "Storm Form", "style": "lancer", "hp": 135.0, "armor": 10.0, "speed": 170.0,
 			"jump": 1.25, "atk": 0.9, "poise": 4.0, "final": "Haldent Tornado", "blade": {"look": "halberd", "style": "lancer"},
 			"attacks": {"slash_finish": {"knockback": Vector2(240, -80), "tags": [&"force"]}},
+			"skills": [
+				{"name": "Storm Halberd", "type": "aim", "move": "wave", "tags": [&"force"], "fx": "slash", "anim": "slash",
+					"shot": {"style": "wave"}, "color": Color(0.3, 0.5, 1.0)},
+				{"name": "Haldent Whirl", "type": "area", "knockback": Vector2(-180, -30), "tags": [&"force"], "fx": "wind",
+					"anim": "slash", "color": Color(0.6, 0.85, 1.0)},
+			],
+			"final_type": "area",
 			"fx": {"hit": "wind", "swing": "wind", "color": Color(0.4, 0.6, 1.0)}},
 		&"flame": {"name": "Flame Form", "style": "blade", "hp": 170.0, "armor": 30.0, "speed": 110.0,
 			"jump": 0.95, "atk": 1.25, "poise": 12.0, "final": "Saber Slash", "blade": {"look": "flame_saber"},
 			"attacks": {"slash": {"tags": [&"burn"]}, "slash_finish": {"tags": [&"burn"]}, "final": {"tags": [&"burn"]}},
+			"skills": [
+				{"name": "Flame Saber", "type": "aim", "tags": [&"burn"], "fx": "fire", "anim": "slash",
+					"color": Color(1.0, 0.4, 0.1)},
+				{"name": "Sixth Sense", "type": "lock", "tags": [&"burn"], "fx": "eye", "anim": "slash",
+					"color": Color(1.0, 0.15, 0.35)},
+			],
+			"final_type": "lock",
 			"fx": {"hit": "fire", "swing": "slash", "color": Color(1.0, 0.35, 0.2)}},
 		&"trinity": {"name": "Trinity Form", "style": "blade", "hp": 175.0, "armor": 35.0, "speed": 135.0,
 			"jump": 1.1, "atk": 1.3, "poise": 12.0, "final": "Fire Storm Attack", "blade": {"look": "flame_saber"},
 			"attacks": {"slash": {"tags": [&"burn"]}, "slash_finish": {"knockback": Vector2(240, -80), "tags": [&"burn", &"force"]},
 				"final": {"hits": 2, "damage": 34.0, "tags": [&"burn"]}},
+			"skills": [
+				{"name": "Double Saber", "type": "aim", "hits": 2, "tags": [&"burn"], "fx": "slash", "anim": "slash",
+					"color": Color(1.0, 0.85, 0.3), "icon": "slash"},
+				{"name": "Trinity Storm", "type": "area", "tags": [&"burn", &"force"], "fx": "fire", "anim": "slash",
+					"summon": "crest", "color": Color(1.0, 0.45, 0.2)},
+			],
 			"fx": {"hit": "fire", "swing": "slash", "color": Color(1.0, 0.85, 0.5)}},
 	},
 	"lv5": {"name": "Shining", "final_mult": 1.5},
@@ -105,7 +131,7 @@ const STORY := {
 			["pen", "Sức mạnh Storm Form đang ở đâu đó trong đám Lord này. Giáo Storm Halberd, nhanh như gió."],
 		],
 		"key": [
-			["shouichi", "Màu xanh! Storm Form nhẹ và nhanh. Bấm Chém để quay Storm Halberd, nhát cuối tạo lốc thổi bay quái."],
+			["shouichi", "Storm Form! Nhẹ và nhanh. Bấm Chém để quay Storm Halberd, nhát cuối tạo lốc thổi bay quái."],
 		],
 		"clear": [
 			["hikawa", "G3 của tôi chỉ là giáp do con người làm ra. Nhìn cậu, tôi thấy mình còn phải cố gắng nhiều."],
@@ -118,7 +144,7 @@ const STORY := {
 			["pen", "Cần đòn nặng. Flame Form với kiếm Flame Saber: chậm, nhưng chém một nhát là vỡ mai."],
 		],
 		"key": [
-			["shouichi", "Màu đỏ! Flame Form. Bấm Chém để rút Flame Saber: chậm hơn, nhưng lưỡi lửa đốt cháy quái."],
+			["shouichi", "Flame Form! Bấm Chém để rút Flame Saber: chậm hơn, nhưng lưỡi lửa đốt cháy quái."],
 		],
 		"clear": [
 			["hikawa", "Cảm ơn. Lần sau tôi sẽ đứng cạnh cậu, không phải đứng sau."],

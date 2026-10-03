@@ -4,7 +4,8 @@ class_name NameEntry
 ## bấm "✎ Tên" để đổi tên (renaming: lưu xong về màn hình chính).
 ## Tên được lưu trong cài đặt (GameState.SETTINGS_PATH, GameState.player_name), dùng trong hội thoại ({name}), HUD và
 ## tên trong phòng đấu; đã đặt rồi thì lần sau vào thẳng. Để trống thì dùng tên mặc định (GameState.DEFAULT_PLAYER_NAME).
-## Bàn phím ảo của máy hiện lên thì ô nhập tên dời lên giữa phần màn hình còn lại (không bị bàn phím che).
+## Điện thoại: bàn phím trong game (GameKeyboard) thay bàn phím hệ thống; hiện lên thì ô nhập tên dời lên giữa phần
+## màn hình còn lại (không bị bàn phím che).
 ##   mode PLAY:   chạy phần mở đầu (intro) nếu lượt chơi này chưa xem, rồi vào màn chơi.
 ##   mode VERSUS: vào sảnh đấu qua WiFi (1 VS 1 / ALL COMBAT) (scenes/versus/versus.tscn).
 ## "◀ Quay lại" / Esc về màn hình chính.
@@ -26,6 +27,7 @@ static var renaming := false
 @onready var back_button: Button = %BackButton
 @onready var preview: Label = %Preview
 @onready var center: CenterContainer = $Center
+var _keyboard: GameKeyboard
 
 
 func _ready() -> void:
@@ -40,6 +42,9 @@ func _ready() -> void:
 	start_button.text = "Lưu tên (Enter)" if renaming else ("Vào sảnh đấu (Enter)" if mode == Mode.VERSUS
 		else "Bắt đầu (Enter)")
 	_update_preview()
+	_keyboard = GameKeyboard.new()
+	add_child(_keyboard)
+	_keyboard.attach(name_edit, GameKeyboard.Mode.TEXT)
 	name_edit.grab_focus()
 
 
@@ -48,7 +53,7 @@ func _process(_delta: float) -> void:
 	var kb := DisplayServer.virtual_keyboard_get_height()
 	var window_h := float(DisplayServer.window_get_size().y)
 	var covered := kb * Screen.view(self).y / window_h if kb > 0 and window_h > 0.0 else 0.0
-	center.offset_bottom = -covered
+	center.offset_bottom = -maxf(covered, _keyboard.panel_height() if _keyboard else 0.0)
 
 
 func _unhandled_input(event: InputEvent) -> void:

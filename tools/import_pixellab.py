@@ -12,7 +12,7 @@ Việc script làm:
   3. Tạo thêm những gì PixelLab không làm (miễn phí):
        - 4 form Kuuga còn lại: đổi màu từ Mighty (Growing trắng, Dragon xanh, Pegasus lục, Titan tím)
        - Grongi hạng Me (nhanh) và hạng Go (giáp): đổi màu từ Grongi Zu
-       - Rider bộ gọn (DATA_RIDERS: Agito, Ryuki, Faiz, Blade, Hibiki, Kabuto, Den-O, Kiva, Decade, W, OOO, Fourze, Wizard, Gaim, Drive, Ghost, Ex-Aid, Build): nhảy / cúi / né / tuyệt chiêu từ 5
+       - Rider bộ gọn (DATA_RIDERS: Agito, Ryuki, Faiz, Blade, Hibiki, Kabuto, Den-O, Kiva, Decade, W, OOO, Fourze, Wizard, Gaim, Drive, Ghost, Ex-Aid, Build, Zi-O): nhảy / cúi / né / tuyệt chiêu từ 5
          animation PixelLab, 3 form còn lại đổi màu hoặc vẽ thêm vũ khí từ form gốc. Blade trở đi làm bằng PixelEngine
          (tools/pixelengine.py pack → art/pixelengine/<tên>/, cùng cấu trúc thư mục PixelLab)
        - quái thế giới sau (EXTRA_ENEMIES): loại nhanh và loại giáp đổi màu từ loại thường
@@ -273,6 +273,30 @@ def exaid_armor(frames, hue, sat, bright):
                     h, s, v = _hsv(c)
                     if (h > 0.83 or h < 0.02) and s > 0.35 and v > 0.25:
                         px[x, y] = _rgb(hue, sat, min(1.0, v * bright), c[3])
+        out.append(im)
+    return out
+
+
+def zio_armor(frames, back, front=None, lo=0.24, hi=0.6):
+    """Zi-O Armor: giáp ngực bạc và vạch hồng ở dải vai-ngực (dưới mặt, trên chân) đổi sang màu Armor; back / front =
+    (hue, sat, bright) cho nửa sau / nửa trước thân (Build Armor đỏ / lam), front None = cả thân một màu. Pixel tối
+    (thân đen, viền) giữ nguyên."""
+    front = front or back
+    out = []
+    for fr in frames:
+        im = fr.copy()
+        px = im.load()
+        box, y0, y1 = _band(fr, lo, hi)
+        mid = (box[0] + box[2]) / 2.0
+        for y in range(int(y0), int(y1) + 1):
+            for x in range(im.width):
+                c = px[x, y]
+                if c[3]:
+                    h, s, v = _hsv(c)
+                    pink = (h > 0.83 or h < 0.02) and s > 0.35 and v > 0.25
+                    if pink or (s < 0.2 and v > 0.45):
+                        t = back if x < mid else front
+                        px[x, y] = _rgb(t[0], t[1], min(1.0, v * t[2]), c[3])
         out.append(im)
     return out
 
@@ -616,6 +640,15 @@ def add_weapon(frames, kind, band=(0.3, 0.62)):
                 draw_line(im, x + 6, y - 7 + dy, x + 11, y - 7 + dy, (230, 70, 160, 255))
             im.load()[min(im.width - 1, x + 8), max(0, y - 9)] = (255, 230, 60, 255)
             im.load()[min(im.width - 1, x + 10), max(0, y - 6)] = (80, 200, 255, 255)
+        elif kind == "zikan_girade":  # Zikan Girade Ken Mode (Zi-O): lưỡi bạc, mép hồng chữ "KEN", chuôi đen
+            draw_line(im, x + 1, y, x + 13, y - 11, (220, 225, 235, 255), 2)
+            draw_line(im, x + 3, y - 3, x + 13, y - 12, (240, 70, 160, 255))
+            draw_line(im, x - 1, y + 2, x + 1, y, (20, 18, 22, 255), 2)
+        elif kind == "ride_heisaber":  # Ride Heisaber (Zi-O Decade Armor): lưỡi hồng đậm sống bạc, mặt đồng hồ ở chuôi
+            draw_line(im, x + 1, y, x + 13, y - 11, (225, 50, 140, 255), 2)
+            draw_line(im, x + 2, y - 2, x + 14, y - 12, (230, 235, 245, 255))
+            draw_circle(im, x, y, 1.6, (20, 18, 22, 255), filled=True)
+            im.load()[x, y] = (240, 200, 70, 255)
         elif kind == "drago_blade":  # lưỡi kiếm rồng (Ex-Aid Hunter): lưỡi xanh lá rộng, sống vàng
             draw_line(im, x + 1, y, x + 12, y - 10, (60, 190, 70, 255), 3)
             draw_line(im, x + 2, y - 3, x + 12, y - 12, (240, 210, 70, 255))
@@ -838,7 +871,7 @@ HENSHIN_STYLE = {"kuuga": "arcle", "agito": "agito", "ryuki": "mirror", "faiz": 
                  "hibiki": "onsa", "kabuto": "castoff", "den_o": "armor_in", "kiva": "chains", "decade": "decade",
                  "double": "wind", "ooo": "medals", "fourze": "steam", "wizard": "circle",
                  "gaim": "arms", "drive": "tire", "ghost": "parka",
-                 "ex_aid": "game", "build": "snap"}
+                 "ex_aid": "game", "build": "snap", "zi_o": "clock"}
 
 
 def _reveal(human, rider, mask):
@@ -1216,6 +1249,37 @@ def henshin_styled(style, human_idle, rider_idle, accent):
                 draw_circle(im, cx + k * spread, hy + 2 + spread * 0.8, ry * (0.75 - i * 0.2), acc, filled=True)
             frames.append(im)
         tail()
+    elif style == "clock":          # Zi-O: mặt đồng hồ lớn hiện quanh người, kim quét một vòng lộ giáp, chữ "RIDER"
+        cy, rad = (top + bot) / 2.0, (bot - top) * 0.55          # hồng bay vào gắn lên mặt
+        silver = (210, 215, 225, 255)
+
+        def dial(im, sweep):
+            for k in range(60):
+                a_ = k * 2 * math.pi / 60
+                _put(im, mid + math.sin(a_) * rad, cy - math.cos(a_) * rad, silver if k % 5 else acc)
+            for t in range(int(rad)):                           # kim quét theo chiều kim đồng hồ từ 12 giờ
+                _put(im, mid + math.sin(sweep) * t, cy - math.cos(sweep) * t, acc if t > rad * 0.3 else WHITE)
+
+        def swept(sweep):                                       # góc của điểm (x, y) tính từ 12 giờ, đã quét qua?
+            return lambda x, y: (math.atan2(x - mid, -(y - cy)) % (2 * math.pi)) < sweep
+
+        for i in range(3):                                      # bấm Ride Watch, Ziku Driver xoay: đai lóe hồng
+            im = H(i).copy()
+            draw_circle(im, bx, by, 1.5 + i * 0.6, acc, filled=True)
+            _put(im, bx + math.sin(i * 2.1) * 2, by - math.cos(i * 2.1) * 2, WHITE)
+            frames.append(im)
+        for i in range(7):                                      # mặt đồng hồ, kim quét một vòng lộ Rider
+            sweep = 2 * math.pi * (i + 1) / 7.0
+            im = _reveal(H(3 + i), R(i), swept(sweep))
+            dial(im, sweep)
+            if i >= 4:                                          # chữ "RIDER" hồng bay từ trước mặt vào mặt nạ
+                t = (i - 3) / 3.0
+                lx, ly = hx + 14 * (1 - t), hy - 2
+                for dx in range(-2, 3):
+                    _put(im, lx + dx, ly, acc)
+                    _put(im, lx + dx * (1 - t * 0.5), ly + 2, acc)
+            frames.append(im)
+        tail()
     else:
         return henshin(human_idle, rider_idle, accent)
     return frames[:14]
@@ -1426,6 +1490,26 @@ DATA_RIDERS = {
         "slash": ({"slash": lambda fr: swing_weapon(fr, "booker_sword", HAND_BAND)}, (255, 120, 200, 255)),
         "blast": (None, (255, 90, 190, 255)),     # súng Ride Booker: weapons/booker_gun.png, hiện lúc bắn
         "kabuto": (None, (255, 70, 70, 255), "kabuto"),
+        # Kamen Ride còn lại (thẻ thắng ở thế giới phụ, scripts/data/side_worlds.gd): dùng lại hình form gốc của Rider đó (Ryuki cầm sẵn Dragclaw của Strike Vent, Den-O cầm
+        # DenGasher ở animation "slash", Blade có Blay Rouzer vẽ sẵn trong hình).
+        "kuuga": (None, (255, 90, 90, 255), "kuuga_mighty_fixed"),
+        "agito": (None, (255, 200, 60, 255), "agito_canon"),
+        "ryuki": (lambda fr: add_weapon(fr, "claw", HAND_BAND), (255, 120, 40, 255), "ryuki_canon"),
+        "faiz": (None, (255, 60, 60, 255), "faiz"),
+        "blade": (None, (110, 150, 255, 255), "blade"),
+        "hibiki": (None, (180, 120, 255, 255), "hibiki"),
+        "den_o": (with_slash(None, "dengasher_sword"), (255, 70, 70, 255), "den_o"),
+        "kiva": (None, (255, 70, 90, 255), "kiva"),
+        "double": (None, (90, 230, 110, 255), "double"),
+        "ooo": (None, (255, 70, 70, 255), "ooo"),
+        "fourze": (None, (245, 245, 250, 255), "fourze"),
+        "wizard": (None, (255, 70, 60, 255), "wizard"),
+        "gaim": (with_slash(None, "daidaimaru"), (255, 140, 30, 255), "gaim"),
+        "drive": (with_slash(None, "handle_ken"), (255, 60, 60, 255), "drive"),
+        "ghost": (with_slash(None, "gangunsaber"), (255, 140, 40, 255), "ghost"),
+        "ex_aid": (with_slash(None, "gashacon_breaker"), (255, 90, 190, 255), "ex_aid"),
+        "build": (with_slash(None, "drill_crusher"), (255, 80, 80, 255), "build"),
+        "zi_o": (with_slash(None, "zikan_girade"), (240, 70, 160, 255), "zi_o"),
     }),
     # OOO: ảnh gốc TaToBa sửa từ Decade bằng PixelLab Pro Flash edit, 5 animation bằng PixelLab animate_image (khung
     # trúng đòn đã xoá tia sáng AI vẽ đè). 7 combo cùng hệ đổi màu toàn thân (ooo_rule) và cầm vũ khí của combo.
@@ -1516,6 +1600,44 @@ DATA_RIDERS = {
         "hawk_gatling": (lambda fr: recolor(fr, BUILD_TO((0.07, 0.85, 1.05), (0.6, 0.08, 1.1))), (255, 150, 60, 255)),
         "ninnin_comic": (with_slash(lambda fr: recolor(fr, BUILD_TO((0.78, 0.65, 1.0), (0.14, 0.85, 1.25))), "ninpoutou"),
                          (190, 110, 255, 255)),
+    }),
+    # Zi-O: ảnh gốc sửa từ Decade bằng PixelLab Pro Flash edit, 5 animation bằng PixelLab animate_image (khung trúng đòn
+    # có tia sáng AI vẽ đè đã thay bằng khung sau). Mỗi Armor đổi màu giáp ngực bạc / vạch hồng ở dải vai-ngực
+    # (zio_armor): Build Armor nửa sau đỏ / nửa trước lam, Ex-Aid Armor hồng tím sáng, Ghost Armor đen / cam, Drive Armor
+    # đỏ / đen, Gaim Armor cam, Wizard Armor đỏ ruby, OOO Armor vàng / lục, Decade Armor hồng đậm (lên cả mũ). Vũ
+    # khí ở animation "slash"; súng WizarSwordGun của Wizard Armor là weapons/wizargun.png lúc bắn. Armor Heisei đời đầu
+    # (Ride Watch thắng ở thế giới phụ): Kuuga đỏ / vàng, Agito vàng, Ryuki đỏ / bạc + Dragclaw, Faiz đen / đỏ, Blade lam /
+    # bạc, Hibiki tím, Kabuto bạc / đỏ, Den-O đỏ, Kiva vàng / đỏ, W lục / đen, Fourze trắng + Rocket Module lúc đấm.
+    "zi_o": ("zi_o", "w20_zi_o", {
+        "zi_o": (with_slash(None, "zikan_girade"), (240, 70, 160, 255)),
+        "build_armor": (with_slash(lambda fr: zio_armor(fr, (0.0, 0.8, 1.05), (0.6, 0.8, 1.05)), "drill_crusher"),
+                        (255, 90, 90, 255)),
+        "ex_aid_armor": (with_slash(lambda fr: zio_armor(fr, (0.88, 0.7, 1.15)), "gashacon_breaker"),
+                         (255, 110, 210, 255)),
+        "ghost_armor": (with_slash(lambda fr: zio_armor(fr, (0.0, 0.0, 0.4), (0.07, 0.9, 1.05)), "gangunsaber"),
+                        (255, 140, 40, 255)),
+        "drive_armor": (lambda fr: zio_armor(fr, (0.99, 0.85, 1.0), (0.0, 0.0, 0.45)), (255, 60, 60, 255)),
+        "gaim_armor": (with_slash(lambda fr: zio_armor(fr, (0.08, 0.95, 1.15)), "daidaimaru"), (255, 140, 30, 255)),
+        "wizard_armor": (lambda fr: zio_armor(fr, (0.98, 0.95, 1.25)), (255, 70, 60, 255)),
+        "ooo_armor": (with_slash(lambda fr: zio_armor(fr, (0.13, 0.9, 1.1), (0.36, 0.85, 0.95)), "tora"),
+                      (255, 200, 60, 255)),
+        "kuuga_armor": (lambda fr: zio_armor(fr, (0.99, 0.85, 1.0), (0.13, 0.8, 1.1)), (255, 90, 90, 255)),
+        "agito_armor": (with_slash(lambda fr: zio_armor(fr, (0.13, 0.85, 1.15)), "flame_saber"), (255, 200, 60, 255)),
+        "ryuki_armor": (lambda fr: add_weapon(zio_armor(fr, (0.99, 0.85, 1.0), (0.6, 0.06, 1.2)), "claw", HAND_BAND),
+                        (255, 120, 40, 255)),
+        "faiz_armor": (lambda fr: zio_armor(fr, (0.0, 0.0, 0.35), (0.99, 0.9, 1.0)), (255, 60, 60, 255)),
+        "blade_armor": (with_slash(lambda fr: zio_armor(fr, (0.62, 0.75, 1.0), (0.6, 0.08, 1.2)), "wizarsword"),
+                        (110, 150, 255, 255)),
+        "hibiki_armor": (with_slash(lambda fr: zio_armor(fr, (0.78, 0.75, 0.9)), "drumstick"), (180, 120, 255, 255)),
+        "kabuto_armor": (lambda fr: zio_armor(fr, (0.6, 0.06, 1.2), (0.0, 0.95, 1.1)), (255, 70, 70, 255)),
+        "den_o_armor": (with_slash(lambda fr: zio_armor(fr, (0.99, 0.85, 1.0)), "dengasher_sword"), (255, 70, 70, 255)),
+        "kiva_armor": (lambda fr: zio_armor(fr, (0.13, 0.85, 1.1), (0.98, 0.85, 0.95)), (255, 70, 90, 255)),
+        "double_armor": (lambda fr: zio_armor(fr, (0.36, 0.8, 1.0), (0.0, 0.0, 0.35)), (90, 230, 110, 255)),
+        "fourze_armor": ({"*": lambda fr: zio_armor(fr, (0.6, 0.03, 1.35)),
+                          "light": lambda fr: add_weapon(zio_armor(fr, (0.6, 0.03, 1.35)), "rocket", HAND_BAND)},
+                         (245, 245, 250, 255)),
+        "decade_armor": (with_slash(lambda fr: zio_armor(fr, (0.93, 0.85, 0.9), lo=0.0), "ride_heisaber"),
+                         (235, 60, 150, 255)),
     }),
     # W có script riêng (double.gd): tiền tố "double_<soul><body>[xtreme]", 9 tổ hợp + CycloneJokerXtreme. Ảnh gốc
     # CycloneJoker sửa từ Decade bằng PixelLab Pro Flash edit; 9 tổ hợp còn lại đổi màu hai nửa (double_rule).
@@ -1658,7 +1780,30 @@ def build_enemies():
         for name, rule in variants.items():
             sets[name] = enemy_set(src, lambda fr, r=rule: recolor(fr, r))
             cells[name] = src.size[0]
+    # Rider đối thủ ở thế giới phụ (màn đấu Rider): hình form gốc của Rider đó, đánh = đấm nhẹ, gục = bị đánh.
+    for rider, folder in RIDER_FOES.items():
+        try:
+            src = Source(folder)
+        except (FileNotFoundError, KeyError) as e:
+            print("  chưa có %s (%s), bỏ qua" % (folder, e))
+            continue
+        if any(a not in src.anims for a in ("run", "light", "hurt")):
+            print("  %s thiếu animation, bỏ qua Rider đối thủ" % folder)
+            continue
+        src.anims["attack"] = src.anims["light"]
+        src.anims["die"] = src.anims["hurt"]
+        sets["rider_" + rider] = enemy_set(src)
+        cells["rider_" + rider] = src.size[0]
     return sets, cells
+
+
+# Rider đối thủ ở thế giới phụ (scripts/data/side_worlds.gd "duels") → thư mục hình form gốc. Sprite quái "rider_<id>".
+RIDER_FOES = {
+    "kuuga": "kuuga_mighty_fixed", "agito": "agito_canon", "ryuki": "ryuki_canon", "faiz": "faiz", "blade": "blade",
+    "hibiki": "hibiki", "kabuto": "kabuto", "den_o": "den_o", "kiva": "kiva", "double": "double", "ooo": "ooo",
+    "fourze": "fourze", "wizard": "wizard", "gaim": "gaim", "drive": "drive", "ghost": "ghost", "ex_aid": "ex_aid",
+    "build": "build", "zi_o": "zi_o",
+}
 
 
 # thư mục PixelLab → {tên sprite đổi màu: rule}. Rỗng = trùm, hoặc quái ghép đã tự có màu riêng.

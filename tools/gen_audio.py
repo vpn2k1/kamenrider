@@ -258,6 +258,11 @@ SFX = {
     "henshin_build": lambda: seq(*[noise(0.04, 0.5, lowpass=0.6, highpass=0.3) for _ in range(3)],
                                  *[tone(0.025, 900 + 60 * k, vol=0.3, duty=0.125) for k in range(10)],
                                  tone(0.15, note_hz(79), vol=0.3, duty=0.25), tone(0.25, note_hz(84), vol=0.3, duty=0.25), gap=0.02),
+    # Zi-O: Ride Watch bấm "tách", Ziku Driver xoay 360° (tiếng đồng hồ tích tắc nhanh dần), "Rider Time" ba nốt ngân
+    "henshin_zi_o": lambda: seq(tone(0.03, 2400, vol=0.45), *[tone(0.02, 1800 if k % 2 else 1300, vol=0.3, duty=0.125)
+                                                              for k in range(8)],
+                                tone(0.1, note_hz(76), vol=0.3, duty=0.25), tone(0.1, note_hz(81), vol=0.3, duty=0.25),
+                                tone(0.3, note_hz(88), vol=0.3, duty=0.25, vib=0.02, vib_rate=6), gap=0.03),
     "henshin_gaim": lambda: seq(tone(0.04, 2200, vol=0.45), noise(0.12, 0.6, lowpass=0.7, highpass=0.4),
                                 tone(0.7, 196, 220, wave_fn=saw, vol=0.3, vib=0.03, vib_rate=5, curve=0.4, attack=0.08), gap=0.06),
 }

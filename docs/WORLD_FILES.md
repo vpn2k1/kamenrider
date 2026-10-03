@@ -66,7 +66,7 @@ Màn (`stages`):
 | 2–4 (tới N−1) | Luyện tập | `name`, `form` (`&"id"` form trong `RIDER.forms`, không phải form gốc), `form_name`, `bg`, `bg_theme` |
 | 5 (màn cuối) | Trùm | `name` ("Trùm: …"), `bg`, `bg_theme`, `boss` |
 
-- `bg` = `"<id>_1"`, `"<id>_2"`, `"<id>_3"`, `"<id>_4"`, `"<id>_b"` (thế giới nhiều màn: tới `"<id>_8"`). `bg_theme` chọn trong danh mục cuối trang, hợp bối cảnh màn.
+- `bg` = `"<id>_1"`, `"<id>_2"`, `"<id>_3"`, `"<id>_4"`, `"<id>_b"` (thế giới nhiều màn: tới `"<id>_8"`). `bg_theme` chọn trong danh mục cuối trang, hợp bối cảnh màn. Nhiều màn chung một kiểu thì tự đổi tông màu / thời tiết; muốn nền riêng hẳn thì thêm câu mô tả vào `PROMPTS` của `tools/ai_backgrounds.py` (1 lượt PixelLab mỗi nền).
 - Bộ nạp gán mỗi màn một **bậc** 0–4 (`WorldData.tier_of`): 0 Thức tỉnh, 4 Trùm, các màn luyện tập chia đều vào 1–3. Cấp thưởng (bậc + 1), cấp quái, độ khó bố cục, lộ trình và đợt quái mặc định tính theo bậc, nên thế giới nhiều màn vẫn lên Lv5 ở màn Trùm và không khó hơn thế giới kế tiếp.
 - `boss` = `{"name", "hp" (220–320), "damage" (13–19), "poise" (18–32), "speed" (55–90), "traits": [] | ["fast"] | ["armored"], "color": Color}`. Đây là chỉ số ở **thế giới 1**; bộ nạp tự nhân theo thế hệ.
 - Không cần ghi `route`, `waves`, `id`, `type`: bộ nạp tự điền.
@@ -97,7 +97,7 @@ Ryuki Survive. Ryuki chỉ có 2 form (Ryuki, Survive); các thẻ Vent là vũ 
 - `"item": true`: form chỉ là vũ khí / lá bài / đòn (Ryuki Vent, Blade Mach Jaguar / Thunder Deer, Hibiki Onibi / Kaentsuzumi). Quái ở màn có form này rơi ra như item, không bắt buộc nhặt; người chơi chọn tối đa 2 item mang vào màn. Form đổi ngoại hình thật thì để trống.
 - `"effect": "time"` (+ `"time_call"`): tăng tốc thời gian (Clock Up, Axel).
 - `"fx"`: hiệu ứng đánh theo nguyên tác, xem `RiderForm.fx()` và `scripts/combat/fx.gd`.
-- Mỗi form phụ (trừ final form mở ở Lv5) rơi ra ở đúng một màn luyện tập; Rider ít form thì màn luyện tập có thể không rơi gì (Kabuto 7-2, 7-3).
+- Mỗi form phụ (trừ final form mở ở Lv5) rơi ra ở đúng một màn luyện tập (hoặc một màn đấu Rider ở thế giới phụ, xem dưới); Rider ít form thì màn luyện tập có thể không rơi gì (Kabuto 7-2, 7-3).
 
 **Kiểu đòn (`style`)**. Nút Đánh luôn là **tay không** (đấm / đá): `brawler`, `lancer`, `heavy` dùng đúng bảng dưới, còn `blade` và `gunner` đánh tay như `brawler`. Kiếm sang **nút Chém** (K), súng sang **nút Bắn** (H), vũ khí chỉ hiện khi đang dùng. Final Attack theo đúng `style`.
 
@@ -169,6 +169,20 @@ Khóa `"1"`…`"4"` (thế giới nhiều màn: tới `"8"`), `"B"`. Mỗi màn 
 - Màn luyện tập `key`: một câu nói form mới làm gì (nhanh / nặng / bắn xa...), khớp `style` và chỉ số.
 - Màn B `clear`: trùm tan, **Driver thế giới kế tiếp** (tên theo bảng) hiện ra bọc tinh thể tím; sức mạnh Rider của thế giới trở về trọn vẹn (tên form Lv5); Echo Rider nói câu chia tay.
 - `WORLD_CLEAR`: 1–3 câu trên bản đồ, nhắc Trái Đất vừa sáng lại và chặng tiếp theo.
+
+## Thế giới phụ (nhánh rẽ, `scripts/data/side_worlds.gd`)
+
+Nhánh rẽ khỏi chuỗi chính, không rơi Driver, không đẩy tiến trình. Trên bản đồ là biểu tượng nhỏ ngay dưới thế giới cha (▼ xuống, ▲ lên).
+
+| Thế giới phụ | Cha | Mở khi | Mỗi màn |
+|---|---|---|---|
+| `decade_cards` · Hành trình thẻ Kamen Ride | Decade (10) | giải cứu thế giới 10 | đấu một Rider, thắng nhặt thẻ Kamen Ride (form `&"<rider>"` của Decade) |
+| `zi_o_watches` · Kho Ride Watch | Zi-O (20) | giải cứu thế giới 20 | đấu một Rider, thắng nhặt Ride Watch (form `&"<rider>_armor"` của Zi-O) |
+
+- Màn đấu Rider (`StageType.DUEL`, mã `"28-3"`): quái thường của thế giới Rider đối thủ, nền màn 2 của thế giới đó, cuối đường là chính Rider ấy (hình `rider_<id>` trong `enemy_frames.tres`, `tools/import_pixellab.py` `RIDER_FOES`). Màn mở khi đã giải cứu thế giới của Rider đối thủ, nên qua thêm thế giới chính thì nhánh rẽ có thêm màn.
+- Cấp quái theo thế giới cha hoặc thế giới đối thủ (lấy cái sau hơn). Không thưởng cấp Rider.
+- Thêm Rider đối thủ (khi đã có hình): thêm id vào `"duels"`, thêm form tương ứng vào `RIDER.forms` / `"order"` / `VOICE` của Rider cha, thêm hình vào `DATA_RIDERS` và `RIDER_FOES`. Thoại riêng (tùy chọn) ở `STORY`, thiếu nhịp nào thì dùng `"template"`.
+- Form rơi ở thế giới phụ được tính là "rơi ra ở một màn" khi validate (không cần màn luyện tập ở thế giới chính).
 
 ## Mạch truyện toàn game
 

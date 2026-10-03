@@ -55,7 +55,11 @@ func is_axel() -> bool:
 
 
 func rage_drain() -> float:
-	return AXEL_RAGE_DRAIN if is_axel() else RAGE_DRAIN
+	return AXEL_RAGE_DRAIN if is_axel() else super()
+
+
+func is_time_form() -> bool:
+	return is_axel()
 
 
 func special_available() -> bool:
@@ -89,6 +93,40 @@ const FX := {
 
 func fx() -> Dictionary:
 	return FX.get(form, {})
+
+
+## Skill theo form (docs/SKILLS.md, khóa xem Skills). Axel: mọi skill mang &"time" (đánh trúng quái siêu tốc).
+const SKILLS := {
+	&"faiz": [
+		{"name": "Grand Impact", "type": "aim", "tags": [&"stun"], "fx": "phi", "color": Color(1.0, 0.45, 0.1)},
+		{"name": "Faiz Edge", "type": "aim", "move": "wave", "anim": "heavy", "shot": {"radius": 8.0, "style": "wave"},
+			"fx": "slash", "color": Color(1.0, 0.15, 0.35)},
+	],
+	&"axel": [
+		{"name": "Accel Dash", "type": "aim", "tags": [&"time"], "hits": 2, "fx": "clock",
+			"color": Color(0.85, 0.9, 1.0), "icon": "clock"},
+		{"name": "Accel Grand Impact", "type": "lock", "tags": [&"time"], "hits": 3, "fx": "pointer",
+			"color": Color(1.0, 0.2, 0.2)},
+	],
+	&"blaster": [
+		{"name": "Photon Buster", "type": "aim", "move": "shot", "shot": {"radius": 7.0, "pierce": true, "style": "ball"},
+			"fx": "lightning", "color": Color(1.0, 0.2, 0.35)},
+		{"name": "Blaster Spread", "type": "area", "fx": "ring", "summon": "phi", "color": Color(1.0, 0.85, 0.3)},
+	],
+}
+const FINAL_TYPES := {&"faiz": "lock", &"axel": "lock_multi", &"blaster": "lock"}
+
+
+func skill_specs() -> Array:
+	return SKILLS.get(form, [])
+
+
+func final_type() -> String:
+	return FINAL_TYPES.get(form, "aim")
+
+
+func final_targets() -> int:
+	return 4
 
 
 func gun_look() -> String:

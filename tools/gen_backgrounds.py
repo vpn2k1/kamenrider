@@ -1598,6 +1598,89 @@ def seed_of(name):
     return sum((i + 1) * ord(ch) for i, ch in enumerate(name))
 
 
+# --- Biến thể: nhiều màn chung một kiểu nền thì màn thứ 2, 3… đổi tông màu + thời tiết -------------
+# Ma trận màu RGB (12 số, như Image.convert) rồi lớp phủ. Biến thể 0 = giữ nguyên.
+
+def _grade(im, m):
+    rgb_im = im.convert("RGB").convert("RGB", m)
+    im.paste(rgb_im.convert("RGBA"))
+
+
+def _rain(im, rng, color, count=420):
+    d = ImageDraw.Draw(im)
+    for _ in range(count):
+        x, y = rng.randrange(W), rng.randrange(4, H - 8)
+        d.line((x, y, x - 2, y + 6), fill=color)
+
+
+def _snow(im, rng, count=360):
+    px = im.load()
+    for _ in range(count):
+        x, y = rng.randrange(W), rng.randrange(4, H - 2)
+        c = mix(px[x, y], (255, 255, 255, 255), rng.choice((0.6, 0.85)))
+        px[x, y] = c
+        if rng.random() < 0.3:
+            px[(x + 1) % W, y] = c
+
+
+def _aurora(im, rng, colors):
+    over = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    od = over.load()
+    seed = rng.randrange(999)
+    for x in range(W):
+        mid = 40 + 18 * periodic(x, seed, (1, 2, 3))
+        for y in range(8, 110):
+            t = abs(y - mid) / 26.0
+            if t < 1.0 and (BAYER[y % 4][x % 4] + 0.5) / 16.0 < (1.0 - t) * 0.7:
+                c = colors[0] if y < mid else colors[1]
+                od[x, y] = c[:3] + (90,)
+    im.alpha_composite(over)
+
+
+def _sun(im, cx, cy, r, color):
+    d = ImageDraw.Draw(im)
+    d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=color)
+
+
+VARIANTS = [
+    None,
+    # đêm xanh, sao
+    ((0.42, 0, 0, 4, 0, 0.48, 0, 8, 0.06, 0.1, 0.72, 26), lambda im, rng: stars(im, rng, 90, 90)),
+    # bình minh hồng, sương
+    ((0.95, 0.12, 0.05, 22, 0.05, 0.8, 0.08, 10, 0.08, 0.06, 0.82, 26), lambda im, rng: fog(im, 120, 190, rgb("f8d0e0"), 0.45)),
+    # tuyết lạnh
+    ((0.55, 0.25, 0.12, 30, 0.2, 0.6, 0.15, 34, 0.2, 0.25, 0.6, 52), lambda im, rng: _snow(im, rng)),
+    # mưa bão xám
+    ((0.5, 0.15, 0.05, 6, 0.12, 0.52, 0.1, 10, 0.1, 0.15, 0.55, 18), lambda im, rng: _rain(im, rng, rgb("9aa8c0"))),
+    # hoàng hôn vàng, mặt trời lớn
+    ((1.0, 0.1, 0, 30, 0.05, 0.8, 0, 12, 0, 0.05, 0.5, 0),
+     lambda im, rng: (_sun(im, rng.randrange(120, W - 120), 70, 22, rgb("fff0b0")), rays(im, 400, 60, rgb("fff0b0"), 10))),
+    # đỏ rực, tàn lửa
+    ((0.95, 0.25, 0.1, 30, 0.08, 0.45, 0.05, 0, 0.05, 0.1, 0.4, 6),
+     lambda im, rng: particles(im, rng, 140, [rgb("ffb040"), rgb("ff6a20")], 10, BASE)),
+    # tím, cực quang
+    ((0.62, 0.08, 0.2, 10, 0.05, 0.45, 0.15, 0, 0.22, 0.12, 0.85, 26),
+     lambda im, rng: _aurora(im, rng, [rgb("80ffc0"), rgb("c080ff")])),
+    # xanh lục độc, đom đóm
+    ((0.45, 0.15, 0, 0, 0.12, 0.8, 0.1, 14, 0.05, 0.25, 0.55, 12),
+     lambda im, rng: particles(im, rng, 90, [rgb("c0ff80"), rgb("80ffd0")], 30, BASE)),
+]
+
+
+def apply_variant(im, k, rng):
+    v = VARIANTS[k % len(VARIANTS)]
+    if v is None:
+        return
+    _grade(im, v[0])
+    v[1](im, rng)
+    # Giữ quy ước: hàng trên cùng một màu (game lấy điểm (0, 0) tô trời ngoài ảnh).
+    top = im.getpixel((0, 0))
+    ImageDraw.Draw(im).rectangle((0, 0, W - 1, 3), fill=top)
+
+
+AI_DIR = os.path.join(OUT, "ai")   # nền vẽ bằng PixelLab (tools/ai_backgrounds.py): không vẽ đè
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     jobs = {name: name for name in list(THEMES)[:14]}   # nền riêng: tên ảnh = tên kiểu
@@ -1608,11 +1691,19 @@ def main():
     bad = [f"{k} ({v})" for k, v in jobs.items() if v not in THEMES]
     if bad:
         sys.exit("Kiểu nền không có trong THEMES: " + ", ".join(bad))
+    # Thứ tự xuất hiện của mỗi kiểu nền (theo thứ tự thế giới) → biến thể. Tính trên toàn bộ, kể cả khi chỉ vẽ vài nền.
+    seen, variant = {}, {}
+    for name, theme in world_backgrounds().items():
+        variant[name] = seen.get(theme, 0)
+        seen[theme] = variant[name] + 1
     for name, theme in jobs.items():
+        if os.path.exists(os.path.join(AI_DIR, name + ".png")):
+            continue
         im = Image.new("RGBA", (W, H), (0, 0, 0, 255))
         legacy = list(THEMES)[:14]
         seed = 1000 + legacy.index(name) if name in legacy else seed_of(name)   # nền cũ giữ nguyên hình
         THEMES[theme](im, random.Random(seed))
+        apply_variant(im, variant.get(name, 0), random.Random(seed + 7))
         im.save(os.path.join(OUT, name + ".png"))
     print("Đã vẽ %d nền vào %s" % (len(jobs), os.path.relpath(OUT, ROOT)))
 

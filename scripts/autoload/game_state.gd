@@ -35,6 +35,7 @@ const HUMAN_POWER_PER_WORLD := 0.06
 const DEFAULT_PLAYER_NAME := "Sora"
 const MAX_NAME_LENGTH := 12
 const BOSS_LEVEL_BONUS := 2
+const DIFFICULTY_EXTRA_LEVELS := 3.0   ## quái ở độ khó tối đa (thế giới cuối) mạnh hơn thêm chừng này cấp
 const CHALLENGE_FRAGMENTS := 150        ## qua màn EX lần đầu (WorldData.StageType.CHALLENGE)
 ## Hệ số sát thương của quái theo tiến độ, để các màn đầu dễ thở:
 ##   chưa có Driver nào (màn 1-1, đánh tay không) 35% · thế giới 1: 1-2 60%, 1-3 75%, 1-4 90%, trùm 100%
@@ -61,9 +62,11 @@ const INPUT_KEYS := {
 	"special": [KEY_L],
 	"dodge": [KEY_SHIFT],
 	"henshin": [KEY_I],
-	"swap_rider": [KEY_O],
+	"swap_rider": [],            ## đổi Rider (mỗi màn một Rider nên không gán phím)
 	"menu": [KEY_ESCAPE, KEY_P],   ## về màn chọn màn
-	"final_attack": [KEY_U],
+	"final_attack": [KEY_O],
+	"skill_1": [KEY_U],          ## skill nhẹ của form (docs/SKILLS.md)
+	"skill_2": [KEY_Y],          ## skill mạnh của form
 	"ultimate": [],   ## nút tuyệt chiêu trên màn hình: biến thân hoặc Final Attack
 	"help": [],       ## nút "?" trên màn hình (chỉ bản web): mở bảng hướng dẫn nút bấm (HelpOverlay)
 }
@@ -76,12 +79,21 @@ var in_stage := false                   ## đang trong màn (gục thì tải l�
 var carried_items: Array[StringName] = []   ## item của Rider chính mang vào màn đang chơi (tối đa MAX_ITEMS)
 ## Form biến đổi dùng được trong màn đang chơi: form chọn trước màn (tối đa 1, như trận đấu) + form nhặt giữa màn.
 var carried_forms: Array[StringName] = []
+var chosen_form: StringName = &""       ## form chọn mang vào màn (&"" = form gốc), nhận thưởng CLEAR_BOOST
 var worlds_cleared := 0
 var drivers := {}                       ## "kuuga" -> {"active": bool, "level": int, "forms": ["dragon", ...]}
-## Tăng sức mạnh khi chơi lại màn đã qua: "kuuga" -> {"dragon" -> {"atk": 3, ...}}, mỗi điểm +BOOST_STEP chỉ số đó
-## cho riêng form đó (RiderForm.bonus). Chỉ số: BOOST_STATS.
+## Chỉ số cộng thêm của từng form: "kuuga" -> {"dragon" -> {"atk": 0.0123, ...}} = +1.23% sức đánh cho riêng form đó
+## (RiderForm.bonus; dạng người lưu ở HUMAN_KEY / HUMAN_KEY, Player tự áp). Chỉ số: BOOST_STATS. Nhận được từ:
+##   - hạ mỗi quái: +KILL_BOOST một chỉ số ngẫu nhiên của dạng đang dùng (form Rider hoặc dạng người)
+##   - qua màn của thế giới đã qua hết các màn từ trước (chơi lại): +CLEAR_BOOST một chỉ số ngẫu nhiên cho form mang
+##     vào màn (form gốc nếu không mang form nào; chưa có Rider thì dạng người). Lần đầu đi qua thế giới thì không,
+##     thưởng vẫn là lên cấp / Driver / form như cũ.
 var form_bonus := {}
-const BOOST_STEP := 0.01
+const BOOST_STEP := 0.01        ## (save cũ) mỗi điểm cũ = +1%, đổi sang tỉ lệ khi đọc save
+const KILL_BOOST := 0.0001      ## +0.01% mỗi quái hạ được
+const CLEAR_BOOST := 0.001      ## +0.1% mỗi màn chơi lại
+const HUMAN_KEY := &"human"
+const HUMAN_BOOST_STATS := ["hp", "atk", "speed", "jump"]   ## dạng người không có giáp / trụ vững
 const BOOST_STATS := {"hp": "Máu", "atk": "Sát thương", "armor": "Giáp", "speed": "Tốc độ", "jump": "Sức nhảy",
 	"poise": "Trụ vững"}
 var main_rider: StringName = &""        ## Rider dùng trong màn, chọn trước mỗi màn; trong màn không đổi Rider
@@ -93,7 +105,7 @@ var player_name := DEFAULT_PLAYER_NAME
 ## Đã đặt tên (lưu trong SETTINGS_PATH): mở game lại thì vào thẳng, không qua màn nhập tên (đổi tên ở màn hình chính).
 var name_set := false
 ## Hội thoại đã xem (StoryData): "intro", "1-1:start", "world:kuuga"... Mỗi đoạn chỉ hiện một lần mỗi lượt chơi,
-## gục rồi chơi lại từ checkpoint không bị lặp.
+## gục rồi chơi lại màn không bị lặp.
 var seen_story: Array[String] = []
 ## Tắt để bot test chạy không dừng vì hội thoại.
 var story_enabled := true
@@ -106,16 +118,32 @@ var versus_form: StringName = &""          ## &"" = chỉ form gốc
 var versus_items: Array[StringName] = []   ## tối đa MAX_ITEMS
 ## false: không đọc / ghi save (bot test gọi use_test_profile để không đè lên tiến trình thật của người chơi).
 var persist := true
-## Checkpoint trong màn hiện tại: chỉ số trong layout["checkpoints"] (-1 = đầu màn).
-## Giữ qua lần chơi lại khi gục, xóa khi qua màn.
-var checkpoint := -1
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS   # nút back vẫn nhận khi game đang dừng (hội thoại)
 	_setup_input()
 	load_settings()
 	if not DEBUG_FRESH_START:
 		load_game()
+
+
+## Nút back của Android (project.godot: quit_on_go_back = false) = bấm phím Esc: quay lại ở mọi màn (chọn màn, chọn
+## Rider / form / item, hội thoại, bảng hướng dẫn, nhập tên, trong màn về màn chọn màn); màn hình chính thì thoát app.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		_tap_key(KEY_ESCAPE)
+
+
+func _tap_key(key: Key) -> void:
+	for pressed in [true, false]:
+		var ev := InputEventKey.new()
+		ev.keycode = key
+		ev.physical_keycode = key
+		ev.pressed = pressed
+		Input.parse_input_event(ev)
+		if pressed:
+			await get_tree().process_frame
 
 
 ## Bot test: bắt đầu từ tiến trình trống và không ghi save (save thật của người chơi giữ nguyên).
@@ -138,7 +166,6 @@ func use_test_profile() -> void:
 	player_name = DEFAULT_PLAYER_NAME
 	name_set = false
 	seen_story.clear()
-	checkpoint = -1
 	versus_rider = &""
 	versus_form = &""
 	versus_items.clear()
@@ -183,7 +210,18 @@ func enemy_damage_mult() -> float:
 
 
 func current_enemy_level() -> int:
-	return 1 + int(world_index * ENEMY_LEVELS_PER_WORLD) + int(current_stage().get("tier", stage_index))
+	return 1 + int(level_world() * ENEMY_LEVELS_PER_WORLD) + int(current_stage().get("tier", stage_index)) \
+		+ int(difficulty() * DIFFICULTY_EXTRA_LEVELS)
+
+
+## Độ khó 0..1 của màn đang chơi (WorldData.difficulty_of): thế giới càng sau càng khó.
+func difficulty() -> float:
+	return float(current_stage().get("difficulty", 0.0))
+
+
+## Thế giới tính cấp quái / sức mạnh dạng người: thế giới đang chơi, màn ở thế giới phụ thì theo "level_world" của màn.
+func level_world() -> int:
+	return int(current_stage().get("level_world", world_index))
 
 
 ## Hệ số sức mạnh thế hệ của Rider (RiderForm.power).
@@ -195,7 +233,7 @@ func rider_power(id: StringName) -> float:
 func human_power() -> float:
 	if versus:
 		return 1.0
-	return 1.0 + HUMAN_POWER_PER_WORLD * mini(world_index, WorldData.WORLDS.size() - 1)
+	return 1.0 + HUMAN_POWER_PER_WORLD * mini(level_world(), WorldData.WORLDS.size() - 1)
 
 
 ## Đã qua hết mọi thế giới (vẫn chọn lại được các màn cũ ở màn chọn màn).
@@ -204,19 +242,29 @@ func is_demo_finished() -> bool:
 
 
 ## Màn EX (sau màn Trùm) mở khi đã giải cứu thế giới đó: frontier_stage không bao giờ trỏ tới nó.
+## Màn ở thế giới phụ: mở khi đã giải cứu cả thế giới cha lẫn thế giới của Rider đối thủ (WorldData "source_world").
 func is_stage_unlocked(w: int, s: int) -> bool:
+	if WorldData.is_side(w):
+		var stage: Dictionary = WorldData.world_at(w)["stages"][s]
+		return is_world_unlocked(w) and int(stage["source_world"]) < frontier_world
 	return w < frontier_world or (w == frontier_world and s <= frontier_stage)
+
+
+## Thế giới chính: đã tới (đang chơi hoặc đã giải cứu). Thế giới phụ: đã giải cứu thế giới cha.
+func is_world_unlocked(w: int) -> bool:
+	if WorldData.is_side(w):
+		return int(WorldData.world_at(w)["parent_world"]) < frontier_world
+	return w <= frontier_world
 
 
 ## Chọn màn để chơi (màn chọn màn). Bắt đầu từ đầu màn.
 func select_stage(w: int, s: int) -> void:
 	world_index = w
 	stage_index = s
-	checkpoint = -1
 
 
 func current_world() -> Dictionary:
-	return WorldData.WORLDS[world_index]
+	return WorldData.world_at(world_index)
 
 
 func current_stage() -> Dictionary:
@@ -257,13 +305,12 @@ func complete_stage() -> Dictionary:
 		if not cleared_stages.has(stage["id"]):
 			worlds_cleared += 1
 
-	checkpoint = -1
 	in_stage = false
 	var first_clear := not cleared_stages.has(stage["id"])
 	if first_clear:
 		cleared_stages.append(stage["id"])
-	# Qua màn xa nhất đã mở thì mở màn kế (chơi lại màn cũ không mở gì thêm).
-	if world_index == frontier_world and stage_index == frontier_stage:
+	# Qua màn xa nhất đã mở thì mở màn kế (chơi lại màn cũ không mở gì thêm). Thế giới phụ không nằm trong chuỗi.
+	if not WorldData.is_side(world_index) and world_index == frontier_world and stage_index == frontier_stage:
 		frontier_stage += 1
 		if frontier_stage >= int(world["main_count"]):
 			frontier_stage = 0
@@ -403,8 +450,10 @@ func set_carried(items: Array[StringName]) -> void:
 ## Form biến đổi mang vào màn (chọn trước màn, &"" = chỉ form gốc).
 func set_carried_form(form_id: StringName) -> void:
 	carried_forms.clear()
+	chosen_form = &""
 	if form_id != &"" and owned_forms(main_rider).has(form_id):
 		carried_forms.append(form_id)
+		chosen_form = form_id
 
 
 ## Form dùng được trong màn: form biến đổi phải là form đã chọn mang vào (hoặc nhặt giữa màn), item phải đang mang theo.
@@ -433,7 +482,7 @@ func form_count(id: StringName) -> int:
 
 ## Rider của thế giới đang chơi (form của màn chỉ rơi cho Rider này).
 func world_rider() -> StringName:
-	return current_world()["rider"] if world_index < WorldData.WORLDS.size() else &""
+	return current_world()["rider"] if world_index < WorldData.WORLDS.size() + WorldData.SIDE_WORLDS.size() else &""
 
 
 ## Chọn Rider chính trước khi vào màn.
@@ -478,25 +527,51 @@ func add_fragments(amount: int) -> void:
 
 # --- Lưu / đọc -----------------------------------------------------------
 
-## Hệ số của chỉ số `stat` cho form `form` của Rider `rider`: 1 + BOOST_STEP × số lần đã cộng.
+## Hệ số của chỉ số `stat` cho form `form` của Rider `rider`: 1 + tỉ lệ đã cộng.
 func bonus_mult(rider: StringName, form: StringName, stat: String) -> float:
+	return 1.0 + bonus_value(rider, form, stat)
+
+
+## Tỉ lệ đã cộng (0.0123 = +1.23%).
+func bonus_value(rider: StringName, form: StringName, stat: String) -> float:
 	var forms: Dictionary = form_bonus.get(String(rider), {})
-	return 1.0 + BOOST_STEP * int((forms.get(String(form), {}) as Dictionary).get(stat, 0))
+	return float((forms.get(String(form), {}) as Dictionary).get(stat, 0.0))
 
 
-func bonus_count(rider: StringName, form: StringName, stat: String) -> int:
-	var forms: Dictionary = form_bonus.get(String(rider), {})
-	return int((forms.get(String(form), {}) as Dictionary).get(stat, 0))
+## Hệ số chỉ số của dạng người. Chế độ đấu: dạng người ai cũng như nhau.
+func human_bonus(stat: String) -> float:
+	return 1.0 if versus else bonus_mult(HUMAN_KEY, HUMAN_KEY, stat)
 
 
-## Cộng thêm BOOST_STEP vào chỉ số `stat` của form, lưu game.
-func add_bonus(rider: StringName, form: StringName, stat: String) -> void:
+## Cộng `amount` (mặc định BOOST_STEP) vào chỉ số `stat` của form. save = false: chỉ ghi khi có dịp lưu kế tiếp
+## (hạ quái liên tục, không ghi file mỗi con).
+func add_bonus(rider: StringName, form: StringName, stat: String, amount := BOOST_STEP, save := true) -> void:
 	var forms: Dictionary = form_bonus.get(String(rider), {})
 	var stats: Dictionary = forms.get(String(form), {})
-	stats[stat] = int(stats.get(stat, 0)) + 1
+	stats[stat] = float(stats.get(stat, 0.0)) + amount
 	forms[String(form)] = stats
 	form_bonus[String(rider)] = forms
-	save_game()
+	if save:
+		save_game()
+
+
+## Cộng `amount` vào một chỉ số ngẫu nhiên; rider = HUMAN_KEY cho dạng người. Trả về khóa chỉ số đã cộng.
+func add_random_bonus(rider: StringName, form: StringName, amount: float, save := true) -> String:
+	var pool: Array = HUMAN_BOOST_STATS if rider == HUMAN_KEY else BOOST_STATS.keys()
+	var stat: String = pool.pick_random()
+	add_bonus(rider, form, stat, amount, save)
+	return stat
+
+
+## Đã qua hết các màn chính (không tính màn EX) của thế giới `w` chưa.
+func world_fully_cleared(w: int) -> bool:
+	if w < 0 or w >= WorldData.WORLDS.size():
+		return false
+	var stages: Array = WorldData.WORLDS[w]["stages"]
+	for i in int(WorldData.WORLDS[w].get("main_count", stages.size())):
+		if not cleared_stages.has(str(stages[i]["id"])):
+			return false
+	return true
 
 
 func save_game() -> void:
@@ -511,6 +586,7 @@ func save_game() -> void:
 		"worlds_cleared": worlds_cleared,
 		"drivers": drivers,
 		"form_bonus": form_bonus,
+		"bonus_unit": "fraction",
 		"main_rider": str(main_rider),
 		"fragments": memory_fragments,
 		"cleared_stages": cleared_stages,
@@ -529,6 +605,7 @@ func save_settings() -> void:
 	if not persist:
 		return
 	var cfg := ConfigFile.new()
+	cfg.load(SETTINGS_PATH)   # giữ các mục khác (âm thanh, Sound.save_settings)
 	cfg.set_value("player", "name", player_name)
 	cfg.set_value("player", "name_set", name_set)
 	cfg.save(SETTINGS_PATH)
@@ -556,9 +633,20 @@ func load_game() -> void:
 	stage_index = int(data.get("stage_index", 0))
 	frontier_world = int(data.get("frontier_world", 0))
 	frontier_stage = int(data.get("frontier_stage", 0))
+	# Màn đang chọn không còn (thế giới phụ bớt màn / đổi thứ tự): về màn xa nhất đã mở.
+	if world_index >= WorldData.WORLDS.size() + WorldData.SIDE_WORLDS.size() \
+			or stage_index >= (WorldData.world_at(world_index)["stages"] as Array).size():
+		world_index = mini(frontier_world, WorldData.WORLDS.size() - 1)
+		stage_index = frontier_stage if frontier_world < WorldData.WORLDS.size() else 0
 	worlds_cleared = int(data.get("worlds_cleared", 0))
 	drivers = data.get("drivers", {})
 	form_bonus = data.get("form_bonus", {})
+	if str(data.get("bonus_unit", "")) != "fraction":
+		# Save cũ lưu số lần +1%: đổi sang tỉ lệ
+		for r in form_bonus:
+			for f in form_bonus[r]:
+				for k in form_bonus[r][f]:
+					form_bonus[r][f][k] = float(form_bonus[r][f][k]) * BOOST_STEP
 	main_rider = StringName(str(data.get("main_rider", "")))
 	memory_fragments = int(data.get("fragments", 0))
 	cleared_stages.clear()

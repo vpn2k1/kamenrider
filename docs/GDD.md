@@ -386,7 +386,7 @@ Trùm thế giới Gavv rơi ra **Chrono Driver**, chiếc Driver không thuộc
                                     · màn hình tối dần                 │
                                     · dựng màn kế + ĐỔI NỀN ───────────┘
    Vào màn: dạng người, máu người đầy, nộ đầy → thoại đầu màn → chọn Rider chính → chạy.
-   Chết giữa màn → chơi lại từ checkpoint (cũng vào ở dạng người, nộ đầy). Tiến trình và cấp đã đạt được giữ nguyên.
+   Chết giữa màn → chơi lại từ đầu màn, không có checkpoint (cũng vào ở dạng người, nộ đầy). Tiến trình và cấp đã đạt được giữ nguyên.
 ```
 
 **Chi tiết luồng qua màn** (`stage_run.gd` `_finish_stage`, `_go_next_stage`, `_start_stage`):
@@ -410,7 +410,7 @@ Trùm thế giới Gavv rơi ra **Chrono Driver**, chiếc Driver không thuộc
 | 1-4 | Bến cảng đêm, cần cẩu, container | 4-4 | Phòng thí nghiệm: bể kính, màn hình | 11-4 | Khu công nghiệp, ống khói |
 | 1-B | Trời đỏ máu, thành phố cháy | 4-B | Trời tro xám, tàn tro rơi | 11-B | Đêm bão, sét, mưa |
 
-Các thế giới khác: mỗi màn một ảnh `<id>_1` … `<id>_b`, kiểu nền chọn trong 50 kiểu của `tools/gen_backgrounds.py` (danh mục ở `docs/WORLD_FILES.md`); mỗi ảnh một hạt giống theo tên nên hai màn cùng kiểu vẫn khác nhau.
+Các thế giới khác: mỗi màn một ảnh `<id>_1` … `<id>_b`, kiểu nền chọn trong 50 kiểu của `tools/gen_backgrounds.py` (danh mục ở `docs/WORLD_FILES.md`); mỗi ảnh một hạt giống theo tên; màn thứ 2, 3… dùng cùng một kiểu còn được đổi tông màu + thời tiết (đêm sao, bình minh sương, tuyết, mưa, hoàng hôn vàng, đỏ tàn lửa, cực quang, đom đóm — `VARIANTS` trong `gen_backgrounds.py`). 21 màn từng dùng chung `city_night` / `city_day` có nền riêng vẽ bằng PixelLab (`tools/ai_backgrounds.py`, ảnh gốc 400 px ở `art/backgrounds/ai/`, ghép với bản lật thành 800 px); `gen_backgrounds.py` không vẽ đè các nền này.
 
 Bản mẫu (`scripts/levels/stage_run.gd`) chạy đúng vòng lặp này, mỗi màn là một đường cuộn ngang kiểu Contra (mục 3.14), qua đủ 15 màn của 3 thế giới đầu.
 
@@ -436,8 +436,14 @@ sau đó        : stage_index += 1 (hết màn thì sang thế giới kế), lư
 ```
 Nhờ luật "chỉ lên, không xuống", chơi lại màn cũ không bao giờ làm tụt cấp.
 
+**Chỉ số cộng thêm** (`GameState.form_bonus`, lưu theo từng form; dạng người lưu riêng ở khóa `human`):
+- **Hạ mỗi quái:** +0.01% một chỉ số ngẫu nhiên (Máu, Sát thương, Giáp, Tốc độ, Sức nhảy, Trụ vững) cho dạng đang dùng lúc quái gục: form Rider đang mặc, hoặc dạng người (dạng người chỉ Máu / Sát thương / Tốc độ / Sức nhảy).
+- **Qua màn khi chơi lại thế giới đã qua hết các màn chính** (không tính màn EX; kiểm tra lúc vào màn): +0.1% một chỉ số ngẫu nhiên cho form mang vào màn ở màn chọn form, hoặc form gốc của Rider chính nếu không mang form nào (chưa có Rider thì dạng người). Lần đầu đi qua thế giới thì không có khoản này; thưởng lần đầu vẫn là lên cấp, Driver, form như bảng trên.
+- Bảng kết quả qua màn ghi số quái đã hạ (+%) và khoản thưởng chơi lại. Chế độ đấu: chỉ số cộng thêm của form Rider vẫn tính, của dạng người thì không (dạng người ai cũng như nhau).
+- Thay cho vật phẩm "Tăng sức mạnh +1%" (chọn chỉ số) ở bản trước; save cũ (số lần +1%) được đổi sang tỉ lệ khi đọc.
+
 **Chọn Rider chính và đội hình:**
-- **Trước mỗi màn**, nếu đã có từ 2 Rider trở lên, hiện **màn chọn Rider chính** (`scripts/ui/rider_select.gd`): mỗi thẻ có tên, cấp, mô tả lối chơi, 5 thanh chỉ số của form gốc (Máu · Giáp · Tốc độ · Sức đánh · Nhảy), số form đã có, và dấu **★ Rider thế giới** (form của màn chỉ rơi cho Rider này). Chỉ có 1 Rider thì tự chọn. Hồi sinh ở checkpoint thì không hỏi lại.
+- **Trước mỗi màn**, nếu đã có từ 2 Rider trở lên, hiện **màn chọn Rider chính** (`scripts/ui/rider_select.gd`): mỗi thẻ có tên, cấp, mô tả lối chơi, 5 thanh chỉ số của form gốc (Máu · Giáp · Tốc độ · Sức đánh · Nhảy), số form đã có, và dấu **★ Rider thế giới** (form của màn chỉ rơi cho Rider này). Chỉ có 1 Rider thì tự chọn. Gục rồi chơi lại thì không hỏi lại.
 - **Đội hình trong màn** = Rider chính + Rider của thế giới đang chơi (nếu đã kích hoạt và khác Rider chính) — `GameState.rebuild_team()`. **Đổi Rider** chỉ đổi qua lại giữa hai Rider này. Biến thân (I) luôn vào Rider chính.
 - Vào màn mà đang biến thân thì chuyển ngay sang Rider chính (giữ tỉ lệ máu Rider).
 - Nhặt Driver của thế giới ở màn X-1: Rider mới vào đội hình (không thay Rider chính) và biến thân ngay vào nó như luật nhặt Driver.
@@ -570,7 +576,7 @@ Trạng thái bất tử: DODGE (trừ đạn), HENSHIN, SWAP, BREAK, và các �
 
 | Thanh | Dùng để | Tăng | Giảm |
 |---|---|---|---|
-| **Nộ** | Biến thân · đổi sang form đặc biệt · Final Attack · **nhiên liệu của form đặc biệt** | Dạng người: +8 mỗi đòn trúng. Form gốc: +0.7 × sát thương gây ra (đạn tính một nửa). Cả hai: +0.8 × máu mất | Xem bên dưới |
+| **Nộ** | Biến thân · đổi sang form đặc biệt · Final Attack · **nhiên liệu của form đặc biệt** | Dạng người: +8 mỗi đòn trúng. Form gốc: +0.7 × sát thương gây ra (đạn tính một nửa). Cả hai: +0.8 × máu mất, +4 mỗi quái hạ được, chém đạn +4 / phản đạn +10 | Xem bên dưới |
 
 **Nộ theo từng dạng:**
 
@@ -578,7 +584,7 @@ Trạng thái bất tử: DODGE (trừ đạn), HENSHIN, SWAP, BREAK, và các �
 |---|---|
 | Dạng người | Nộ đầy → **I** biến thân vào **form gốc** của Rider chính. Biến thân **không** mất nộ. Mỗi màn bắt đầu ở dạng người với nộ đầy |
 | Form gốc (Kuuga Mighty, Faiz, W CycloneJoker) | Nộ không tụt. **L** vào form đặc biệt: cần ≥ 20, tốn 10. **U** Final Attack: cần ≥ 50, đốt hết nộ |
-| **Form đặc biệt** | Nộ **tụt 4/giây** (đầy thanh ≈ 25 giây; Faiz Axel tụt 10/giây ≈ 10 giây). Đánh trúng hay bị đánh đều **không** được cộng: thanh nộ là đồng hồ đếm ngược. **Nộ về 0 → tự về form gốc**, bất tử 0.6 giây. Final Attack ở đây cũng đốt hết nộ, đánh xong thì về form gốc |
+| **Form đặc biệt** | Nộ **tụt 4/giây** (đầy thanh ≈ 25 giây; Faiz Axel tụt 10/giây ≈ 10 giây). Đánh trúng, bị đánh, hạ quái, chém đạn **vẫn** cộng nộ nhưng chỉ **1/4** lượng thường, và mỗi giây không quá **60%** lượng bị trừ (`Player.gain_rage`), nên thanh nộ vẫn luôn giảm (Axel đánh liên tục: tụt ≥ 4/giây thay vì 10). **Nộ về 0 → tự về form gốc**, bất tử 0.6 giây. Final Attack ở đây cũng đốt hết nộ, đánh xong thì về form gốc |
 | Henshin Break | Mất hết nộ, về dạng người (máu Rider về 0 như cũ) |
 
 **Vật phẩm rơi từ quái** (`stage_run.gd`, `DriverPickup`):
@@ -798,7 +804,7 @@ Giới hạn khoảng cách theo sức nhảy: `jump_velocity` −330 × SCALE v
 - Quái thả ra lần đầu khi camera tới điểm spawn; quay lại không thả lại. Quái đuổi đánh và lính bắn ở lại chỗ của chúng, quay lại vẫn gặp; quái chạy ào ra khỏi khung nhìn quá 160 px thì biến mất. Vật phẩm rơi tự hết hạn sau 10 giây.
 - Quái cận chiến nhảy lên bệ / tụt xuống bệ theo người chơi chỉ khi người chơi đang **đứng** ở bệ đó (cao hơn 40 px và cách dưới 90 px, hoặc thấp hơn 30 px và cách dưới 160 px); người chơi nhảy giữa không trung thì quái không nhảy theo. Vướng thùng / khối thì nhảy qua.
 - **Rơi vực:** xuống quá mép dưới khung nhìn 40 px (tính cả khung nhìn đặt đúng chỗ người chơi, vì camera trượt theo có độ trễ). Trong giếng khung nhìn đi xuống theo người chơi nên rơi khỏi bệ không phải rơi vực. Mất 25% máu (máu Rider nếu đang biến thân), hồi sinh ở chỗ đứng an toàn trong khung nhìn gần chỗ đứng cuối cùng, bất tử 1.5 giây.
-- **Gục:** chơi lại từ checkpoint gần nhất (`GameState.checkpoint` là chỉ số checkpoint).
+- **Gục:** chơi lại từ đầu màn (không có checkpoint).
 - **Vạch đích** ở cuối đoạn ngang cuối cùng: màn Luyện tập qua màn ngay. Màn Thức tỉnh: đánh nhóm canh giữ rồi nhặt Driver. Màn trùm: camera khóa ở đấu trường, đánh trùm rồi nhặt Driver thế giới kế. Nhóm canh giữ / trùm chỉ tính quái trong khung nhìn.
 
 **Bắn** (giữ nút, đạn vô hạn, tag `ranged`). **Chỉ form có súng**; dạng người và form khác không bắn được, nút Bắn ẩn đi:
@@ -867,7 +873,7 @@ Game tự lưu mỗi khi qua màn. Save có `version` khác thì bị bỏ qua (
 
 - Trong màn chơi, lúc thoại **cả màn dừng** (`get_tree().paused`, phase `TALK`), nút cảm ứng ẩn đi. Câu cuối xong thì đợi 2 khung hình mới chạy lại, để phím vừa bấm không lọt thành cú đấm.
 - **Nhịp thoại** mỗi màn (`StoryData.STAGES["1-2"]`...): `start` (đầu màn, trước màn chọn Rider) · `goal` (tới vạch đích màn Trùm; màn Thức tỉnh chỉ khi chưa có Driver) · `key` (1 giây sau khi nhặt món chính của màn, chờ cảnh biến thân) · `clear` (trước bảng kết quả). Sau trùm có thêm `WORLD_CLEAR`: thoại trên **bản đồ Chuỗi Trái Đất** (`EarthMap`), Trái Đất vừa giải cứu sáng lại.
-- Mỗi đoạn chỉ hiện **một lần mỗi lượt chơi** (`GameState.seen_story`, có lưu trong save). Gục rồi chơi lại từ checkpoint không bị lặp.
+- Mỗi đoạn chỉ hiện **một lần mỗi lượt chơi** (`GameState.seen_story`, có lưu trong save). Gục rồi chơi lại màn không bị lặp.
 - Người nói khai báo ở `StoryData.SPEAKERS` (tên, màu, chân dung). `{name}` trong lời thoại và tên người nói "hero" là tên người chơi đặt.
 - **Chân dung** trong `art/ui/portraits/`, vẽ bằng `python3 tools/gen_story_art.py`: cắt đầu từ sprite PixelLab (nhân vật chính, Kuuga, Daguba), đổi màu tóc / áo cho Echo Rider (Godai, Ichijo, Takumi, Shotaro có mũ phớt, Philip), vẽ bằng hình khối cho Void và Pen. Script này cũng vẽ `art/story/earth.png` (hành tinh thang xám, game nhuộm màu) và `art/story/void.png`.
 - Thêm hội thoại cho thế giới mới: thêm khóa mã màn vào `STAGES`, một dòng vào `WORLD_CLEAR`, người nói mới vào `SPEAKERS`; đặt `"world"` cho Trái Đất đó trong `EARTHS`.

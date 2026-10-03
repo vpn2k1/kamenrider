@@ -7,6 +7,8 @@ extends Node
 ##
 ## Chạy một đoạn: CAMP_FROM="4-1" (bắt đầu từ màn đó, có sẵn Driver / cấp / form như khi chơi tới đó) và
 ## CAMP_TO="6-B" (dừng sau màn đó). tools/run_campaign.sh chạy cả 27 thế giới thành nhiều phần song song.
+## Thế giới phụ: CAMP_SIDE="decade_cards" / "zi_o_watches" / "all" (coi như đã giải cứu mọi thế giới chính, chơi lần
+## lượt các màn đấu Rider), CAMP_SIDE_MAX=N chỉ chơi N màn đầu mỗi thế giới phụ.
 ## Màn EX: CAMP_FROM="1-EX" CAMP_TO="27-EX" chơi lần lượt màn EX của từng thế giới (mỗi lần coi như đã giải cứu thế
 ## giới đó: có Driver, Lv5, mọi form của thế giới). Bot mang form / item khắc chế quái đặc biệt của màn (RiderCaps),
 ## gặp quái đặc biệt mà form đang dùng không khắc chế thì đổi form (Special) khi đủ nộ.
@@ -15,7 +17,7 @@ extends Node
 ## cúi khi đạn cao bay tới và nhảy khi đạn thấp bay tới, biến thân khi nộ đầy, đổi form khi đủ nộ,
 ## tung Final với trùm. Ở màn chọn màn bot chọn màn xa nhất đã mở; chọn Rider của thế giới (đã có thì thôi,
 ## không thì Rider mới nhất), mang các item đã nhặt. Tới cuối lộ trình mà còn quái thì đi săn nốt (diệt hết mới qua). Máu người xuống thấp thì bot được hồi đầy (ghi là "suýt gục")
-## để chiến dịch không bị chơi lại từ checkpoint.
+## để chiến dịch không bị chơi lại màn từ đầu.
 ##
 ## Bot đi theo layout["waypoints"] (cửa giếng, từng bệ leo, gờ ra cửa, vạch đích): cao hơn thì nhảy lên,
 ## thấp hơn thì S + nhảy / bước khỏi mép bệ, gặp vực hoặc khối chắn thì nhảy.
@@ -69,6 +71,9 @@ var _hold := 0                    ## CAMP_SHOW: dừng ở mỗi màn chọn 90 
 var _menu_tested := false         ## CAMP_MENU: bấm Menu một lần giữa màn, phải về màn chọn màn rồi chơi lại được
 var _warps := 0                   ## số lần dịch chuyển bot tới quái còn sót (bot không tự dẫn đường ngược được)
 var _report: Array[String] = []
+var _side_queue: Array = []       ## chế độ thế giới phụ (CAMP_SIDE): các [thế giới, màn] còn phải chơi
+var _side_mode := false
+var _side_pending := 0            ## số màn đấu Rider chưa chơi xong
 var _ex_world := -1               ## chế độ màn EX (CAMP_FROM="N-EX"): chỉ số thế giới của màn EX kế tiếp
 var _counter_cache := {}          ## "rider/form" -> RiderCaps.counters
 var _fight_target: Node2D = null  ## quái đang đứng đánh và máu của nó lần cuối giảm
@@ -86,6 +91,7 @@ func _ready() -> void:
 	GameState.use_test_profile()   # tiến trình trống, không đè save thật
 	GameState.set_player_name("Bot")
 	_jump_to(OS.get_environment("CAMP_FROM"))
+	_setup_side(OS.get_environment("CAMP_SIDE"))
 	stage = load(STAGE).instantiate()
 	add_child(stage)
 	player = stage.get_node("Player")
@@ -123,7 +129,10 @@ func _process(_delta: float) -> void:
 		if _all_done():
 			_finish()
 		elif stage._stage_select.visible:
-			if _ex_world >= 0:
+			if _side_mode:
+				var next: Array = _side_queue.pop_front()
+				stage._stage_select.pick(next[0], next[1])
+			elif _ex_world >= 0:
 				_pick_ex()
 			else:
 				stage._stage_select.pick(GameState.frontier_world, GameState.frontier_stage)
@@ -245,8 +254,34 @@ func _pick_ex() -> void:
 	stage._stage_select.pick(_ex_world, int(world["main_count"]))
 
 
+## Chế độ thế giới phụ: cấp mọi màn chính (đã giải cứu cả 27 thế giới), xếp hàng các màn đấu Rider cần chơi.
+func _setup_side(which: String) -> void:
+	if which == "":
+		return
+	_side_mode = true
+	for w in WorldData.WORLDS.size():
+		var stages: Array = WorldData.WORLDS[w]["stages"]
+		for i in int(WorldData.WORLDS[w]["main_count"]):
+			_grant(w, i)
+			GameState.cleared_stages.append(str(stages[i]["id"]))
+	GameState.frontier_world = WorldData.WORLDS.size()
+	GameState.frontier_stage = 0
+	GameState.worlds_cleared = WorldData.WORLDS.size()
+	var limit := int(OS.get_environment("CAMP_SIDE_MAX")) if OS.get_environment("CAMP_SIDE_MAX") != "" else 999
+	for k in WorldData.SIDE_WORLDS.size():
+		var sw: Dictionary = WorldData.SIDE_WORLDS[k]
+		if which != "all" and sw["id"] != which:
+			continue
+		for i in mini((sw["stages"] as Array).size(), limit):
+			_side_queue.append([WorldData.WORLDS.size() + k, i])
+	_side_pending = _side_queue.size()
+	print("[camp] thế giới phụ %s: %d màn đấu Rider" % [which, _side_queue.size()])
+
+
 ## Hết việc: qua hết mọi thế giới (chế độ thường) hoặc hết màn EX (chế độ EX).
 func _all_done() -> bool:
+	if _side_mode:
+		return _side_pending <= 0
 	if _ex_world >= 0:
 		return _ex_world >= WorldData.WORLDS.size()
 	return GameState.is_demo_finished()
@@ -269,6 +304,8 @@ func _track_stage() -> void:
 		_stage_id = ""
 		if done_id.ends_with("-EX"):
 			_ex_world += 1
+		if _side_mode:
+			_side_pending -= 1
 		if done_id == OS.get_environment("CAMP_TO"):
 			_finish()
 	elif stage.phase == stage.Phase.RUN and _stage_id == "" and not _all_done():
@@ -316,9 +353,9 @@ func _begin_stage(id: String) -> void:
 
 
 func _end_stage(result: String) -> void:
-	var stage_data: Dictionary = WorldData.WORLDS[_world_of(_stage_id)]["stages"].filter(
+	var stage_data: Dictionary = WorldData.world_at(_world_of(_stage_id))["stages"].filter(
 		func(s): return s["id"] == _stage_id)[0]
-	var rider: StringName = WorldData.WORLDS[_world_of(_stage_id)]["rider"]
+	var rider: StringName = WorldData.world_at(_world_of(_stage_id))["rider"]
 	# Kiểm tra món chính của màn đã vào tay.
 	if stage_data["type"] == WorldData.StageType.AWAKEN and not GameState.is_active(rider):
 		_problems.append("qua màn Thức tỉnh mà chưa có Driver %s" % rider)
@@ -338,11 +375,11 @@ func _end_stage(result: String) -> void:
 		if GameState.seen_story.has("%s:%s" % [_stage_id, beat]):
 			seen.append(beat)
 		elif beats.has(beat) and (beat == "start" or beat == "clear"
-				or (beat == "goal" and stage_data["type"] == WorldData.StageType.BOSS)
+				or (beat == "goal" and stage_data["type"] in [WorldData.StageType.BOSS, WorldData.StageType.DUEL])
 				or (beat == "key" and OS.get_environment("CAMP_REPLAY") == "" and (stage_data["type"] == WorldData.StageType.AWAKEN
 					or (form != &"" and GameState.has_form(rider, form))))):
 			_problems.append("không hiện hội thoại \"%s\"" % beat)
-	var world_id: String = WorldData.WORLDS[_world_of(_stage_id)]["id"]
+	var world_id: String = WorldData.world_at(_world_of(_stage_id))["id"]
 	if stage_data["type"] == WorldData.StageType.BOSS:
 		if GameState.seen_story.has("world:" + world_id):
 			seen.append("bản đồ")

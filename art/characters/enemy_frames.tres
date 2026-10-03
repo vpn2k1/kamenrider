@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=2351 format=3]
+[gd_resource type="SpriteFrames" load_steps=2858 format=3]
 
 [ext_resource type="Texture2D" path="res://art/characters/enemies/grongi_zu.png" id="tex_0"]
 [ext_resource type="Texture2D" path="res://art/characters/enemies/grongi_me.png" id="tex_1"]
@@ -84,6 +84,25 @@
 [ext_resource type="Texture2D" path="res://art/characters/enemies/nightmare.png" id="tex_81"]
 [ext_resource type="Texture2D" path="res://art/characters/enemies/crow_nightmare.png" id="tex_82"]
 [ext_resource type="Texture2D" path="res://art/characters/enemies/bomb_nightmare.png" id="tex_83"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_kuuga.png" id="tex_84"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_agito.png" id="tex_85"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_ryuki.png" id="tex_86"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_faiz.png" id="tex_87"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_blade.png" id="tex_88"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_hibiki.png" id="tex_89"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_kabuto.png" id="tex_90"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_den_o.png" id="tex_91"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_kiva.png" id="tex_92"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_double.png" id="tex_93"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_ooo.png" id="tex_94"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_fourze.png" id="tex_95"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_wizard.png" id="tex_96"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_gaim.png" id="tex_97"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_drive.png" id="tex_98"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_ghost.png" id="tex_99"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_ex_aid.png" id="tex_100"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_build.png" id="tex_101"]
+[ext_resource type="Texture2D" path="res://art/characters/enemies/rider_zi_o.png" id="tex_102"]
 
 [sub_resource type="AtlasTexture" id="at_grongi_zu_idle_0"]
 atlas = ExtResource("tex_0")
@@ -11415,6 +11434,2446 @@ atlas = ExtResource("tex_83")
 region = Rect2(408, 340, 68, 68)
 filter_clip = true
 
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_idle_0"]
+atlas = ExtResource("tex_84")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_run_0"]
+atlas = ExtResource("tex_84")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_run_1"]
+atlas = ExtResource("tex_84")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_run_2"]
+atlas = ExtResource("tex_84")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_run_3"]
+atlas = ExtResource("tex_84")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_run_4"]
+atlas = ExtResource("tex_84")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_run_5"]
+atlas = ExtResource("tex_84")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_windup_0"]
+atlas = ExtResource("tex_84")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_attack_0"]
+atlas = ExtResource("tex_84")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_attack_1"]
+atlas = ExtResource("tex_84")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_attack_2"]
+atlas = ExtResource("tex_84")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_hurt_0"]
+atlas = ExtResource("tex_84")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_hurt_1"]
+atlas = ExtResource("tex_84")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_hurt_2"]
+atlas = ExtResource("tex_84")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_hurt_3"]
+atlas = ExtResource("tex_84")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_hurt_4"]
+atlas = ExtResource("tex_84")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_hurt_5"]
+atlas = ExtResource("tex_84")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_die_0"]
+atlas = ExtResource("tex_84")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_die_1"]
+atlas = ExtResource("tex_84")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_die_2"]
+atlas = ExtResource("tex_84")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_die_3"]
+atlas = ExtResource("tex_84")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_die_4"]
+atlas = ExtResource("tex_84")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kuuga_die_5"]
+atlas = ExtResource("tex_84")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_idle_0"]
+atlas = ExtResource("tex_85")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_run_0"]
+atlas = ExtResource("tex_85")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_run_1"]
+atlas = ExtResource("tex_85")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_run_2"]
+atlas = ExtResource("tex_85")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_run_3"]
+atlas = ExtResource("tex_85")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_run_4"]
+atlas = ExtResource("tex_85")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_run_5"]
+atlas = ExtResource("tex_85")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_run_6"]
+atlas = ExtResource("tex_85")
+region = Rect2(408, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_run_7"]
+atlas = ExtResource("tex_85")
+region = Rect2(476, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_windup_0"]
+atlas = ExtResource("tex_85")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_attack_0"]
+atlas = ExtResource("tex_85")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_attack_1"]
+atlas = ExtResource("tex_85")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_attack_2"]
+atlas = ExtResource("tex_85")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_attack_3"]
+atlas = ExtResource("tex_85")
+region = Rect2(204, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_hurt_0"]
+atlas = ExtResource("tex_85")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_hurt_1"]
+atlas = ExtResource("tex_85")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_hurt_2"]
+atlas = ExtResource("tex_85")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_hurt_3"]
+atlas = ExtResource("tex_85")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_hurt_4"]
+atlas = ExtResource("tex_85")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_hurt_5"]
+atlas = ExtResource("tex_85")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_die_0"]
+atlas = ExtResource("tex_85")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_die_1"]
+atlas = ExtResource("tex_85")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_die_2"]
+atlas = ExtResource("tex_85")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_die_3"]
+atlas = ExtResource("tex_85")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_die_4"]
+atlas = ExtResource("tex_85")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_agito_die_5"]
+atlas = ExtResource("tex_85")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_idle_0"]
+atlas = ExtResource("tex_86")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_run_0"]
+atlas = ExtResource("tex_86")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_run_1"]
+atlas = ExtResource("tex_86")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_run_2"]
+atlas = ExtResource("tex_86")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_run_3"]
+atlas = ExtResource("tex_86")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_run_4"]
+atlas = ExtResource("tex_86")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_run_5"]
+atlas = ExtResource("tex_86")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_run_6"]
+atlas = ExtResource("tex_86")
+region = Rect2(408, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_run_7"]
+atlas = ExtResource("tex_86")
+region = Rect2(476, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_windup_0"]
+atlas = ExtResource("tex_86")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_attack_0"]
+atlas = ExtResource("tex_86")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_attack_1"]
+atlas = ExtResource("tex_86")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_attack_2"]
+atlas = ExtResource("tex_86")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_attack_3"]
+atlas = ExtResource("tex_86")
+region = Rect2(204, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_hurt_0"]
+atlas = ExtResource("tex_86")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_hurt_1"]
+atlas = ExtResource("tex_86")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_hurt_2"]
+atlas = ExtResource("tex_86")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_hurt_3"]
+atlas = ExtResource("tex_86")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_hurt_4"]
+atlas = ExtResource("tex_86")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_hurt_5"]
+atlas = ExtResource("tex_86")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_die_0"]
+atlas = ExtResource("tex_86")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_die_1"]
+atlas = ExtResource("tex_86")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_die_2"]
+atlas = ExtResource("tex_86")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_die_3"]
+atlas = ExtResource("tex_86")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_die_4"]
+atlas = ExtResource("tex_86")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ryuki_die_5"]
+atlas = ExtResource("tex_86")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_idle_0"]
+atlas = ExtResource("tex_87")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_run_0"]
+atlas = ExtResource("tex_87")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_run_1"]
+atlas = ExtResource("tex_87")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_run_2"]
+atlas = ExtResource("tex_87")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_run_3"]
+atlas = ExtResource("tex_87")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_run_4"]
+atlas = ExtResource("tex_87")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_run_5"]
+atlas = ExtResource("tex_87")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_windup_0"]
+atlas = ExtResource("tex_87")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_attack_0"]
+atlas = ExtResource("tex_87")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_attack_1"]
+atlas = ExtResource("tex_87")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_attack_2"]
+atlas = ExtResource("tex_87")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_hurt_0"]
+atlas = ExtResource("tex_87")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_hurt_1"]
+atlas = ExtResource("tex_87")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_hurt_2"]
+atlas = ExtResource("tex_87")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_hurt_3"]
+atlas = ExtResource("tex_87")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_hurt_4"]
+atlas = ExtResource("tex_87")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_hurt_5"]
+atlas = ExtResource("tex_87")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_die_0"]
+atlas = ExtResource("tex_87")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_die_1"]
+atlas = ExtResource("tex_87")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_die_2"]
+atlas = ExtResource("tex_87")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_die_3"]
+atlas = ExtResource("tex_87")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_die_4"]
+atlas = ExtResource("tex_87")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_faiz_die_5"]
+atlas = ExtResource("tex_87")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_idle_0"]
+atlas = ExtResource("tex_88")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_run_0"]
+atlas = ExtResource("tex_88")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_run_1"]
+atlas = ExtResource("tex_88")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_run_2"]
+atlas = ExtResource("tex_88")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_run_3"]
+atlas = ExtResource("tex_88")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_run_4"]
+atlas = ExtResource("tex_88")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_run_5"]
+atlas = ExtResource("tex_88")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_run_6"]
+atlas = ExtResource("tex_88")
+region = Rect2(408, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_run_7"]
+atlas = ExtResource("tex_88")
+region = Rect2(476, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_windup_0"]
+atlas = ExtResource("tex_88")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_attack_0"]
+atlas = ExtResource("tex_88")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_attack_1"]
+atlas = ExtResource("tex_88")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_attack_2"]
+atlas = ExtResource("tex_88")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_attack_3"]
+atlas = ExtResource("tex_88")
+region = Rect2(204, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_hurt_0"]
+atlas = ExtResource("tex_88")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_hurt_1"]
+atlas = ExtResource("tex_88")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_hurt_2"]
+atlas = ExtResource("tex_88")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_hurt_3"]
+atlas = ExtResource("tex_88")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_hurt_4"]
+atlas = ExtResource("tex_88")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_hurt_5"]
+atlas = ExtResource("tex_88")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_die_0"]
+atlas = ExtResource("tex_88")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_die_1"]
+atlas = ExtResource("tex_88")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_die_2"]
+atlas = ExtResource("tex_88")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_die_3"]
+atlas = ExtResource("tex_88")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_die_4"]
+atlas = ExtResource("tex_88")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_blade_die_5"]
+atlas = ExtResource("tex_88")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_idle_0"]
+atlas = ExtResource("tex_89")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_run_0"]
+atlas = ExtResource("tex_89")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_run_1"]
+atlas = ExtResource("tex_89")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_run_2"]
+atlas = ExtResource("tex_89")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_run_3"]
+atlas = ExtResource("tex_89")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_run_4"]
+atlas = ExtResource("tex_89")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_run_5"]
+atlas = ExtResource("tex_89")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_run_6"]
+atlas = ExtResource("tex_89")
+region = Rect2(408, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_run_7"]
+atlas = ExtResource("tex_89")
+region = Rect2(476, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_windup_0"]
+atlas = ExtResource("tex_89")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_attack_0"]
+atlas = ExtResource("tex_89")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_attack_1"]
+atlas = ExtResource("tex_89")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_attack_2"]
+atlas = ExtResource("tex_89")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_attack_3"]
+atlas = ExtResource("tex_89")
+region = Rect2(204, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_hurt_0"]
+atlas = ExtResource("tex_89")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_hurt_1"]
+atlas = ExtResource("tex_89")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_hurt_2"]
+atlas = ExtResource("tex_89")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_hurt_3"]
+atlas = ExtResource("tex_89")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_hurt_4"]
+atlas = ExtResource("tex_89")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_hurt_5"]
+atlas = ExtResource("tex_89")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_die_0"]
+atlas = ExtResource("tex_89")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_die_1"]
+atlas = ExtResource("tex_89")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_die_2"]
+atlas = ExtResource("tex_89")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_die_3"]
+atlas = ExtResource("tex_89")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_die_4"]
+atlas = ExtResource("tex_89")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_hibiki_die_5"]
+atlas = ExtResource("tex_89")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_idle_0"]
+atlas = ExtResource("tex_90")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_run_0"]
+atlas = ExtResource("tex_90")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_run_1"]
+atlas = ExtResource("tex_90")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_run_2"]
+atlas = ExtResource("tex_90")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_run_3"]
+atlas = ExtResource("tex_90")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_run_4"]
+atlas = ExtResource("tex_90")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_run_5"]
+atlas = ExtResource("tex_90")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_run_6"]
+atlas = ExtResource("tex_90")
+region = Rect2(408, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_run_7"]
+atlas = ExtResource("tex_90")
+region = Rect2(476, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_windup_0"]
+atlas = ExtResource("tex_90")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_attack_0"]
+atlas = ExtResource("tex_90")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_attack_1"]
+atlas = ExtResource("tex_90")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_attack_2"]
+atlas = ExtResource("tex_90")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_attack_3"]
+atlas = ExtResource("tex_90")
+region = Rect2(204, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_hurt_0"]
+atlas = ExtResource("tex_90")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_hurt_1"]
+atlas = ExtResource("tex_90")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_hurt_2"]
+atlas = ExtResource("tex_90")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_hurt_3"]
+atlas = ExtResource("tex_90")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_hurt_4"]
+atlas = ExtResource("tex_90")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_hurt_5"]
+atlas = ExtResource("tex_90")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_die_0"]
+atlas = ExtResource("tex_90")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_die_1"]
+atlas = ExtResource("tex_90")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_die_2"]
+atlas = ExtResource("tex_90")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_die_3"]
+atlas = ExtResource("tex_90")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_die_4"]
+atlas = ExtResource("tex_90")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kabuto_die_5"]
+atlas = ExtResource("tex_90")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_idle_0"]
+atlas = ExtResource("tex_91")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_run_0"]
+atlas = ExtResource("tex_91")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_run_1"]
+atlas = ExtResource("tex_91")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_run_2"]
+atlas = ExtResource("tex_91")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_run_3"]
+atlas = ExtResource("tex_91")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_run_4"]
+atlas = ExtResource("tex_91")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_run_5"]
+atlas = ExtResource("tex_91")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_run_6"]
+atlas = ExtResource("tex_91")
+region = Rect2(408, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_run_7"]
+atlas = ExtResource("tex_91")
+region = Rect2(476, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_windup_0"]
+atlas = ExtResource("tex_91")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_attack_0"]
+atlas = ExtResource("tex_91")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_attack_1"]
+atlas = ExtResource("tex_91")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_attack_2"]
+atlas = ExtResource("tex_91")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_attack_3"]
+atlas = ExtResource("tex_91")
+region = Rect2(204, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_hurt_0"]
+atlas = ExtResource("tex_91")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_hurt_1"]
+atlas = ExtResource("tex_91")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_hurt_2"]
+atlas = ExtResource("tex_91")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_hurt_3"]
+atlas = ExtResource("tex_91")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_hurt_4"]
+atlas = ExtResource("tex_91")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_hurt_5"]
+atlas = ExtResource("tex_91")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_die_0"]
+atlas = ExtResource("tex_91")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_die_1"]
+atlas = ExtResource("tex_91")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_die_2"]
+atlas = ExtResource("tex_91")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_die_3"]
+atlas = ExtResource("tex_91")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_die_4"]
+atlas = ExtResource("tex_91")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_den_o_die_5"]
+atlas = ExtResource("tex_91")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_idle_0"]
+atlas = ExtResource("tex_92")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_run_0"]
+atlas = ExtResource("tex_92")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_run_1"]
+atlas = ExtResource("tex_92")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_run_2"]
+atlas = ExtResource("tex_92")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_run_3"]
+atlas = ExtResource("tex_92")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_run_4"]
+atlas = ExtResource("tex_92")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_run_5"]
+atlas = ExtResource("tex_92")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_run_6"]
+atlas = ExtResource("tex_92")
+region = Rect2(408, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_run_7"]
+atlas = ExtResource("tex_92")
+region = Rect2(476, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_windup_0"]
+atlas = ExtResource("tex_92")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_attack_0"]
+atlas = ExtResource("tex_92")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_attack_1"]
+atlas = ExtResource("tex_92")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_attack_2"]
+atlas = ExtResource("tex_92")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_attack_3"]
+atlas = ExtResource("tex_92")
+region = Rect2(204, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_hurt_0"]
+atlas = ExtResource("tex_92")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_hurt_1"]
+atlas = ExtResource("tex_92")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_hurt_2"]
+atlas = ExtResource("tex_92")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_hurt_3"]
+atlas = ExtResource("tex_92")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_hurt_4"]
+atlas = ExtResource("tex_92")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_hurt_5"]
+atlas = ExtResource("tex_92")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_die_0"]
+atlas = ExtResource("tex_92")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_die_1"]
+atlas = ExtResource("tex_92")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_die_2"]
+atlas = ExtResource("tex_92")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_die_3"]
+atlas = ExtResource("tex_92")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_die_4"]
+atlas = ExtResource("tex_92")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_kiva_die_5"]
+atlas = ExtResource("tex_92")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_idle_0"]
+atlas = ExtResource("tex_93")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_run_0"]
+atlas = ExtResource("tex_93")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_run_1"]
+atlas = ExtResource("tex_93")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_run_2"]
+atlas = ExtResource("tex_93")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_run_3"]
+atlas = ExtResource("tex_93")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_run_4"]
+atlas = ExtResource("tex_93")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_run_5"]
+atlas = ExtResource("tex_93")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_run_6"]
+atlas = ExtResource("tex_93")
+region = Rect2(408, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_run_7"]
+atlas = ExtResource("tex_93")
+region = Rect2(476, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_windup_0"]
+atlas = ExtResource("tex_93")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_attack_0"]
+atlas = ExtResource("tex_93")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_attack_1"]
+atlas = ExtResource("tex_93")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_attack_2"]
+atlas = ExtResource("tex_93")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_attack_3"]
+atlas = ExtResource("tex_93")
+region = Rect2(204, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_hurt_0"]
+atlas = ExtResource("tex_93")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_hurt_1"]
+atlas = ExtResource("tex_93")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_hurt_2"]
+atlas = ExtResource("tex_93")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_hurt_3"]
+atlas = ExtResource("tex_93")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_hurt_4"]
+atlas = ExtResource("tex_93")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_hurt_5"]
+atlas = ExtResource("tex_93")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_die_0"]
+atlas = ExtResource("tex_93")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_die_1"]
+atlas = ExtResource("tex_93")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_die_2"]
+atlas = ExtResource("tex_93")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_die_3"]
+atlas = ExtResource("tex_93")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_die_4"]
+atlas = ExtResource("tex_93")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_double_die_5"]
+atlas = ExtResource("tex_93")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_idle_0"]
+atlas = ExtResource("tex_94")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_run_0"]
+atlas = ExtResource("tex_94")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_run_1"]
+atlas = ExtResource("tex_94")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_run_2"]
+atlas = ExtResource("tex_94")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_run_3"]
+atlas = ExtResource("tex_94")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_run_4"]
+atlas = ExtResource("tex_94")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_run_5"]
+atlas = ExtResource("tex_94")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_run_6"]
+atlas = ExtResource("tex_94")
+region = Rect2(408, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_run_7"]
+atlas = ExtResource("tex_94")
+region = Rect2(476, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_windup_0"]
+atlas = ExtResource("tex_94")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_attack_0"]
+atlas = ExtResource("tex_94")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_attack_1"]
+atlas = ExtResource("tex_94")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_attack_2"]
+atlas = ExtResource("tex_94")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_attack_3"]
+atlas = ExtResource("tex_94")
+region = Rect2(204, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_hurt_0"]
+atlas = ExtResource("tex_94")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_hurt_1"]
+atlas = ExtResource("tex_94")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_hurt_2"]
+atlas = ExtResource("tex_94")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_hurt_3"]
+atlas = ExtResource("tex_94")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_hurt_4"]
+atlas = ExtResource("tex_94")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_hurt_5"]
+atlas = ExtResource("tex_94")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_die_0"]
+atlas = ExtResource("tex_94")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_die_1"]
+atlas = ExtResource("tex_94")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_die_2"]
+atlas = ExtResource("tex_94")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_die_3"]
+atlas = ExtResource("tex_94")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_die_4"]
+atlas = ExtResource("tex_94")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ooo_die_5"]
+atlas = ExtResource("tex_94")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_idle_0"]
+atlas = ExtResource("tex_95")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_run_0"]
+atlas = ExtResource("tex_95")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_run_1"]
+atlas = ExtResource("tex_95")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_run_2"]
+atlas = ExtResource("tex_95")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_run_3"]
+atlas = ExtResource("tex_95")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_run_4"]
+atlas = ExtResource("tex_95")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_run_5"]
+atlas = ExtResource("tex_95")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_run_6"]
+atlas = ExtResource("tex_95")
+region = Rect2(408, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_run_7"]
+atlas = ExtResource("tex_95")
+region = Rect2(476, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_windup_0"]
+atlas = ExtResource("tex_95")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_attack_0"]
+atlas = ExtResource("tex_95")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_attack_1"]
+atlas = ExtResource("tex_95")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_attack_2"]
+atlas = ExtResource("tex_95")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_attack_3"]
+atlas = ExtResource("tex_95")
+region = Rect2(204, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_hurt_0"]
+atlas = ExtResource("tex_95")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_hurt_1"]
+atlas = ExtResource("tex_95")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_hurt_2"]
+atlas = ExtResource("tex_95")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_hurt_3"]
+atlas = ExtResource("tex_95")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_hurt_4"]
+atlas = ExtResource("tex_95")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_hurt_5"]
+atlas = ExtResource("tex_95")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_die_0"]
+atlas = ExtResource("tex_95")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_die_1"]
+atlas = ExtResource("tex_95")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_die_2"]
+atlas = ExtResource("tex_95")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_die_3"]
+atlas = ExtResource("tex_95")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_die_4"]
+atlas = ExtResource("tex_95")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_fourze_die_5"]
+atlas = ExtResource("tex_95")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_idle_0"]
+atlas = ExtResource("tex_96")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_run_0"]
+atlas = ExtResource("tex_96")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_run_1"]
+atlas = ExtResource("tex_96")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_run_2"]
+atlas = ExtResource("tex_96")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_run_3"]
+atlas = ExtResource("tex_96")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_run_4"]
+atlas = ExtResource("tex_96")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_run_5"]
+atlas = ExtResource("tex_96")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_run_6"]
+atlas = ExtResource("tex_96")
+region = Rect2(408, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_run_7"]
+atlas = ExtResource("tex_96")
+region = Rect2(476, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_windup_0"]
+atlas = ExtResource("tex_96")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_attack_0"]
+atlas = ExtResource("tex_96")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_attack_1"]
+atlas = ExtResource("tex_96")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_attack_2"]
+atlas = ExtResource("tex_96")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_attack_3"]
+atlas = ExtResource("tex_96")
+region = Rect2(204, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_hurt_0"]
+atlas = ExtResource("tex_96")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_hurt_1"]
+atlas = ExtResource("tex_96")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_hurt_2"]
+atlas = ExtResource("tex_96")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_hurt_3"]
+atlas = ExtResource("tex_96")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_hurt_4"]
+atlas = ExtResource("tex_96")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_hurt_5"]
+atlas = ExtResource("tex_96")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_die_0"]
+atlas = ExtResource("tex_96")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_die_1"]
+atlas = ExtResource("tex_96")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_die_2"]
+atlas = ExtResource("tex_96")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_die_3"]
+atlas = ExtResource("tex_96")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_die_4"]
+atlas = ExtResource("tex_96")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_wizard_die_5"]
+atlas = ExtResource("tex_96")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_idle_0"]
+atlas = ExtResource("tex_97")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_run_0"]
+atlas = ExtResource("tex_97")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_run_1"]
+atlas = ExtResource("tex_97")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_run_2"]
+atlas = ExtResource("tex_97")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_run_3"]
+atlas = ExtResource("tex_97")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_run_4"]
+atlas = ExtResource("tex_97")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_run_5"]
+atlas = ExtResource("tex_97")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_run_6"]
+atlas = ExtResource("tex_97")
+region = Rect2(408, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_run_7"]
+atlas = ExtResource("tex_97")
+region = Rect2(476, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_windup_0"]
+atlas = ExtResource("tex_97")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_attack_0"]
+atlas = ExtResource("tex_97")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_attack_1"]
+atlas = ExtResource("tex_97")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_attack_2"]
+atlas = ExtResource("tex_97")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_attack_3"]
+atlas = ExtResource("tex_97")
+region = Rect2(204, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_hurt_0"]
+atlas = ExtResource("tex_97")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_hurt_1"]
+atlas = ExtResource("tex_97")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_hurt_2"]
+atlas = ExtResource("tex_97")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_hurt_3"]
+atlas = ExtResource("tex_97")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_hurt_4"]
+atlas = ExtResource("tex_97")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_hurt_5"]
+atlas = ExtResource("tex_97")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_die_0"]
+atlas = ExtResource("tex_97")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_die_1"]
+atlas = ExtResource("tex_97")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_die_2"]
+atlas = ExtResource("tex_97")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_die_3"]
+atlas = ExtResource("tex_97")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_die_4"]
+atlas = ExtResource("tex_97")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_gaim_die_5"]
+atlas = ExtResource("tex_97")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_idle_0"]
+atlas = ExtResource("tex_98")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_run_0"]
+atlas = ExtResource("tex_98")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_run_1"]
+atlas = ExtResource("tex_98")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_run_2"]
+atlas = ExtResource("tex_98")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_run_3"]
+atlas = ExtResource("tex_98")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_run_4"]
+atlas = ExtResource("tex_98")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_run_5"]
+atlas = ExtResource("tex_98")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_run_6"]
+atlas = ExtResource("tex_98")
+region = Rect2(408, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_run_7"]
+atlas = ExtResource("tex_98")
+region = Rect2(476, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_windup_0"]
+atlas = ExtResource("tex_98")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_attack_0"]
+atlas = ExtResource("tex_98")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_attack_1"]
+atlas = ExtResource("tex_98")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_attack_2"]
+atlas = ExtResource("tex_98")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_attack_3"]
+atlas = ExtResource("tex_98")
+region = Rect2(204, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_hurt_0"]
+atlas = ExtResource("tex_98")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_hurt_1"]
+atlas = ExtResource("tex_98")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_hurt_2"]
+atlas = ExtResource("tex_98")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_hurt_3"]
+atlas = ExtResource("tex_98")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_hurt_4"]
+atlas = ExtResource("tex_98")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_hurt_5"]
+atlas = ExtResource("tex_98")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_die_0"]
+atlas = ExtResource("tex_98")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_die_1"]
+atlas = ExtResource("tex_98")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_die_2"]
+atlas = ExtResource("tex_98")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_die_3"]
+atlas = ExtResource("tex_98")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_die_4"]
+atlas = ExtResource("tex_98")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_drive_die_5"]
+atlas = ExtResource("tex_98")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_idle_0"]
+atlas = ExtResource("tex_99")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_run_0"]
+atlas = ExtResource("tex_99")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_run_1"]
+atlas = ExtResource("tex_99")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_run_2"]
+atlas = ExtResource("tex_99")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_run_3"]
+atlas = ExtResource("tex_99")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_run_4"]
+atlas = ExtResource("tex_99")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_run_5"]
+atlas = ExtResource("tex_99")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_run_6"]
+atlas = ExtResource("tex_99")
+region = Rect2(408, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_run_7"]
+atlas = ExtResource("tex_99")
+region = Rect2(476, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_windup_0"]
+atlas = ExtResource("tex_99")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_attack_0"]
+atlas = ExtResource("tex_99")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_attack_1"]
+atlas = ExtResource("tex_99")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_attack_2"]
+atlas = ExtResource("tex_99")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_attack_3"]
+atlas = ExtResource("tex_99")
+region = Rect2(204, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_hurt_0"]
+atlas = ExtResource("tex_99")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_hurt_1"]
+atlas = ExtResource("tex_99")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_hurt_2"]
+atlas = ExtResource("tex_99")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_hurt_3"]
+atlas = ExtResource("tex_99")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_hurt_4"]
+atlas = ExtResource("tex_99")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_hurt_5"]
+atlas = ExtResource("tex_99")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_die_0"]
+atlas = ExtResource("tex_99")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_die_1"]
+atlas = ExtResource("tex_99")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_die_2"]
+atlas = ExtResource("tex_99")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_die_3"]
+atlas = ExtResource("tex_99")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_die_4"]
+atlas = ExtResource("tex_99")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ghost_die_5"]
+atlas = ExtResource("tex_99")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_idle_0"]
+atlas = ExtResource("tex_100")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_run_0"]
+atlas = ExtResource("tex_100")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_run_1"]
+atlas = ExtResource("tex_100")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_run_2"]
+atlas = ExtResource("tex_100")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_run_3"]
+atlas = ExtResource("tex_100")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_run_4"]
+atlas = ExtResource("tex_100")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_run_5"]
+atlas = ExtResource("tex_100")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_run_6"]
+atlas = ExtResource("tex_100")
+region = Rect2(408, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_run_7"]
+atlas = ExtResource("tex_100")
+region = Rect2(476, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_windup_0"]
+atlas = ExtResource("tex_100")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_attack_0"]
+atlas = ExtResource("tex_100")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_attack_1"]
+atlas = ExtResource("tex_100")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_attack_2"]
+atlas = ExtResource("tex_100")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_attack_3"]
+atlas = ExtResource("tex_100")
+region = Rect2(204, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_hurt_0"]
+atlas = ExtResource("tex_100")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_hurt_1"]
+atlas = ExtResource("tex_100")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_hurt_2"]
+atlas = ExtResource("tex_100")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_hurt_3"]
+atlas = ExtResource("tex_100")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_hurt_4"]
+atlas = ExtResource("tex_100")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_hurt_5"]
+atlas = ExtResource("tex_100")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_die_0"]
+atlas = ExtResource("tex_100")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_die_1"]
+atlas = ExtResource("tex_100")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_die_2"]
+atlas = ExtResource("tex_100")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_die_3"]
+atlas = ExtResource("tex_100")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_die_4"]
+atlas = ExtResource("tex_100")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_ex_aid_die_5"]
+atlas = ExtResource("tex_100")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_idle_0"]
+atlas = ExtResource("tex_101")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_run_0"]
+atlas = ExtResource("tex_101")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_run_1"]
+atlas = ExtResource("tex_101")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_run_2"]
+atlas = ExtResource("tex_101")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_run_3"]
+atlas = ExtResource("tex_101")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_run_4"]
+atlas = ExtResource("tex_101")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_run_5"]
+atlas = ExtResource("tex_101")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_run_6"]
+atlas = ExtResource("tex_101")
+region = Rect2(408, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_run_7"]
+atlas = ExtResource("tex_101")
+region = Rect2(476, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_windup_0"]
+atlas = ExtResource("tex_101")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_attack_0"]
+atlas = ExtResource("tex_101")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_attack_1"]
+atlas = ExtResource("tex_101")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_attack_2"]
+atlas = ExtResource("tex_101")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_attack_3"]
+atlas = ExtResource("tex_101")
+region = Rect2(204, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_hurt_0"]
+atlas = ExtResource("tex_101")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_hurt_1"]
+atlas = ExtResource("tex_101")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_hurt_2"]
+atlas = ExtResource("tex_101")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_hurt_3"]
+atlas = ExtResource("tex_101")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_hurt_4"]
+atlas = ExtResource("tex_101")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_hurt_5"]
+atlas = ExtResource("tex_101")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_die_0"]
+atlas = ExtResource("tex_101")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_die_1"]
+atlas = ExtResource("tex_101")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_die_2"]
+atlas = ExtResource("tex_101")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_die_3"]
+atlas = ExtResource("tex_101")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_die_4"]
+atlas = ExtResource("tex_101")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_build_die_5"]
+atlas = ExtResource("tex_101")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_idle_0"]
+atlas = ExtResource("tex_102")
+region = Rect2(0, 0, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_run_0"]
+atlas = ExtResource("tex_102")
+region = Rect2(0, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_run_1"]
+atlas = ExtResource("tex_102")
+region = Rect2(68, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_run_2"]
+atlas = ExtResource("tex_102")
+region = Rect2(136, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_run_3"]
+atlas = ExtResource("tex_102")
+region = Rect2(204, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_run_4"]
+atlas = ExtResource("tex_102")
+region = Rect2(272, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_run_5"]
+atlas = ExtResource("tex_102")
+region = Rect2(340, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_run_6"]
+atlas = ExtResource("tex_102")
+region = Rect2(408, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_run_7"]
+atlas = ExtResource("tex_102")
+region = Rect2(476, 68, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_windup_0"]
+atlas = ExtResource("tex_102")
+region = Rect2(0, 136, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_attack_0"]
+atlas = ExtResource("tex_102")
+region = Rect2(0, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_attack_1"]
+atlas = ExtResource("tex_102")
+region = Rect2(68, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_attack_2"]
+atlas = ExtResource("tex_102")
+region = Rect2(136, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_attack_3"]
+atlas = ExtResource("tex_102")
+region = Rect2(204, 204, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_hurt_0"]
+atlas = ExtResource("tex_102")
+region = Rect2(0, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_hurt_1"]
+atlas = ExtResource("tex_102")
+region = Rect2(68, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_hurt_2"]
+atlas = ExtResource("tex_102")
+region = Rect2(136, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_hurt_3"]
+atlas = ExtResource("tex_102")
+region = Rect2(204, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_hurt_4"]
+atlas = ExtResource("tex_102")
+region = Rect2(272, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_hurt_5"]
+atlas = ExtResource("tex_102")
+region = Rect2(340, 272, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_die_0"]
+atlas = ExtResource("tex_102")
+region = Rect2(0, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_die_1"]
+atlas = ExtResource("tex_102")
+region = Rect2(68, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_die_2"]
+atlas = ExtResource("tex_102")
+region = Rect2(136, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_die_3"]
+atlas = ExtResource("tex_102")
+region = Rect2(204, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_die_4"]
+atlas = ExtResource("tex_102")
+region = Rect2(272, 340, 68, 68)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="at_rider_zi_o_die_5"]
+atlas = ExtResource("tex_102")
+region = Rect2(340, 340, 68, 68)
+filter_clip = true
+
 [resource]
 animations = [{
 "frames": [{
@@ -20733,5 +23192,2039 @@ animations = [{
 }],
 "loop": false,
 "name": &"bomb_nightmare_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_idle_0")
+}],
+"loop": true,
+"name": &"rider_kuuga_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_run_5")
+}],
+"loop": true,
+"name": &"rider_kuuga_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_windup_0")
+}],
+"loop": true,
+"name": &"rider_kuuga_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_attack_2")
+}],
+"loop": false,
+"name": &"rider_kuuga_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_hurt_5")
+}],
+"loop": false,
+"name": &"rider_kuuga_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kuuga_die_5")
+}],
+"loop": false,
+"name": &"rider_kuuga_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_idle_0")
+}],
+"loop": true,
+"name": &"rider_agito_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_run_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_run_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_run_7")
+}],
+"loop": true,
+"name": &"rider_agito_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_windup_0")
+}],
+"loop": true,
+"name": &"rider_agito_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_attack_3")
+}],
+"loop": false,
+"name": &"rider_agito_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_hurt_5")
+}],
+"loop": false,
+"name": &"rider_agito_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_agito_die_5")
+}],
+"loop": false,
+"name": &"rider_agito_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_idle_0")
+}],
+"loop": true,
+"name": &"rider_ryuki_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_run_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_run_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_run_7")
+}],
+"loop": true,
+"name": &"rider_ryuki_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_windup_0")
+}],
+"loop": true,
+"name": &"rider_ryuki_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_attack_3")
+}],
+"loop": false,
+"name": &"rider_ryuki_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_hurt_5")
+}],
+"loop": false,
+"name": &"rider_ryuki_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ryuki_die_5")
+}],
+"loop": false,
+"name": &"rider_ryuki_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_idle_0")
+}],
+"loop": true,
+"name": &"rider_faiz_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_run_5")
+}],
+"loop": true,
+"name": &"rider_faiz_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_windup_0")
+}],
+"loop": true,
+"name": &"rider_faiz_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_attack_2")
+}],
+"loop": false,
+"name": &"rider_faiz_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_hurt_5")
+}],
+"loop": false,
+"name": &"rider_faiz_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_faiz_die_5")
+}],
+"loop": false,
+"name": &"rider_faiz_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_idle_0")
+}],
+"loop": true,
+"name": &"rider_blade_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_run_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_run_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_run_7")
+}],
+"loop": true,
+"name": &"rider_blade_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_windup_0")
+}],
+"loop": true,
+"name": &"rider_blade_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_attack_3")
+}],
+"loop": false,
+"name": &"rider_blade_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_hurt_5")
+}],
+"loop": false,
+"name": &"rider_blade_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_blade_die_5")
+}],
+"loop": false,
+"name": &"rider_blade_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_idle_0")
+}],
+"loop": true,
+"name": &"rider_hibiki_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_run_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_run_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_run_7")
+}],
+"loop": true,
+"name": &"rider_hibiki_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_windup_0")
+}],
+"loop": true,
+"name": &"rider_hibiki_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_attack_3")
+}],
+"loop": false,
+"name": &"rider_hibiki_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_hurt_5")
+}],
+"loop": false,
+"name": &"rider_hibiki_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_hibiki_die_5")
+}],
+"loop": false,
+"name": &"rider_hibiki_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_idle_0")
+}],
+"loop": true,
+"name": &"rider_kabuto_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_run_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_run_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_run_7")
+}],
+"loop": true,
+"name": &"rider_kabuto_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_windup_0")
+}],
+"loop": true,
+"name": &"rider_kabuto_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_attack_3")
+}],
+"loop": false,
+"name": &"rider_kabuto_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_hurt_5")
+}],
+"loop": false,
+"name": &"rider_kabuto_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kabuto_die_5")
+}],
+"loop": false,
+"name": &"rider_kabuto_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_idle_0")
+}],
+"loop": true,
+"name": &"rider_den_o_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_run_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_run_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_run_7")
+}],
+"loop": true,
+"name": &"rider_den_o_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_windup_0")
+}],
+"loop": true,
+"name": &"rider_den_o_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_attack_3")
+}],
+"loop": false,
+"name": &"rider_den_o_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_hurt_5")
+}],
+"loop": false,
+"name": &"rider_den_o_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_den_o_die_5")
+}],
+"loop": false,
+"name": &"rider_den_o_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_idle_0")
+}],
+"loop": true,
+"name": &"rider_kiva_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_run_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_run_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_run_7")
+}],
+"loop": true,
+"name": &"rider_kiva_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_windup_0")
+}],
+"loop": true,
+"name": &"rider_kiva_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_attack_3")
+}],
+"loop": false,
+"name": &"rider_kiva_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_hurt_5")
+}],
+"loop": false,
+"name": &"rider_kiva_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_kiva_die_5")
+}],
+"loop": false,
+"name": &"rider_kiva_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_double_idle_0")
+}],
+"loop": true,
+"name": &"rider_double_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_double_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_run_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_run_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_run_7")
+}],
+"loop": true,
+"name": &"rider_double_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_double_windup_0")
+}],
+"loop": true,
+"name": &"rider_double_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_double_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_attack_3")
+}],
+"loop": false,
+"name": &"rider_double_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_double_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_hurt_5")
+}],
+"loop": false,
+"name": &"rider_double_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_double_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_double_die_5")
+}],
+"loop": false,
+"name": &"rider_double_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_idle_0")
+}],
+"loop": true,
+"name": &"rider_ooo_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_run_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_run_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_run_7")
+}],
+"loop": true,
+"name": &"rider_ooo_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_windup_0")
+}],
+"loop": true,
+"name": &"rider_ooo_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_attack_3")
+}],
+"loop": false,
+"name": &"rider_ooo_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_hurt_5")
+}],
+"loop": false,
+"name": &"rider_ooo_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ooo_die_5")
+}],
+"loop": false,
+"name": &"rider_ooo_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_idle_0")
+}],
+"loop": true,
+"name": &"rider_fourze_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_run_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_run_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_run_7")
+}],
+"loop": true,
+"name": &"rider_fourze_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_windup_0")
+}],
+"loop": true,
+"name": &"rider_fourze_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_attack_3")
+}],
+"loop": false,
+"name": &"rider_fourze_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_hurt_5")
+}],
+"loop": false,
+"name": &"rider_fourze_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_fourze_die_5")
+}],
+"loop": false,
+"name": &"rider_fourze_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_idle_0")
+}],
+"loop": true,
+"name": &"rider_wizard_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_run_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_run_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_run_7")
+}],
+"loop": true,
+"name": &"rider_wizard_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_windup_0")
+}],
+"loop": true,
+"name": &"rider_wizard_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_attack_3")
+}],
+"loop": false,
+"name": &"rider_wizard_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_hurt_5")
+}],
+"loop": false,
+"name": &"rider_wizard_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_wizard_die_5")
+}],
+"loop": false,
+"name": &"rider_wizard_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_idle_0")
+}],
+"loop": true,
+"name": &"rider_gaim_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_run_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_run_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_run_7")
+}],
+"loop": true,
+"name": &"rider_gaim_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_windup_0")
+}],
+"loop": true,
+"name": &"rider_gaim_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_attack_3")
+}],
+"loop": false,
+"name": &"rider_gaim_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_hurt_5")
+}],
+"loop": false,
+"name": &"rider_gaim_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_gaim_die_5")
+}],
+"loop": false,
+"name": &"rider_gaim_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_idle_0")
+}],
+"loop": true,
+"name": &"rider_drive_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_run_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_run_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_run_7")
+}],
+"loop": true,
+"name": &"rider_drive_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_windup_0")
+}],
+"loop": true,
+"name": &"rider_drive_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_attack_3")
+}],
+"loop": false,
+"name": &"rider_drive_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_hurt_5")
+}],
+"loop": false,
+"name": &"rider_drive_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_drive_die_5")
+}],
+"loop": false,
+"name": &"rider_drive_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_idle_0")
+}],
+"loop": true,
+"name": &"rider_ghost_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_run_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_run_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_run_7")
+}],
+"loop": true,
+"name": &"rider_ghost_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_windup_0")
+}],
+"loop": true,
+"name": &"rider_ghost_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_attack_3")
+}],
+"loop": false,
+"name": &"rider_ghost_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_hurt_5")
+}],
+"loop": false,
+"name": &"rider_ghost_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ghost_die_5")
+}],
+"loop": false,
+"name": &"rider_ghost_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_idle_0")
+}],
+"loop": true,
+"name": &"rider_ex_aid_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_run_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_run_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_run_7")
+}],
+"loop": true,
+"name": &"rider_ex_aid_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_windup_0")
+}],
+"loop": true,
+"name": &"rider_ex_aid_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_attack_3")
+}],
+"loop": false,
+"name": &"rider_ex_aid_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_hurt_5")
+}],
+"loop": false,
+"name": &"rider_ex_aid_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_ex_aid_die_5")
+}],
+"loop": false,
+"name": &"rider_ex_aid_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_build_idle_0")
+}],
+"loop": true,
+"name": &"rider_build_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_build_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_run_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_run_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_run_7")
+}],
+"loop": true,
+"name": &"rider_build_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_build_windup_0")
+}],
+"loop": true,
+"name": &"rider_build_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_build_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_attack_3")
+}],
+"loop": false,
+"name": &"rider_build_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_build_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_hurt_5")
+}],
+"loop": false,
+"name": &"rider_build_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_build_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_build_die_5")
+}],
+"loop": false,
+"name": &"rider_build_die",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_idle_0")
+}],
+"loop": true,
+"name": &"rider_zi_o_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_run_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_run_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_run_7")
+}],
+"loop": true,
+"name": &"rider_zi_o_run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_windup_0")
+}],
+"loop": true,
+"name": &"rider_zi_o_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_attack_3")
+}],
+"loop": false,
+"name": &"rider_zi_o_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_hurt_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_hurt_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_hurt_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_hurt_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_hurt_5")
+}],
+"loop": false,
+"name": &"rider_zi_o_hurt",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_die_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_die_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_die_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_die_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_die_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("at_rider_zi_o_die_5")
+}],
+"loop": false,
+"name": &"rider_zi_o_die",
 "speed": 8.0
 }]

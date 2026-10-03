@@ -18,7 +18,8 @@ extends Node
 const SCENE := "res://scenes/versus/versus.tscn"
 const TIMEOUT_MS := 420000
 const JOIN_FALLBACK := 4.0
-const ACTIONS := ["move_left", "move_right", "attack_light", "henshin", "final_attack", "shoot", "special"]
+const ACTIONS := ["move_left", "move_right", "attack_light", "henshin", "final_attack", "shoot", "special", "skill_1",
+	"skill_2"]
 
 var v: Node
 var host := false
@@ -84,7 +85,8 @@ func _process(delta: float) -> void:
 	match v.screen:
 		0:   # MENU
 			if host and frame == 5:
-				v._on_host(mode)
+				v._on_host(2 if mode == "duel" else maxi(expect, 3))   # số người tối đa của phòng
+				print("%s tạo phòng: %s · màn %d" % [tag, v._status_menu.text, v.screen])
 			elif not host and not joined:
 				join_wait += delta
 				if not v.lan.rooms.is_empty():
@@ -96,6 +98,7 @@ func _process(delta: float) -> void:
 					print("%s không thấy broadcast, vào 127.0.0.1" % tag)
 					joined = true
 					v._join("127.0.0.1")
+					print("%s vào phòng: %s" % [tag, v._status_menu.text])
 		1:   # ROOM
 			if winner_text != "":
 				_finish("")
@@ -163,6 +166,8 @@ func _bot() -> Array:
 		out.append("henshin")
 	elif me.can_final() and absf(dx) < 70.0 and tap:
 		out.append("final_attack")
+	elif me.current_form and absf(dx) < 90.0 and tap and frame % 90 < 2:
+		out.append("skill_1" if frame % 180 < 90 else "skill_2")   # skill của form (docs/SKILLS.md)
 	if absf(dx) > 34.0:
 		out.append("move_right" if dx > 0.0 else "move_left")
 	elif signf(dx) != me.facing and dx != 0.0:

@@ -2,8 +2,8 @@ extends FigurePicker
 class_name RiderSelect
 ## Chọn Rider dùng trong màn (mỗi màn một Rider) hoặc mang vào trận đấu. Ở hành trình chỉ hiện khi có từ 2 Rider.
 ## Mỗi Rider là hình đứng + tên dưới chân (FigurePicker); chạm để xem thông số form gốc ở cấp hiện tại
-## (Máu · Giáp · Tốc độ · Sức đánh · Nhảy), mô tả lối chơi, số form đã có, sức mạnh thế hệ (RiderForm.power), tuyệt
-## chiêu, và dấu "★ Rider thế giới" (Driver / form / item của màn là của Rider này; nhặt khi dùng Rider khác thì chỉ
+## (Máu · Giáp · Tốc độ · Sức đánh · Nhảy), mô tả lối chơi, số form đã có, sức mạnh thế hệ (RiderForm.power), thẻ
+## Skill 1 / Skill 2 / Final có icon theo từng form đã có (◀ tên form ▶ đổi form xem, hình đổi theo), và dấu "★ Rider thế giới" (Driver / form / item của màn là của Rider này; nhặt khi dùng Rider khác thì chỉ
 ## mở khóa, dùng ở màn sau). Bấm CHỌN để xác nhận. Có tới 27 Rider: kéo ngang để cuộn.
 
 signal chosen(id: StringName)
@@ -25,12 +25,18 @@ func open(options: Array[StringName], title_text: String, subtitle_text: String,
 		var form := GameState.create_form(id)
 		if form == null:
 			continue
-		var lines: Array = [form.tagline, "Form đã có: %d · Sức mạnh thế hệ ×%.2f" % [GameState.form_count(id), form.power],
-			"Tuyệt chiêu: %s" % form.final_attack_name()]
+		var lines: Array = [form.tagline, "Form đã có: %d · Sức mạnh thế hệ ×%.2f" % [GameState.form_count(id), form.power]]
+		# Skill theo từng form đã có (◀ ▶ trong bảng): form khác có skill và hình khác.
+		var sets: Array = []
+		for fid in RiderCaps.owned_forms(id):
+			var pf := preview_form(id, fid)
+			if pf:
+				sets.append(skill_set(pf, form_label(id, fid)))
+				pf.free()
 		entries.append({
 			"id": id, "name": form.display_name.replace("Kamen Rider ", "").to_upper(), "sub": "Lv%d" % form.level,
 			"prefix": form.animation_prefix(), "fallback": "human", "color": colors.get(id, WorldData.rider_color(id)),
-			"stats": form.stat_summary(), "lines": lines,
+			"stats": form.stat_summary(), "lines": lines, "skill_sets": sets,
 			"tag": "★ Rider thế giới: form / item rơi ở màn này là của Rider này" if id == world_rider else "",
 		})
 		form.free()

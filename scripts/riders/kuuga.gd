@@ -77,6 +77,42 @@ func fx() -> Dictionary:
 	return FX.get(form, {})
 
 
+## Skill theo form (docs/SKILLS.md, khóa xem Skills): [Skill 1, Skill 2]. Final: kiểu theo FINAL_TYPES.
+const SKILLS := {
+	&"mighty": [
+		{"name": "Mighty Punch", "type": "aim", "tags": [&"heavy"], "fx": "spark", "color": Color(1.0, 0.3, 0.2)},
+		{"name": "Linto Seal", "type": "bind", "bind": 2.0, "tags": [&"burn"], "fx": "seal",
+			"color": Color(1.0, 0.65, 0.15)},
+	],
+	&"dragon": [
+		{"name": "Dragon Leap", "type": "aim", "move": "leap", "anim": "slash", "fx": "wind",
+			"color": Color(0.55, 0.85, 1.0)},
+		{"name": "Dragon Rod Sweep", "type": "area", "tags": [&"force"], "fx": "slash", "anim": "slash",
+			"color": Color(0.25, 0.4, 1.0)},
+	],
+	&"pegasus": [
+		{"name": "Hyper Sense", "type": "buff", "buff": {"homing": true, "time": 6.0}, "fx": "sound",
+			"color": Color(0.7, 1.0, 0.75), "icon": "aura"},
+		{"name": "Pegasus Snipe", "type": "lock", "range": 300.0, "charge": 1.0, "tags": [&"ranged"], "fx": "pointer",
+			"dmg": 1.2, "color": Color(0.2, 0.95, 0.4)},
+	],
+	&"titan": [
+		{"name": "Titan Guard", "type": "counter", "fx": "shield", "color": Color(0.65, 0.4, 1.0)},
+		{"name": "Titan Stride", "type": "aim", "tags": [&"crush", &"heavy"], "anim": "slash", "fx": "seal",
+			"color": Color(0.9, 0.8, 1.0)},
+	],
+}
+const FINAL_TYPES := {&"mighty": "aim", &"dragon": "aim", &"pegasus": "lock", &"titan": "aim"}
+
+
+func skill_specs() -> Array:
+	return SKILLS.get(form, [])
+
+
+func final_type() -> String:
+	return FINAL_TYPES.get(form, "aim")
+
+
 func get_shot() -> Dictionary:
 	if form != &"pegasus":
 		return {}

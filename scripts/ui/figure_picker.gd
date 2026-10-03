@@ -10,8 +10,14 @@ class_name FigurePicker
 ##   - Nhiều lựa chọn hơn bề ngang màn hình thì kéo ngang / lăn chuột để cuộn (có quán tính).
 ## Lớp con điền `entries` rồi gọi _show(); ghi đè _on_confirm().
 ##   entry = {"id", "name", "sub" (dòng nhỏ dưới tên), "prefix" (tiền tố animation), "fallback" (tiền tố dự phòng),
-##            "color", "stats" ({} = không có thanh chỉ số), "lines" (các dòng thông tin), "tag" (dòng vàng, tùy chọn)}
+##            "color", "stats" ({} = không có thanh chỉ số), "lines" (các dòng thông tin), "tag" (dòng vàng, tùy chọn),
+##            "skill_sets" (tùy chọn: [skill_set(...)] mỗi form một bộ thẻ Skill 1 / Skill 2 / Final có icon; nhiều bộ thì
+##            có nút ◀ tên form ▶ trong bảng để xem skill và hình của từng form, phím ↑ ↓)}
 ## Bàn phím: ◀ ▶ xem · Đánh (J): chọn nhiều thì bật / tắt, không thì xác nhận · Enter: xác nhận.
+## Quay lại: nút "◀ QUAY LẠI" góc trên trái, Esc / Menu, nút back của Android (GameState đổi thành Esc) → back_requested.
+## Nút chỉ hiện khi màn cha có nối back_requested (chế độ đấu chưa dùng).
+
+signal back_requested
 
 const FRAMES := preload("res://art/characters/player_frames.tres")
 const STAT_MAX := {"hp": 220.0, "armor": 60.0, "speed": 180.0, "atk": 1.6, "jump": 1.4}
@@ -25,6 +31,7 @@ const FIG := 68.0               ## khung hình nhân vật (px)
 const PANEL := Rect2(12, 158, 336, 106)
 const CONFIRM := Rect2(358, 226, 112, 32)
 const TOGGLE := Rect2(358, 186, 112, 28)
+const BACK := Rect2(6, 5, 80, 18)
 const DRAG_START := 6.0
 const FRICTION := 4.0
 const EASE := 10.0
@@ -50,6 +57,7 @@ var _touching := false
 var _dragged := false
 var _press_pos := Vector2.ZERO
 var _sb := StyleBoxFlat.new()
+var _set := 0                    ## bộ skill (form) đang xem của lựa chọn hiện tại
 
 
 func _init() -> void:
@@ -66,6 +74,16 @@ func _show() -> void:
 	_vel = 0.0
 	_focus(true)
 	queue_redraw()
+
+
+func _can_back() -> bool:
+	return not back_requested.get_connections().is_empty()
+
+
+func _back() -> void:
+	Sound.sfx("ui_back", 0.0)
+	visible = false
+	back_requested.emit()
 
 
 ## Lớp con ghi đè: phát tín hiệu kết quả. Lớp nền đã ẩn màn và phát tiếng.
@@ -95,6 +113,7 @@ func _select(i: int) -> void:
 	if i == index:
 		return
 	index = i
+	_set = 0
 	Sound.sfx("ui_move", 0.0)
 	_focus()
 
@@ -144,8 +163,14 @@ func _process(delta: float) -> void:
 		_select(maxi(index - 1, 0))
 	elif Input.is_action_just_pressed("move_right"):
 		_select(mini(index + 1, entries.size() - 1))
+	elif Input.is_action_just_pressed("move_up") or Input.is_action_just_pressed("move_down"):
+		_cycle_set(-1 if Input.is_action_just_pressed("move_up") else 1)
 	elif Input.is_action_just_pressed("ui_accept"):
 		_confirm()
+		return
+	elif (Input.is_action_just_pressed("ui_cancel") or Input.is_action_just_pressed("menu")) and _can_back() \
+			and not HelpOverlay.is_showing():
+		_back()
 		return
 	elif Input.is_action_just_pressed("attack_light"):
 		if multi:
@@ -200,11 +225,18 @@ func _input(event: InputEvent) -> void:
 
 
 func _tap(p: Vector2) -> void:
+	if _can_back() and BACK.has_point(p):
+		_back()
+		return
 	if CONFIRM.has_point(p):
 		_confirm()
 		return
 	if multi and TOGGLE.has_point(p):
 		_toggle(index)
+		return
+	if _sets().size() > 1 and _chip_rect().has_point(p):
+		var r := _chip_rect()
+		_cycle_set(-1 if p.x < r.position.x + r.size.x / 2.0 else 1)
 		return
 	for i in entries.size():
 		if _figure_rect(i).has_point(p):
@@ -254,6 +286,8 @@ func _draw() -> void:
 		_text(Vector2(TOGGLE.position.x, TOGGLE.position.y - 5.0), "đã chọn %d / %d" % [picked.size(), max_pick], 7,
 			Color(0.85, 0.85, 0.95), TOGGLE.size.x)
 	_pill(CONFIRM, confirm_text, Color(0.85, 0.22, 0.25, 0.95), 10)
+	if _can_back():
+		_pill(BACK, "◀ QUAY LẠI", Color(0.25, 0.25, 0.35, 0.95), 7)
 	if hint != "":
 		_text(Vector2(0, 36), hint, 6, Color(0.7, 0.7, 0.8), size.x)
 
@@ -271,7 +305,10 @@ func _draw_figure(i: int, x: float) -> void:
 	_ellipse(Vector2(x, FEET + 2.0), Vector2(30, 6), Color(GOLD, 0.35) if sel else Color(col, 0.22))
 	_ellipse(Vector2(x, FEET + 2.0), Vector2(22, 4), col.darkened(0.2) if sel else col.darkened(0.55))
 	# Hình nhân vật: animation idle; chưa có hình thì dùng hình dự phòng nhuộm màu Rider
-	var anim := "%s_idle" % e.get("prefix", "")
+	var prefix := str(e.get("prefix", ""))
+	if sel and not _sets().is_empty():
+		prefix = str(_sets()[_set].get("prefix", prefix))     # đang xem form khác của Rider: hình form đó
+	var anim := "%s_idle" % prefix
 	var tint := Color.WHITE if sel else Color(0.55, 0.55, 0.65)
 	if not FRAMES.has_animation(anim):
 		anim = "%s_idle" % e.get("fallback", "human")
@@ -296,7 +333,8 @@ func _draw_figure(i: int, x: float) -> void:
 			Color(0.2, 0.12, 0.02), 1.5)
 
 
-## Bảng thông số của lựa chọn đang xem.
+## Bảng thông số của lựa chọn đang xem: tên, dòng mô tả, 5 thanh chỉ số (2 hàng), nút chọn form (nếu nhiều bộ skill),
+## 3 thẻ Skill 1 / Skill 2 / Final có icon, rồi dòng thông tin thêm / dòng vàng.
 func _draw_panel(e: Dictionary) -> void:
 	var col: Color = e.get("color", Color.WHITE)
 	_round(PANEL, Color(0.08, 0.07, 0.15, 0.96), 10, col.lightened(0.15), 1)
@@ -315,32 +353,81 @@ func _draw_panel(e: Dictionary) -> void:
 	if not lines.is_empty():
 		draw_string(font, Vector2(x, ly), str(lines[0]), HORIZONTAL_ALIGNMENT_LEFT, PANEL.size.x - 20.0, 7,
 			Color(0.85, 0.85, 0.92))
-		ly += 11.0
+		ly += 5.0
 	if not stats.is_empty():
-		# 5 thanh chỉ số, hai cột
+		# 5 thanh chỉ số, 3 cột × 2 hàng
 		for k in STAT_ROWS.size():
 			var key: String = STAT_ROWS[k][0]
-			var cx := x + (k / 3) * 162.0
-			var cy := ly + (k % 3) * 11.0
-			draw_string(font, Vector2(cx, cy + 6.0), STAT_ROWS[k][1], HORIZONTAL_ALIGNMENT_LEFT, -1, 7,
+			var cx := x + (k % 3) * 107.0
+			var cy := ly + (k / 3) * 10.0
+			draw_string(font, Vector2(cx, cy + 6.0), STAT_ROWS[k][1], HORIZONTAL_ALIGNMENT_LEFT, -1, 6,
 				Color(0.88, 0.88, 0.95))
-			var bx := cx + 44.0
-			var bw := 104.0
+			var bx := cx + 36.0
+			var bw := 62.0
 			var ratio := clampf(float(stats.get(key, 0.0)) / float(STAT_MAX[key]), 0.0, 1.0)
-			_round(Rect2(bx, cy + 1.0, bw, 6.0), Color(0.18, 0.17, 0.24), 3)
+			_round(Rect2(bx, cy + 1.0, bw, 5.0), Color(0.18, 0.17, 0.24), 2)
 			if ratio > 0.0:
-				_round(Rect2(bx, cy + 1.0, maxf(bw * ratio, 6.0), 6.0), col, 3)
-				draw_rect(Rect2(bx + 2.0, cy + 2.0, maxf(bw * ratio - 4.0, 1.0), 1.0), Color(col.lightened(0.5), 0.6))
-		ly += 42.0
+				_round(Rect2(bx, cy + 1.0, maxf(bw * ratio, 5.0), 5.0), col, 2)
+		ly += 22.0
+	var sets := _sets()
+	if not sets.is_empty():
+		var set: Dictionary = sets[clampi(_set, 0, sets.size() - 1)]
+		if sets.size() > 1:
+			var r := _chip_rect()
+			_round(r, Color(0.2, 0.18, 0.32), 5, Color(GOLD, 0.6), 1)
+			_text(Vector2(r.position.x, r.position.y + 8.0), "◀  %s  (%d/%d)  ▶" % [set.get("label", ""), _set + 1,
+				sets.size()], 7, GOLD, r.size.x)
+			ly = r.end.y + 2.0
+		_draw_cards(set.get("cards", []), x, ly)
+		ly += 28.0
+	var extra: Array = []
 	for k in range(1, lines.size()):
-		if ly > PANEL.end.y - 4.0:
-			break
-		draw_string(font, Vector2(x, ly), str(lines[k]), HORIZONTAL_ALIGNMENT_LEFT, PANEL.size.x - 20.0, 7,
-			Color(0.8, 0.8, 0.9))
-		ly += 10.0
+		extra.append(lines[k])
 	var tag := str(e.get("tag", ""))
 	if tag != "":
-		draw_string(font, Vector2(x, PANEL.end.y - 6.0), tag, HORIZONTAL_ALIGNMENT_LEFT, PANEL.size.x - 20.0, 7, GOLD)
+		extra.append(tag)
+	for k in extra.size():
+		if ly + 6.0 > PANEL.end.y:
+			break
+		draw_string(font, Vector2(x, ly + 6.0), str(extra[k]), HORIZONTAL_ALIGNMENT_LEFT, PANEL.size.x - 20.0, 7,
+			GOLD if str(extra[k]) == tag else Color(0.8, 0.8, 0.9))
+		ly += 10.0
+
+
+## 3 thẻ skill (icon + tên + kiểu / nộ) xếp ngang.
+func _draw_cards(cards: Array, x: float, y: float) -> void:
+	var font := ThemeDB.fallback_font
+	var w := (PANEL.size.x - 20.0) / 3.0
+	for i in cards.size():
+		var c: Dictionary = cards[i]
+		var cx := x + i * w
+		_round(Rect2(cx, y, w - 4.0, 26.0), Color(0.13, 0.12, 0.22), 4)
+		var tex := SkillIcons.texture(str(c.get("icon", "")))
+		if tex:
+			draw_texture_rect(tex, Rect2(cx + 2.0, y + 2.0, 22.0, 22.0), false)
+		draw_string(font, Vector2(cx + 27.0, y + 10.0), str(c.get("name", "")), HORIZONTAL_ALIGNMENT_LEFT, w - 32.0, 7,
+			Color.WHITE)
+		draw_string(font, Vector2(cx + 27.0, y + 20.0), str(c.get("info", "")), HORIZONTAL_ALIGNMENT_LEFT, w - 32.0, 6,
+			Color(0.75, 0.85, 1.0))
+
+
+func _sets() -> Array:
+	if entries.is_empty():
+		return []
+	return entries[index].get("skill_sets", [])
+
+
+func _cycle_set(d: int) -> void:
+	var n := _sets().size()
+	if n < 2:
+		return
+	_set = (_set + d + n) % n
+	Sound.sfx("ui_move", 0.0)
+
+
+## Nút ◀ tên form ▶ trong bảng (ngay dưới thanh chỉ số).
+func _chip_rect() -> Rect2:
+	return Rect2(PANEL.position.x + 70.0, PANEL.position.y + 54.0, 196.0, 11.0)
 
 
 # --- Hình cơ bản --------------------------------------------------------------
@@ -398,6 +485,18 @@ static func form_label(rider: StringName, form_id: StringName) -> String:
 	return label if not label.is_empty() else String(form_id).capitalize()
 
 
+## Bộ thẻ skill của form đang dùng của `f`: Skill 1, Skill 2, Final (icon SkillIcons, tên, kiểu + nộ).
+static func skill_set(f: RiderForm, label: String) -> Dictionary:
+	var cards: Array = []
+	for sk in f.get_skills():
+		cards.append({"icon": SkillIcons.pick(sk), "name": str(sk["name"]),
+			"info": "%s %s · %d nộ" % [Skills.mark(str(sk["type"]), int(sk.get("targets", 0))),
+				Skills.TYPE_NAME.get(str(sk["type"]), ""), int(sk["cost"])]})
+	cards.append({"icon": "kick", "name": f.final_attack_name(),
+		"info": "Final %s · %d nộ" % [Skills.mark(f.final_type(), f.final_targets()), int(Skills.FINAL_COST)]})
+	return {"label": label, "prefix": f.animation_prefix(), "cards": cards}
+
+
 ## Entry của một form (dùng cho FormSelect / ItemSelect).
 static func form_entry(rider: StringName, form_id: StringName, sub: String) -> Dictionary:
 	var f := preview_form(rider, form_id)
@@ -414,7 +513,7 @@ static func form_entry(rider: StringName, form_id: StringName, sub: String) -> D
 		kinds.append("súng")
 	var kind := " · ".join(kinds) if not kinds.is_empty() else "tay không"
 	var lines: Array = [str(f.tagline) if form_id == &"" or form_id == f.base_form() else "Kiểu đánh: %s" % kind]
-	lines.append("Tuyệt chiêu: %s" % f.final_attack_name())
+	e["skill_sets"] = [skill_set(f, str(e["name"]))]
 	f.free()
 	var counter := RiderCaps.counter_line(rider, form_id)   # quái đặc biệt của màn EX form này hạ được
 	if counter != "":
