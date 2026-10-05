@@ -48,6 +48,7 @@ signal form_changed(rider_id: StringName)        ## &"" = trở về dạng ngư
 signal form_status_changed(text: String)         ## dòng trạng thái phụ (form Kuuga, đồng hồ Axel...)
 signal combo_changed(count: int)
 signal notice(text: String)                      ## thông báo ngắn cho màn chơi hiện banner (hết nộ, thiếu nộ...)
+signal form_pick_requested(form: RiderForm)      ## Decade / Zi-O bấm Kỹ năng: màn chơi mở bảng chọn form (DataRider.picks_form)
 signal died
 signal net_hit(info: DamageInfo)                 ## net_puppet bị đánh trúng: chuyển đòn sang máy của người chơi đó
 signal shot_fired(projectile: Projectile)        ## vừa bắn một viên đạn (chế độ đấu gửi bản sao sang máy kia)
@@ -109,6 +110,7 @@ const CROUCH_DAMAGE_MULT := 0.4
 const CROUCH_HURTBOX_HEIGHT := 30.0
 
 # Nộ
+const MAX_HIT_SHARE := 0.25                  ## một đòn của quái không lấy quá chừng này phần máu Rider tối đa
 const RAGE_ON_HIT_HUMAN := 8.0
 const RAGE_ON_DEAL := 0.5                    ## × sát thương gây ra (đạn chỉ tính một nửa)
 const RAGE_ON_DAMAGE := 0.8                  ## × máu mất
@@ -607,6 +609,10 @@ func _state_henshin(delta: float) -> void:
 	if _state_timer > 0.0:
 		return
 	_enter_form(equipped[active_slot], true)
+	# Biến thân dùng hết thanh nộ đầy: vào form gốc với 0 nộ, đánh để tích lại. Nhặt form đặc biệt khi đang là người
+	# (transform_into) thì giữ nộ đầy, vì form đặc biệt tụt nộ và về form gốc khi hết.
+	if not in_special_form():
+		_set_rage(0.0)
 	Sound.sfx("henshin_flash", 0.0)
 	# Sóng xung kích lúc biến thân xong: đẩy lùi quái xung quanh.
 	_begin_attack(&"henshin", RiderForm.make_attack(4.0, 0.0, 0.12, 0.1, Vector2(90, 40), Vector2(0, -14),
@@ -1008,6 +1014,9 @@ func take_hit(info: DamageInfo) -> bool:
 	var holds := info.has_tag(&"bind") or (GameState.versus and _hold_time(info) > 0.0)
 	if current_form:
 		var dmg := current_form.modify_incoming_damage(info) * mult * skills.guard_mult()
+		if not GameState.versus:
+			# Một đòn của quái / trùm (kể cả chiêu cuối) không lấy quá MAX_HIT_SHARE máu Rider.
+			dmg = minf(dmg, current_form.get_max_hp() * MAX_HIT_SHARE)
 		if not blocking:
 			_grace_timer = maxf(_grace_timer, HIT_INVULN_RIDER)
 		rider_hp -= dmg

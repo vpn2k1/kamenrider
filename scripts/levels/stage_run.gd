@@ -61,7 +61,7 @@ const STAGE_TYPE_HELP := {
 	WorldData.StageType.CHALLENGE: "Màn EX: quái đặc biệt chỉ hạ được đúng cách, mang form khắc chế.",
 	WorldData.StageType.DUEL: "Đấu Rider: hạ Rider đối thủ ở cuối đường để nhận form của họ.",
 }
-const HOW_TO_PLAY := "Đánh trúng / bị đánh tích nộ. Nộ đầy: biến thân. Skill 1 / 2 tốn nộ và có hồi chiêu, Final Attack 60 nộ. Đổi form (Kỹ năng) tốn 10 nộ. Né tránh đòn cận chiến; đạn đỏ cao thì cúi, đạn xanh thấp thì nhảy. Kiếm: Chém đúng lúc để chém tan / phản đạn. Rơi xuống vực mất máu. Quái ★ tinh nhuệ máu dày hơn."
+const HOW_TO_PLAY := "Đánh trúng / bị đánh tích nộ. Nộ đầy: biến thân (dùng hết nộ, vào form gốc với 0 nộ). Skill 1 / 2 tốn nộ và có hồi chiêu, Final Attack 60 nộ. Đổi form (Kỹ năng) tốn 10 nộ. Né tránh đòn cận chiến; đạn đỏ cao thì cúi, đạn xanh thấp thì nhảy. Kiếm: Chém đúng lúc để chém tan / phản đạn. Rơi xuống vực mất máu. Quái ★ tinh nhuệ máu dày hơn."
 const HALF_H := StageBuilder.HALF_H
 const CAMERA_LEAD := 40.0       ## camera nhìn trước chừng này theo hướng người chơi đang đi
 const CAMERA_FOLLOW := 8.0       ## độ bám của camera (1/giây): càng lớn càng sát người chơi
@@ -140,6 +140,8 @@ var _stage_select: StageSelect
 var _form_select: FormSelect
 var _item_select: ItemSelect
 var _boost_select: BoostSelect
+var _quit_confirm: ConfirmDialog       ## bấm Menu giữa màn: hỏi trước khi về màn chọn màn
+var _form_pick: FormSelect       ## Decade / Zi-O: bảng chọn thẻ Kamen Ride / Armor giữa màn (màn dừng khi mở)
 var _boost_given := false        ## màn chơi lại: đã rơi / nhặt vật phẩm Tăng sức mạnh của lượt này chưa
 var _dialogue: DialogueBox
 var _fade: ColorRect               ## màn đen phủ khi chuyển màn
@@ -203,6 +205,18 @@ func _ready() -> void:
 	$HUD.add_child(_item_select)
 	_boost_select = BoostSelect.new()
 	$HUD.add_child(_boost_select)
+	_quit_confirm = ConfirmDialog.new()
+	$HUD.add_child(_quit_confirm)
+	_quit_confirm.answered.connect(_on_quit_answered)
+	_form_pick = FormSelect.new()
+	_form_pick.visible = false
+	_form_pick.process_mode = Node.PROCESS_MODE_ALWAYS     # chạy được khi màn đang dừng
+	_form_pick.title = "ĐỔI FORM"
+	_form_pick.confirm_text = "ĐỔI"
+	_form_pick.done.connect(_on_form_picked)
+	_form_pick.back_requested.connect(_close_form_pick)
+	$HUD.add_child(_form_pick)
+	player.form_pick_requested.connect(_open_form_pick)
 	_time_tint = _overlay(TIME_TINT)
 	_flash = _overlay(Color(1, 1, 1, 0))
 	_cutin = SkillCutIn.new()
@@ -355,6 +369,22 @@ func _on_items_done(items: Array[StringName]) -> void:
 
 
 ## Menu trong màn hoặc hết bảng kết quả: tối dần rồi về màn chọn màn.
+## Bấm Menu giữa màn: dừng màn, hỏi có về màn chọn màn không (tiến trình của lượt này mất).
+func _ask_quit() -> void:
+	get_tree().paused = true
+	touch.visible = false
+	_quit_confirm.open("VỀ MÀN CHỌN MÀN?", "Tiến trình của lượt chơi này sẽ mất (vật phẩm, form, chỉ số đã nhặt vẫn giữ).",
+		"VỀ", "Ở LẠI")
+
+
+func _on_quit_answered(yes: bool) -> void:
+	get_tree().paused = false
+	if yes and phase in [Phase.RUN, Phase.GOAL_FIGHT, Phase.PICKUP]:
+		_back_to_map()
+	else:
+		touch.visible = phase == Phase.RUN or phase == Phase.GOAL_FIGHT
+
+
 func _back_to_map() -> void:
 	phase = Phase.TRANSITION
 	player.input_locked = true
@@ -556,8 +586,9 @@ func _process(delta: float) -> void:
 	_immune_nag = maxf(_immune_nag - delta, 0.0)
 	if _restarting:
 		return
-	if phase in [Phase.RUN, Phase.GOAL_FIGHT, Phase.PICKUP] and Input.is_action_just_pressed("menu"):
-		_back_to_map()
+	if phase in [Phase.RUN, Phase.GOAL_FIGHT, Phase.PICKUP] and Input.is_action_just_pressed("menu") \
+			and not ConfirmDialog.is_showing():
+		_ask_quit()
 		return
 	match phase:
 		Phase.GOAL_FIGHT:
@@ -1117,6 +1148,45 @@ func _stage_music(stage: Dictionary) -> String:
 	if stage["type"] == WorldData.StageType.DUEL:
 		return "boss"
 	return "stage_%s" % GameState.current_world()["id"]
+
+
+## Decade / Zi-O bấm Kỹ năng: dừng màn, hiện danh sách form (thẻ Kamen Ride / Armor) như màn chọn Rider. Thiếu nộ
+## thì không mở (đổi form tốn nộ như Kỹ năng thường).
+func _open_form_pick(form: RiderForm) -> void:
+	if not (phase in [Phase.RUN, Phase.GOAL_FIGHT, Phase.PICKUP]) or _form_pick.visible or not (form is DataRider):
+		return
+	if not player.rage_draining() and player.rage < Player.FORM_ENTER_MIN_RAGE:
+		Sound.sfx("ui_back", 0.0)
+		return
+	var dr := form as DataRider
+	var options := dr.pick_options()
+	get_tree().paused = true
+	touch.visible = false
+	TouchButton.release_all(get_tree())
+	_form_pick.open(dr.rider_id, options, [] as Array[StringName])
+	for e in _form_pick.entries:
+		e["tag"] = "Tốn %d nộ · dùng tới khi hết nộ" % int(Player.FORM_SWITCH_COST) if e["id"] != dr.base_form() \
+			else "Về form gốc, không tốn nộ"
+		if e["id"] == dr.base_form():
+			e["sub"] = "form gốc"
+	_form_pick.subtitle = "%s · chọn form để biến đổi · ◀ QUAY LẠI để huỷ" % dr.display_name
+	_form_pick.queue_redraw()
+
+
+func _on_form_picked(forms: Array[StringName]) -> void:
+	await _close_form_pick()
+	var form := player.current_form as DataRider
+	if form and not forms.is_empty():
+		form.apply_pick(forms[0])
+
+
+## Đóng bảng, đợi 2 khung hình rồi mới cho màn chạy lại: phím vừa bấm để chọn / huỷ (Đánh, Esc) không lọt xuống màn.
+func _close_form_pick() -> void:
+	_form_pick.visible = false
+	await get_tree().process_frame
+	await get_tree().process_frame
+	get_tree().paused = false
+	touch.visible = phase in [Phase.RUN, Phase.GOAL_FIGHT, Phase.PICKUP]
 
 
 ## Dừng màn, hiện bảng chọn chỉ số; cộng +1% cho form đang dùng (dạng người thì cho form gốc của Rider chính).

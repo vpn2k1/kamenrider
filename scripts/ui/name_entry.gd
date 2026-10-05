@@ -33,6 +33,7 @@ var _keyboard: GameKeyboard
 func _ready() -> void:
 	name_edit.max_length = GameState.MAX_NAME_LENGTH
 	name_edit.placeholder_text = GameState.DEFAULT_PLAYER_NAME
+	name_edit.set_meta("kb_label", "Tên nhân vật")    # tên ô trên dải xem trước của bàn phím trong game
 	if GameState.player_name != GameState.DEFAULT_PLAYER_NAME:
 		name_edit.text = GameState.player_name
 	name_edit.text_changed.connect(func(_text: String) -> void: _update_preview())

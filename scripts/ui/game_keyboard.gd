@@ -8,6 +8,8 @@ class_name GameKeyboard
 ## Dùng: kb.attach(line_edit, GameKeyboard.Mode.TEXT). Chạm vào ô nhập thì bàn phím hiện, OK = text_submitted.
 ## Máy có bàn phím thật (máy tính) thì không hiện, gõ phím thường (force_show để thử trên máy tính).
 ## Ô nhập tắt bàn phím hệ thống (LineEdit.virtual_keyboard_enabled = false).
+## Ngay trên hàng phím có dải xem trước (PREVIEW_H): tên ô (meta "kb_label" của ô nhập, không có thì placeholder) và
+## chữ đang gõ có con trỏ nhấp nháy, để luôn thấy mình gõ gì kể cả khi bàn phím che mất ô nhập của màn hình.
 
 signal shown_changed(visible_now: bool)
 
@@ -23,6 +25,7 @@ const KEY_HOT := Color(0.32, 0.26, 0.55)
 const SPECIAL_BG := Color(0.1, 0.09, 0.2)
 const OK_BG := Color(0.75, 0.2, 0.24)
 const GOLD := Color(1, 0.85, 0.3)
+const PREVIEW_H := 22.0        ## dải xem trước chữ đang gõ, nằm ngay trên hàng phím
 
 const ROWS_TEXT := [
 	["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
@@ -53,6 +56,7 @@ var _rows: Array = []
 var _rects: Array = []         ## [Rect2, key] theo toạ độ của Control này
 var _hot := ""                 ## phím đang được giữ (sáng lên)
 var _hot_time := 0.0
+var _blink := 0.0
 
 
 static func wanted() -> bool:
@@ -99,7 +103,7 @@ func close() -> void:
 func panel_height() -> float:
 	if not visible:
 		return 0.0
-	return _rows.size() * (KEY_H + GAP) + PAD * 2.0 + Screen.safe_insets(self).size.y
+	return _rows.size() * (KEY_H + GAP) + PAD * 2.0 + PREVIEW_H + Screen.safe_insets(self).size.y
 
 
 func _rebuild() -> void:
@@ -167,9 +171,8 @@ func _gui_input(event: InputEvent) -> void:
 		if (kr[0] as Rect2).has_point(pos):
 			_press(str(kr[1]))
 			return
-	# chạm ra ngoài phím (phía trên bàn phím) thì đóng
-	var top: float = (_rects[0][0] as Rect2).position.y if not _rects.is_empty() else 0.0
-	if pos.y < top - PAD:
+	# chạm ra ngoài bàn phím (phía trên dải xem trước) thì đóng
+	if pos.y < _panel_top():
 		close()
 
 
@@ -177,7 +180,14 @@ func _has_point(point: Vector2) -> bool:
 	# Chỉ chặn chạm ở dải bàn phím; phía trên vẫn chạm được ô nhập / nút của màn hình.
 	if _rects.is_empty():
 		return false
-	return point.y >= (_rects[0][0] as Rect2).position.y - PAD
+	return point.y >= _panel_top()
+
+
+## Mép trên của bàn phím (gồm cả dải xem trước).
+func _panel_top() -> float:
+	if _rects.is_empty():
+		return 0.0
+	return (_rects[0][0] as Rect2).position.y - PAD - PREVIEW_H
 
 
 func _press(key: String) -> void:
@@ -225,6 +235,12 @@ func _type(ch: String) -> void:
 func _process(delta: float) -> void:
 	if not visible:
 		return
+	_blink += delta
+	if fmod(_blink, 0.5) < delta:
+		queue_redraw()          # con trỏ nhấp nháy trong dải xem trước
+	if _target and _target.text != str(get_meta("shown_text", "")):
+		set_meta("shown_text", _target.text)
+		queue_redraw()          # gõ bằng bàn phím thật / ô bị đổi chữ từ nơi khác
 	if _hot_time > 0.0:
 		_hot_time -= delta
 		if _hot_time <= 0.0:
@@ -242,10 +258,11 @@ func _draw() -> void:
 	if _rects.is_empty():
 		return
 	var view := Screen.view(self)
-	var top: float = (_rects[0][0] as Rect2).position.y - PAD
+	var top := _panel_top()
 	draw_rect(Rect2(0, top, view.x, view.y - top), BG)
 	draw_line(Vector2(0, top), Vector2(view.x, top), Color(GOLD, 0.6), 1.0)
 	var font := ThemeDB.fallback_font
+	_draw_preview(font, top, view)
 	for kr in _rects:
 		var r: Rect2 = kr[0]
 		var key: String = kr[1]
@@ -273,3 +290,30 @@ func _draw() -> void:
 		var w := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 		draw_string(font, Vector2(r.position.x + (r.size.x - w) / 2.0, r.position.y + r.size.y / 2.0 + size * 0.36),
 			label, HORIZONTAL_ALIGNMENT_LEFT, -1, size, GOLD if key == "OK" else Color.WHITE)
+
+
+## Dải xem trước: tên ô bên trái, khung chữ đang gõ (con trỏ nhấp nháy ở cuối), chữ quá dài thì hiện phần cuối.
+func _draw_preview(font: Font, top: float, view: Vector2) -> void:
+	if _target == null:
+		return
+	var safe := Screen.safe_insets(self)
+	var left := safe.position.x + PAD
+	var right := view.x - safe.size.x - PAD
+	var label := str(_target.get_meta("kb_label", _target.placeholder_text))
+	var label_w := 0.0
+	if label != "":
+		label_w = minf(font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 8).x + 8.0, 120.0)
+		draw_string(font, Vector2(left, top + PREVIEW_H / 2.0 + 3.0), label, HORIZONTAL_ALIGNMENT_LEFT, label_w - 6.0, 8,
+			Color(0.7, 0.7, 0.85))
+	var box := Rect2(left + label_w, top + 3.0, right - left - label_w, PREVIEW_H - 4.0)
+	draw_rect(box, Color(0.1, 0.09, 0.2))
+	draw_rect(box, Color(GOLD, 0.7), false, 1.0)
+	var text := _target.text
+	var max_w := box.size.x - 14.0
+	while text.length() > 0 and font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT).x > max_w:
+		text = text.substr(1)       # quá dài: hiện phần cuối (chỗ đang gõ)
+	var base := Vector2(box.position.x + 6.0, box.position.y + box.size.y / 2.0 + FONT * 0.36)
+	draw_string(font, base, text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT, Color.WHITE)
+	if fmod(_blink, 1.0) < 0.5:
+		var cx := base.x + font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT).x + 1.0
+		draw_line(Vector2(cx, box.position.y + 4.0), Vector2(cx, box.end.y - 4.0), GOLD, 1.0)

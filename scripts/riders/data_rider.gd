@@ -150,8 +150,39 @@ func final_targets() -> int:
 
 
 func special_available() -> bool:
+	if picks_form():
+		return not pick_options().is_empty()
 	var order: Array = data.get("order", [])
 	return order.any(func(f): return f != base_form() and has_form(f))
+
+
+## "pick_form" (Decade, Zi-O) ở hành trình: Kỹ năng mở bảng chọn form (thẻ Kamen Ride / Armor) dạng danh sách Rider
+## như màn chọn Rider, màn dừng tới khi chọn xong (StageRun._open_form_pick). Chế độ đấu vẫn đổi vòng như cũ.
+func picks_form() -> bool:
+	return bool(data.get("pick_form", false)) and not GameState.versus
+
+
+## Các form chọn được trong bảng: form đã có (theo "order") trừ form đang dùng; Decade đổi thẻ ở form nào cũng được
+## nên có cả form gốc để quay về.
+func pick_options() -> Array[StringName]:
+	var out: Array[StringName] = []
+	for f in data.get("order", []):
+		var id := StringName(f)
+		if id == current_form_id() or (id == base_form() and not special_anywhere()):
+			continue
+		if id == base_form() or (has_form(id) and not GameState.is_item(rider_id, id)):
+			out.append(id)
+	return out
+
+
+## Bảng chọn form vừa chọn xong `target`: trả nộ như Kỹ năng rồi đổi form.
+func apply_pick(target: StringName) -> void:
+	if player == null or target == current_form_id():
+		return
+	if target != base_form() and not player.pay_form_switch():
+		return
+	set_form(target)
+	special_timer = special_cooldown
 
 
 func _next_form() -> StringName:
@@ -165,6 +196,12 @@ func special_anywhere() -> bool:
 ## "card_swap" (Decade): ở form nào cũng lắp thẻ kế tiếp theo "order" trong các thẻ dùng được; hết vòng thì về form
 ## gốc (không tốn nộ). Rider khác: như RiderForm (chỉ bấm ở form gốc).
 func try_special() -> void:
+	if picks_form():
+		if special_timer > 0.0 or player == null or (is_special_form() and not special_anywhere()):
+			return
+		if not pick_options().is_empty():
+			player.form_pick_requested.emit(self)
+		return
 	if not special_anywhere():
 		super()
 		return

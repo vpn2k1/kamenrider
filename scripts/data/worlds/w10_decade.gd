@@ -63,6 +63,8 @@ const RIDER := {
 	# Đổi thẻ tự do như phim: mọi thẻ Kamen Ride đã có đều dùng được trong màn (không chọn trước), bấm Kỹ năng (L) ở
 	# form nào cũng lắp thẻ kế tiếp; hết vòng thì về Decade (DataRider.try_special, GameState.form_usable).
 	"card_swap": true,
+	# Hành trình: bấm Kỹ năng mở bảng chọn thẻ Kamen Ride như màn chọn Rider (màn dừng tới khi chọn xong).
+	"pick_form": true,
 	# Kabuto rơi ở thế giới này; Complete Form mở ở Lv5; các Kamen Ride còn lại thắng Rider đó ở thế giới phụ "Hành trình thẻ
 	# Kamen Ride" (scripts/data/side_worlds.gd).
 	"order": [&"decade", &"complete", &"kabuto", &"kuuga", &"agito", &"ryuki", &"faiz", &"blade", &"hibiki",

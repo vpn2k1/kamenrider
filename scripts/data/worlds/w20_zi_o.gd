@@ -62,6 +62,9 @@ const RIDER := {
 	"name": "Kamen Rider Zi-O",
 	"tagline": "Kế thừa · khoác Armor của các Rider (Ride Watch ở thế giới phụ)",
 	"base": &"zi_o",
+	# Hành trình: bấm Kỹ năng ở form gốc mở bảng chọn Armor như màn chọn Rider (màn dừng tới khi chọn xong); mọi Armor
+	# đã có đều dùng được trong màn.
+	"pick_form": true,
 	"order": [&"zi_o", &"build_armor", &"ex_aid_armor", &"decade_armor", &"kuuga_armor", &"agito_armor", &"ryuki_armor",
 		&"faiz_armor", &"blade_armor", &"hibiki_armor", &"kabuto_armor", &"den_o_armor", &"kiva_armor", &"double_armor",
 		&"ooo_armor", &"fourze_armor", &"wizard_armor", &"gaim_armor", &"drive_armor", &"ghost_armor"],

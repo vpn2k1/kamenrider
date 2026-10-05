@@ -116,6 +116,10 @@ func _process(_delta: float) -> void:
 	if slashing and not _was_slashing:
 		_slashes += 1
 	_was_slashing = slashing
+	# Decade / Zi-O bấm Kỹ năng mở bảng chọn form (màn dừng): chọn ngay thẻ / Armor đầu danh sách.
+	if stage._form_pick.visible:
+		stage._form_pick.pick([] as Array[StringName])
+		return
 	# Đang thoại (kể cả 2 khung hình khung thoại đóng lại): bấm qua, chưa tính là xong màn.
 	if stage._dialogue.is_open() or stage.phase == stage.Phase.TALK:
 		stage._dialogue.advance()

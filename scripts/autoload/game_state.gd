@@ -43,7 +43,8 @@ const ELITE_DAMAGE_MULT := 1.1
 ## Sức mạnh Rider theo thế hệ: Rider của thế giới thứ i (đếm từ 0) có máu và sát thương × (1 + 0.12 × i).
 ## Quái mỗi thế giới cũng mạnh thêm chừng đó, nên dùng Rider mới nhất thì độ khó các thế giới xấp xỉ nhau.
 ## Đồng bộ theo màn: trong màn của thế giới w, Rider tính tối đa như Rider thế giới w + POWER_SYNC_AHEAD (Rider đời sau
-## về màn cũ vẫn mạnh hơn một chút nhưng không áp đảo; Rider đời trước sang màn mới thì không được nâng lên).
+## về màn cũ vẫn mạnh hơn một chút nhưng không áp đảo), và tối thiểu như Rider thế giới w: Rider đời trước vào màn mới
+## được nâng máu / sát thương / giáp cho xứng với quái (không còn một chiêu của trùm mất nửa máu).
 ## Luyện lại: Rider đời trước muốn dùng ở thế giới sau phải chơi lại màn đã qua. Mỗi lần qua lại một màn bằng Rider đó,
 ## Rider được thêm TRAIN_PER_REPLAY đời sức mạnh (trùm TRAIN_PER_BOSS), lưu ở drivers[rider]["train"], tối đa bằng
 ## Rider của thế giới cuối. Ví dụ Kuuga muốn mạnh như Rider thế giới 10 cần khoảng 9 / 0,5 = 18 lần qua lại màn.
@@ -328,7 +329,7 @@ func level_world() -> int:
 func rider_power(id: StringName) -> float:
 	if versus:
 		return 1.0
-	var gen := minf(rider_generation(id), float(level_world() + POWER_SYNC_AHEAD))
+	var gen := clampf(rider_generation(id), float(level_world()), float(level_world() + POWER_SYNC_AHEAD))
 	return 1.0 + POWER_PER_WORLD * gen
 
 
@@ -534,7 +535,48 @@ func owns_form(id: StringName, form_id: StringName) -> bool:
 func has_form(id: StringName, form_id: StringName) -> bool:
 	if versus and (form_id != versus_form and not versus_items.has(form_id)):
 		return false
+	if versus and combat_unlock_all():
+		return true
 	return owns_form(id, form_id)
+
+
+## COMBAT (đấu WiFi) ở bản web: mọi Rider, form và item mở sẵn, không cần chơi hành trình trước. Bản APK / máy tính
+## vẫn chỉ dùng thứ đã mở khoá ở hành trình. Trong trận chỉ số vẫn công bằng (cấp 1, sức mạnh thế hệ 1, không cộng).
+func combat_unlock_all() -> bool:
+	return OS.has_feature("web")
+
+
+## Rider chọn được ở COMBAT.
+func combat_riders() -> Array[StringName]:
+	if not combat_unlock_all():
+		return selectable_riders()
+	var out: Array[StringName] = []
+	for world in WorldData.WORLDS:
+		out.append(world["rider"])
+	return out
+
+
+## Form biến đổi (không phải item, không tính form gốc) chọn được ở COMBAT.
+func combat_forms(id: StringName) -> Array[StringName]:
+	if not combat_unlock_all():
+		return owned_forms(id)
+	var out: Array[StringName] = []
+	var all := RiderCaps.all_forms(id)
+	for i in range(1, all.size()):            # all[0] là form gốc (luôn có sẵn)
+		if not is_item(id, all[i]):
+			out.append(all[i])
+	return out
+
+
+## Item chọn được ở COMBAT.
+func combat_items(id: StringName) -> Array[StringName]:
+	if not combat_unlock_all():
+		return owned_items(id)
+	var out: Array[StringName] = []
+	for f in WorldData.rider_data(id).get("order", []):
+		if is_item(id, f):
+			out.append(f)
+	return out
 
 
 ## Item: form chỉ là vũ khí / lá bài / đòn ("item": true trong RIDER), quái rơi, mang vào màn tối đa MAX_ITEMS.
@@ -564,10 +606,10 @@ func owned_forms(id: StringName) -> Array[StringName]:
 ## Chỉ nhận thứ đã mở khoá.
 func set_versus_loadout(id: StringName, form_id: StringName, items: Array[StringName]) -> void:
 	versus_rider = id
-	versus_form = form_id if owned_forms(id).has(form_id) else &""
+	versus_form = form_id if combat_forms(id).has(form_id) else &""
 	versus_items.clear()
 	for f in items:
-		if owned_items(id).has(f) and versus_items.size() < MAX_ITEMS:
+		if combat_items(id).has(f) and versus_items.size() < MAX_ITEMS:
 			versus_items.append(f)
 	save_game()
 
@@ -594,8 +636,10 @@ func form_usable(id: StringName, form_id: StringName) -> bool:
 		return true
 	if is_item(id, form_id):
 		return carried_items.has(form_id)
-	# Decade: mọi thẻ Kamen Ride đã có đều dùng được, không giới hạn 1 form mang vào ("card_swap" trong RIDER).
-	return carried_forms.has(form_id) or WorldData.rider_data(id).get("card_swap", false)
+	# Decade / Zi-O: mọi thẻ Kamen Ride / Armor đã có đều dùng được, không giới hạn 1 form mang vào ("card_swap",
+	# "pick_form" trong RIDER; đổi bằng bảng chọn Rider giữa màn, DataRider.picks_form).
+	var data := WorldData.rider_data(id)
+	return carried_forms.has(form_id) or data.get("card_swap", false) or data.get("pick_form", false)
 
 
 ## Các Rider chọn được làm Rider chính (mọi Driver đã kích hoạt), theo thứ tự thế giới.

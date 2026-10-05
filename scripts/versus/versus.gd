@@ -286,7 +286,7 @@ func _open_pick() -> void:
 	await get_tree().process_frame
 	if screen != Screen.PICK:
 		return
-	var options := GameState.selectable_riders()
+	var options := GameState.combat_riders()
 	if options.is_empty():
 		_show_room("Chưa có Rider nào: mở khoá Rider ở chế độ CHƠI trước.")
 		return
@@ -294,13 +294,14 @@ func _open_pick() -> void:
 	for id in options:
 		colors[id] = WorldData.rider_color(id)
 	var current := GameState.versus_rider if options.has(GameState.versus_rider) else options[options.size() - 1]
-	_rider_select.open(options, "CHỌN RIDER", "Rider đã mở khoá · cấp và form như ở hành trình", current, colors)
+	_rider_select.open(options, "CHỌN RIDER", "Mọi Rider mở sẵn (bản web) · chỉ số như nhau cho công bằng"
+		if GameState.combat_unlock_all() else "Rider đã mở khoá · cấp và form như ở hành trình", current, colors)
 
 
 ## Bước 2: form biến đổi (tối đa 1). Rider chưa nhặt form nào thì sang thẳng bước 3.
 func _on_rider_chosen(id: StringName) -> void:
 	_pick_rider = id
-	var forms := GameState.owned_forms(id)
+	var forms := GameState.combat_forms(id)
 	if FormSelect.should_skip(forms):
 		_on_form_chosen(forms)          # form gốc luôn có sẵn; chỉ 1 form biến đổi thì mang luôn
 		return
@@ -314,7 +315,7 @@ func _on_rider_chosen(id: StringName) -> void:
 ## Bước 3: vũ khí (item). Rider chưa nhặt item nào thì xong luôn.
 func _on_form_chosen(picked: Array[StringName]) -> void:
 	_pick_form = picked[0] if not picked.is_empty() else &""
-	var items := GameState.owned_items(_pick_rider)
+	var items := GameState.combat_items(_pick_rider)
 	if items.is_empty():
 		_on_weapons_chosen([] as Array[StringName])
 		return
@@ -332,7 +333,7 @@ func _on_weapons_chosen(items: Array[StringName]) -> void:
 ## Vào phòng: dùng luôn bộ đã chọn lần trước (nếu Rider đó vẫn dùng được), khỏi phải chọn lại.
 func _send_saved_pick() -> void:
 	var rider := GameState.versus_rider
-	if rider != &"" and GameState.is_active(rider):
+	if rider != &"" and GameState.combat_riders().has(rider):
 		GameState.set_versus_loadout(rider, GameState.versus_form, GameState.versus_items.duplicate())
 		_send_pick()
 
@@ -1161,6 +1162,8 @@ func _build_ui() -> void:
 	_page_join.add_child(row)
 	_page_join.add_child(_button("◀ QUAY LẠI", func() -> void: _menu_page(_page_home)))
 	box.add_child(_page_join)
+	_ip_edit.set_meta("kb_label", "IP chủ phòng")
+	_count_edit.set_meta("kb_label", "Số người")
 	var keyboard := GameKeyboard.new()      # điện thoại: bàn phím số trong game cho ô IP (thêm vào ui sau cùng)
 	keyboard.attach(_ip_edit, GameKeyboard.Mode.NUMBER)
 	keyboard.attach(_count_edit, GameKeyboard.Mode.NUMBER)

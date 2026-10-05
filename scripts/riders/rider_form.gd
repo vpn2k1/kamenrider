@@ -222,8 +222,13 @@ static func base_shot() -> Dictionary:
 		"radius": 3.0, "color": Color(1, 0.9, 0.6), "pierce": false, "life": 0.9}
 
 
+## Giáp tăng theo sức mạnh thế hệ (một nửa mức tăng máu): Rider ở thế giới sau chịu đòn tốt hơn, xứng với quái.
+const ARMOR_POWER_SHARE := 0.5
+
+
 func modify_incoming_damage(info: DamageInfo) -> float:
-	return info.damage * 100.0 / (100.0 + armor * bonus("armor"))
+	var a := armor * bonus("armor") * (1.0 + (power - 1.0) * ARMOR_POWER_SHARE)
+	return info.damage * 100.0 / (100.0 + a)
 
 
 ## Chỉ số form hiện tại ở cấp hiện tại, cho màn chọn Rider (gọi trên bản mới tạo = form gốc).

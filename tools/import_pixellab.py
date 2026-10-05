@@ -480,6 +480,49 @@ def draw_gun(im, x, y, body, light, barrel, length):
         put(x, yy, (20, 18, 22, 255)); put(x + 1, yy, (50, 50, 58, 255)); put(x + 2, yy, (20, 18, 22, 255))
 
 
+def _rocket_tube(im, x0, y0, x1, y1, body, behind=False):
+    """Ống tên lửa cam viền đen phủ hình chữ nhật x0..x1, y0..y1. behind: chỉ tô chỗ trống (bị thân che)."""
+    px = im.load()
+    for xx in range(x0, x1 + 1):
+        for yy in range(y0, y1 + 1):
+            if 0 <= xx < im.width and 0 <= yy < im.height and not (behind and px[xx, yy][3]):
+                edge = xx in (x0, x1) or yy in (y0, y1)
+                px[xx, yy] = (20, 18, 22, 255) if edge else body
+
+
+def draw_arm_rockets(fr):
+    """Rocket States: tên lửa dọc theo cẳng tay, mũi trắng ở phía nắm tay. Tay duỗi ra trước (đấm) thì ống nằm ngang
+    theo tay; tay buông thì ống dựng đứng dọc cẳng tay, mũi chúc xuống. Tay xa vẽ sau thân, lệch về sau một chút."""
+    im = fr.copy()
+    box, cy0, cy1 = _band(fr, 0.24, 0.36)
+    px = fr.load()
+    chest = [max((x for x in range(box[0], box[2]) if px[x, y][3]), default=box[0]) for y in range(int(cy0), int(cy1) + 1)]
+    chest_front = sorted(chest)[len(chest) // 2]
+    # Tay duỗi đấm nằm ngang tầm ngực (0,28–0,46); dải thấp hơn có thể là chân đang đá nên chỉ dùng cho tay buông.
+    x, y = front_point(fr, 0.28, 0.46)
+    white = (245, 245, 250, 255)
+    if x - chest_front < 5:
+        x, y = front_point(fr, *HAND_BAND)
+        if x - chest_front >= 5:             # điểm xa nhất ở dải thấp là chân đá: tay buông sát thân
+            x = chest_front
+            y = int(_band(fr, 0.48, 0.48)[1])
+    if x - chest_front >= 5:                 # tay duỗi: ống ngang dọc cẳng tay, mũi ở nắm tay phía trước
+        _rocket_tube(im, x - 9, y - 6, x - 1, y - 2, (200, 85, 25, 255), behind=True)   # tay xa, cao hơn chút
+        _rocket_tube(im, x - 8, y - 2, x + 1, y + 2, (240, 110, 30, 255))
+        draw_line(im, x + 2, y - 1, x + 3, y, white)
+        draw_line(im, x + 2, y + 1, x + 3, y, white)
+        draw_line(im, x - 10, y, x - 9, y, (255, 220, 80, 255))
+    else:                                    # tay buông: ống đứng dọc cẳng tay, mũi chúc xuống ở nắm tay
+        hx, hy = x, y
+        lo = max((yy for yy in range(int(hy), box[3]) if px[min(hx, fr.width - 1), yy][3]), default=hy)
+        tip = min(lo, hy + 6)
+        _rocket_tube(im, hx - 7, tip - 10, hx - 3, tip - 1, (200, 85, 25, 255), behind=True)
+        _rocket_tube(im, hx - 4, tip - 10, hx, tip - 1, (240, 110, 30, 255))
+        draw_line(im, hx - 3, tip, hx - 1, tip, white)
+        im.load()[max(0, hx - 2), min(im.height - 1, tip + 1)] = white
+    return im
+
+
 def add_weapon(frames, kind, band=(0.3, 0.62)):
     """Vẽ vũ khí lên bàn tay trước (Ryuki: thẻ Vent): điểm xa nhất phía trước trong dải chiều cao band.
     Dáng người giữ nguyên, chỉ thêm món đồ."""
@@ -546,6 +589,8 @@ def add_weapon(frames, kind, band=(0.3, 0.62)):
             draw_line(im, x + 8, y - 1, x + 9, y, (245, 245, 250, 255))
             draw_line(im, x + 8, y + 1, x + 9, y, (245, 245, 250, 255))
             draw_line(im, x - 4, y, x - 3, y, (255, 220, 80, 255))
+        elif kind == "rocket2":    # Rocket States: Rocket Module Super-1 bọc dọc theo cẳng tay ở cả hai tay
+            im = draw_arm_rockets(fr)
         elif kind == "billy":      # Billy the Rod (Fourze Elek): kiếm điện bạc chếch lên, đầu kiếm tia điện vàng
             draw_line(im, x + 1, y + 1, x + 12, y - 10, (210, 215, 225, 255), 2)
             draw_circle(im, x, y, 1.6, (40, 40, 45, 255), filled=True)
@@ -1534,10 +1579,12 @@ DATA_RIDERS = {
     }),
     # Fourze: ảnh gốc Base States sửa từ Decade bằng PixelLab Pro Flash edit, 5 animation bằng PixelLab animate_image
     # (khung trúng đòn đã xoá tia lửa AI vẽ đè). Rocket gắn Rocket Module; Elek / Fire giáp trắng thành vàng / đỏ (giữ
-    # mũ trắng) và cầm Billy the Rod / Hee-Hackgun.
+    # mũ trắng) và cầm Billy the Rod / Hee-Hackgun. Mũ Base States đã tô lại trắng (bỏ sọc "barcode" còn sót từ Decade).
     "fourze": ("fourze", "w13_fourze", {
         "base_states": (None, (245, 245, 250, 255)),
-        "rocket": (lambda fr: add_weapon(fr, "rocket", HAND_BAND), (255, 130, 40, 255)),
+        # Rocket States (Movie War Mega Max, Rocket Switch Super-1): giáp cam (giữ mũ trắng), tên lửa ở cả hai tay
+        "rocket": (lambda fr: add_weapon(recolor(fr, FOURZE_TO(0.07, 0.85, 0.95)), "rocket2", HAND_BAND),
+                   (255, 130, 40, 255)),
         "elek": ({"*": lambda fr: recolor(fr, FOURZE_TO(0.13, 0.75, 0.95)),
                   "slash": lambda fr: swing_weapon(recolor(fr, FOURZE_TO(0.13, 0.75, 0.95)), "billy", HAND_BAND)},
                  (255, 225, 60, 255)),

@@ -47,6 +47,7 @@ signal immune_hit(special: StringName)   ## đòn bị quái đặc biệt chặ
 enum State { IDLE, CHASE, WINDUP, ATTACK, RECOVER, HURT, DEAD, SKILL }   ## SKILL: trùm đang tung kỹ năng (BossSkills)
 
 const FAST_EVADE_CHANCE := 0.75
+const EVADE_TEXT_TIME := 0.6      ## quái nhanh né đòn: chữ "NÉ!" nảy lên trên đầu chừng này giây
 const ARMORED_DAMAGE_MULT := 0.4
 const BAR_WIDTH := 30.0
 const JUMP_VELOCITY := -330.0  ## cùng sức nhảy với người chơi (đơn vị thiết kế)
@@ -160,6 +161,7 @@ var _lock_mark := 0.0
 var _exposed := 0.0
 var _slow := 0.0
 var _immune_hint := ""
+var _evade_time := 0.0
 var _ghost_timer := 0.0
 var _bob_phase := randf() * TAU
 var _dive_target := Vector2.ZERO
@@ -231,6 +233,7 @@ func _physics_process(delta: float) -> void:
 	# Nháy sáng khi sắp ra đòn để người chơi kịp né.
 	_flash = maxf(_flash - delta, 0.0)
 	_immune_time = maxf(_immune_time - delta, 0.0)
+	_evade_time = maxf(_evade_time - delta, 0.0)
 	var aiming := state == State.WINDUP and behavior == "shooter"
 	if _immune_time > 0.9:
 		modulate = Color(0.45, 0.45, 0.55)         # đòn bị chặn: chớp xám
@@ -255,7 +258,7 @@ func _physics_process(delta: float) -> void:
 	if traits.has(&"spectral") and state != State.DEAD:
 		modulate.a = SPECTRAL_ALPHA + 0.15 * sin(float(Time.get_ticks_msec()) * 0.005 + _bob_phase)
 	_trail(d)
-	if aiming or behavior == "flyer" or _immune_time > 0.0 or _bound > 0.0 or _lock_mark > 0.0 or _exposed > 0.0:
+	if aiming or behavior == "flyer" or _immune_time > 0.0 or _evade_time > 0.0 or _bound > 0.0 or _lock_mark > 0.0 or _exposed > 0.0:
 		queue_redraw()
 	# Nhân vận tốc với time scale: Faiz Axel / Clock Up làm quái chậm mà không ảnh hưởng người chơi.
 	velocity *= ts
@@ -483,6 +486,8 @@ func take_hit(info: DamageInfo) -> bool:
 	var dodgeable := not (info.has_tag(&"time") or info.has_tag(&"skill") or info.has_tag(&"final"))
 	if traits.has(&"fast") and dodgeable and not slowed and randf() < FAST_EVADE_CHANCE:
 		evaded.emit()
+		_evade_time = EVADE_TEXT_TIME     # hiện chữ "NÉ!" để người chơi biết đòn đã chạm nhưng bị né
+		queue_redraw()
 		return false
 	var dmg := info.damage
 	if traits.has(&"armored") and _exposed <= 0.0 and not (info.has_tag(&"heavy") or info.has_tag(&"final")):
@@ -785,6 +790,16 @@ func _draw() -> void:
 		draw_string_outline(font, Vector2(-w / 2.0, y), _immune_hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 8, 3,
 			Color(0, 0, 0, c.a))
 		draw_string(font, Vector2(-w / 2.0, y), _immune_hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 8, c)
+	if _evade_time > 0.0:
+		# Quái nhanh né đòn: chữ "NÉ!" nảy lên rồi nhạt dần (tách dòng với chữ gợi ý ở trên).
+		var font := ThemeDB.fallback_font
+		var text := "NÉ!"
+		var w := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 9).x
+		var t := 1.0 - _evade_time / EVADE_TEXT_TIME
+		var y := top - 4.0 - t * 10.0 - (12.0 if _immune_time > 0.0 else 0.0)
+		var c := Color(0.55, 0.95, 1.0, clampf(_evade_time / EVADE_TEXT_TIME * 1.6, 0.0, 1.0))
+		draw_string_outline(font, Vector2(-w / 2.0, y), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 9, 3, Color(0, 0, 0, c.a))
+		draw_string(font, Vector2(-w / 2.0, y), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 9, c)
 
 
 ## Vòng trói, khung khoá mục tiêu, dấu lộ điểm yếu (skill của Rider).

@@ -181,7 +181,7 @@ func _pill(fill: Color, border: Color, width: int, radius := RADIUS) -> StyleBox
 
 
 func _choose(mode: NameEntry.Mode) -> void:
-	if mode == NameEntry.Mode.VERSUS and GameState.selectable_riders().is_empty():
+	if mode == NameEntry.Mode.VERSUS and GameState.combat_riders().is_empty():
 		_message.text = "Chưa có Rider nào! Vào CHƠI, nhặt Driver đầu tiên ở màn 1-1 để mở khoá Rider."
 		return
 	NameEntry.mode = mode
