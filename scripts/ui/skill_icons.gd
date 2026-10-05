@@ -19,7 +19,7 @@ static func pick(s: Dictionary) -> String:
 		return str(s["icon"])
 	if str(s.get("special", "")) == "drum":
 		return "drum"
-	if str(s.get("summon", "")) == "dragon" or str(s.get("fx", "")) == "dragon":
+	if str(s.get("summon", "")) in ["dragon", "dragreder", "dragranzer", "brave_dragon"] or str(s.get("fx", "")) == "dragon":
 		return "dragon"
 	var type := str(s.get("type", "aim"))
 	var tags: Array = s.get("tags", [])

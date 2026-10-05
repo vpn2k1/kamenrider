@@ -5,6 +5,16 @@ extends RefCounted
 ## Quái: Dai-Shocker gom quái từ mọi thế giới. Trùm: Apollo Geist. Tsukasa nói Void từng là kẻ du hành,
 ## và có một dòng thời gian đã bị xóa.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "fan", "name": "Apollo Magnum", "color": Color(1.0, 0.6, 0.2), "style": "bolt"},
+	{"kind": "guard", "name": "Khiên Gaia", "color": Color(1.0, 0.6, 0.2)},
+	{"kind": "beam", "name": "Apollo Magnum: tia", "color": Color(1.0, 0.6, 0.2)},
+	{"kind": "summon", "name": "Gọi Dai-Shocker", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "combo", "name": "Apollo Shooter liên hoàn", "color": Color(1.0, 0.6, 0.2)},
+]
+
 const WORLD := {
 	"id": "decade",
 	"year": 2009,
@@ -21,67 +31,67 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Decade (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
-		"Complete Form: Final Attack x1.5",
+		"",
+		"",
+		"",
+		"Complete Form (final form): Final Attack x1.5",
 	],
 	"stages": [
 		{"name": "Tiệm ảnh Hikari", "goal": "Hạ lính Dai-Shocker, giành lại Decadriver và xấp thẻ đã mất màu",
 			"bg": "decade_1", "bg_theme": "suburb"},
-		{"name": "Con phố đang tan biến", "form": &"slash", "form_name": "Attack Ride: Slash",
-			"bg": "decade_2", "bg_theme": "city_dusk"},
-		{"name": "Căn cứ Dai-Shocker", "form": &"blast", "form_name": "Attack Ride: Blast",
-			"bg": "decade_3", "bg_theme": "industrial"},
+		{"name": "Con phố đang tan biến", "bg": "decade_2", "bg_theme": "city_dusk"},
+		{"name": "Căn cứ Dai-Shocker", "bg": "decade_3", "bg_theme": "industrial"},
 		{"name": "Bức màn cực quang", "form": &"kabuto", "form_name": "Kamen Ride: Kabuto",
 			"bg": "decade_4", "bg_theme": "dreamscape"},
 		{"name": "Trùm: Apollo Geist", "bg": "decade_b", "bg_theme": "boss_red",
-			"boss": {"name": "Apollo Geist", "hp": 270.0, "damage": 16.0, "poise": 28.0, "speed": 65.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Apollo Geist", "hp": 270.0, "damage": 16.0, "poise": 28.0, "speed": 65.0,
 				"traits": ["armored"], "color": Color(0.95, 0.9, 0.8)}},
 	],
 }
 
-## Decade: đổi thẻ. Slash (kiếm Ride Booker, mỗi nhát nhân bóng) chém nặng phá giáp; Blast (Ride Booker dạng súng)
-## bắn chùm đạn từ xa. Kamen Ride biến thành chính Rider của 9 thế giới trước (dùng lại hình của Rider đó), đánh theo
+## Decade: đổi thẻ. Form gốc dùng thẻ Attack Ride như nguyên tác (không phải form): Slash (Ride Booker hoá kiếm, một
+## nhát nhân thành nhiều bóng) và Blast (Ride Booker hoá súng, bắn chùm đạn ảo). Final form Complete Form (K-Touch,
+## mở ở Lv5): gọi bóng các Rider đánh cùng, Final Kamen Ride. Kamen Ride biến thành chính Rider của 9 thế giới trước (dùng lại hình của Rider đó), đánh theo
 ## kiểu của Rider ấy: Kuuga cân bằng, đá lửa; Agito nhảy cao; Ryuki khạc lửa Dragclaw; Faiz nhanh, bắn Faiz Phone;
 ## Blade cầm sẵn Blay Rouzer; Hibiki nặng, trống lửa; Den-O chém DenGasher; Kiva nhanh, choáng; Kabuto Clock Up;
 ## W đá đôi; OOO đá ba nhịp; Fourze khoan tên lửa; Wizard đá lửa; Gaim đại đao; Drive Handle-Ken; Ghost lượn;
 ## Ex-Aid búa, nhảy cao; Build đồ thị kẹp quái; Zi-O Zikan Girade.
 const RIDER := {
 	"name": "Kamen Rider Decade",
-	"tagline": "Đổi thẻ · kiếm nhân bóng, súng chùm, Kamen Ride thành các Rider khác (thẻ ở thế giới phụ)",
+	"tagline": "Đổi thẻ · Attack Ride Slash / Blast, Kamen Ride thành các Rider khác (thẻ ở thế giới phụ), Complete Form",
 	"base": &"decade",
-	# Slash / Blast / Kabuto rơi ở thế giới này; các Kamen Ride còn lại thắng Rider đó ở thế giới phụ "Hành trình thẻ
+	# Đổi thẻ tự do như phim: mọi thẻ Kamen Ride đã có đều dùng được trong màn (không chọn trước), bấm Kỹ năng (L) ở
+	# form nào cũng lắp thẻ kế tiếp; hết vòng thì về Decade (DataRider.try_special, GameState.form_usable).
+	"card_swap": true,
+	# Kabuto rơi ở thế giới này; Complete Form mở ở Lv5; các Kamen Ride còn lại thắng Rider đó ở thế giới phụ "Hành trình thẻ
 	# Kamen Ride" (scripts/data/side_worlds.gd).
-	"order": [&"decade", &"slash", &"blast", &"kabuto", &"kuuga", &"agito", &"ryuki", &"faiz", &"blade", &"hibiki",
+	"order": [&"decade", &"complete", &"kabuto", &"kuuga", &"agito", &"ryuki", &"faiz", &"blade", &"hibiki",
 		&"den_o", &"kiva", &"double", &"ooo", &"fourze", &"wizard", &"gaim", &"drive", &"ghost", &"ex_aid", &"build",
 		&"zi_o"],
 	"forms": {
 		&"decade": {"name": "Decade", "style": "brawler", "hp": 160.0, "armor": 25.0, "speed": 130.0,
 			"jump": 1.05, "atk": 1.05, "poise": 7.0, "final": "Dimension Kick", "attacks": {"final": {"hits": 3, "damage": 22.0}},
+			# Ride Booker luôn cầm theo như phim: Sword Mode cho nút Chém, Gun Mode cho nút Bắn.
+			"blade": {"look": "booker_sword"},
+			"gun": {"look": "booker_gun", "damage": 5.0, "speed": 360.0, "cooldown": 0.3, "radius": 3.0,
+				"color": Color(1.0, 0.45, 0.75)},
+			# Thẻ Attack Ride: Ride Booker đổi chế độ trong một đòn, Decade vẫn giữ nguyên hình dạng.
 			"skills": [
-				{"name": "Attack Ride: Illusion", "type": "buff", "buff": {"clones": 2, "time": 5.0}, "fx": "cards",
-					"color": Color(0.95, 0.3, 0.65)},
-				{"name": "Attack Ride: Invisible", "type": "buff", "buff": {"invis": true, "phase": true, "time": 3.0},
-					"fx": "feather", "color": Color(0.75, 0.75, 0.95)},
-			]},
-		&"slash": {"name": "Attack Ride: Slash", "style": "blade", "hp": 165.0, "armor": 28.0, "speed": 120.0,
-			"jump": 1.0, "atk": 1.25, "poise": 11.0, "final": "Dimension Slash", "attacks": {"slash": {"hits": 2, "damage": 3.5}},
-			"skills": [
-				{"name": "Slash", "type": "aim", "hits": 3, "fx": "slash", "anim": "slash", "color": Color(1.0, 0.4, 0.7)},
-				{"name": "Dimension Card Wall", "type": "counter", "fx": "cards", "summon": "shield",
-					"color": Color(0.9, 0.85, 1.0)},
-			]},
-		&"blast": {"name": "Attack Ride: Blast", "style": "gunner", "hp": 140.0, "armor": 12.0, "speed": 120.0,
-			"jump": 1.0, "atk": 0.9, "poise": 5.0, "final": "Dimension Blast",
-			"gun": {"look": "booker_gun", "damage": 3.5, "speed": 380.0, "cooldown": 0.4, "count": 3, "spread": 0.12, "radius": 3.0,
-				"color": Color(1.0, 0.4, 0.75), "life": 0.8},
-			"skills": [
-				{"name": "Blast", "type": "aim", "move": "spread",
+				{"name": "Attack Ride: Slash", "type": "aim", "hits": 3, "fx": "slash", "anim": "slash",
+					"color": Color(1.0, 0.4, 0.7)},
+				{"name": "Attack Ride: Blast", "type": "aim", "move": "spread",
 					"shot": {"style": "bolt", "count": 5, "spread": 0.16, "speed": 380.0}, "fx": "spark",
 					"color": Color(1.0, 0.4, 0.75)},
-				{"name": "Blast Homing", "type": "lock_multi", "targets": 3, "range": 260.0, "tags": [&"ranged"], "fx": "cards",
-					"color": Color(0.55, 0.85, 1.0)},
+			]},
+		# Final form (K-Touch, mở ở Lv5): ngực gắn thẻ các Rider, Ride Booker dạng kiếm. Gọi bóng Rider đánh cùng.
+		&"complete": {"name": "Complete Form", "style": "blade", "hp": 195.0, "armor": 40.0, "speed": 135.0,
+			"jump": 1.1, "atk": 1.3, "poise": 12.0, "final": "Final Kamen Ride: Decade", "blade": {"look": "booker_sword"},
+			"attacks": {"final": {"hits": 4, "damage": 22.0}},
+			"skills": [
+				{"name": "K-Touch: Gọi Rider", "type": "buff", "buff": {"clones": 3, "time": 6.0}, "fx": "cards",
+					"color": Color(0.95, 0.3, 0.65)},
+				{"name": "Dimension Card Wall", "type": "counter", "fx": "cards", "summon": "shield",
+					"color": Color(0.9, 0.85, 1.0)},
 			]},
 		&"kuuga": {"name": "Kamen Ride: Kuuga", "style": "brawler", "hp": 170.0, "armor": 30.0, "speed": 125.0,
 			"jump": 1.0, "atk": 1.05, "poise": 8.0, "final": "Mighty Kick", "attacks": {"final": {"tags": [&"burn"]}},
@@ -163,7 +173,7 @@ const RIDER := {
 			"jump": 1.2, "atk": 0.95, "poise": 4.0, "effect": "time", "final": "Rider Kick",
 			"skills_from": [&"kabuto", &"rider"]},
 	},
-	"lv5": {"name": "Complete Form", "final_mult": 1.5},
+	"lv5": {"form": &"complete", "final_mult": 1.5},
 	"final_fx": {"intro": "cards"},
 }
 
@@ -172,8 +182,7 @@ const RIDER := {
 ## (kiểu giọng: belt / belt_deep / belt_bright / kivat / hero, xem VOICES trong gen_audio.py).
 const VOICE := {
 	"henshin": ["belt", "Kamen Ride. Decade!"],
-	"slash": ["belt", "Attack Ride. Slash!"],
-	"blast": ["belt", "Attack Ride. Blast!"],
+	"complete": ["belt", "Final Kamen Ride. Decade!"],
 	"kuuga": ["belt", "Kamen Ride. Kuuga!"],
 	"agito": ["belt", "Kamen Ride. Agito!"],
 	"ryuki": ["belt", "Kamen Ride. Ryuki! Attack Ride. Strike Vent!"],
@@ -222,15 +231,13 @@ const STORY := {
 		],
 		"clear": [
 			["tsukasa", "Cái thẻ biết nói của cậu mở được cổng sang thế giới khác, đúng không? Giống hệt sức mạnh của tôi."],
-			["pen", "...Decade là form gốc: tay không, cân bằng. Dimension Kick xuyên qua hàng thẻ. Thẻ Attack Ride còn nằm trong tay lũ Dai-Shocker."],
+			["pen", "...Decade là form gốc, cân bằng. Dimension Kick xuyên qua hàng thẻ. Thẻ Attack Ride vẫn nằm trong Ride Booker: Skill 1 là Slash, Skill 2 là Blast!"],
 		],
 	},
 	"2": {
 		"start": [
-			["natsumi", "Hikari Natsumi, cháu ông chủ tiệm ảnh. Các thế giới đang nhập vào nhau, con phố này sắp biến mất! Thẻ Slash ở trong đám lính kia."],
-		],
-		"key": [
-			["tsukasa", "ATTACK RIDE: SLASH! Bấm Chém, Ride Booker một nhát thành hai. Nhát cuối phá được giáp."],
+			["natsumi", "Hikari Natsumi, cháu ông chủ tiệm ảnh. Các thế giới đang nhập vào nhau, con phố này sắp biến mất!"],
+			["tsukasa", "ATTACK RIDE: SLASH! Skill 1, Ride Booker hoá kiếm, một nhát nhân thành nhiều bóng. Đánh vỡ được giáp."],
 		],
 		"clear": [
 			["natsumi", "Cậu với cô bạn trong thẻ giận nhau à? Tsukasa từng bị gọi là kẻ hủy diệt thế giới, tôi vẫn đi cùng cậu ta đấy thôi."],
@@ -239,10 +246,8 @@ const STORY := {
 	"3": {
 		"start": [
 			["tsukasa", "Dai-Shocker gom quái vật từ mọi thế giới. Tôi từng ngồi ghế thủ lĩnh của chúng. Chuyện dài, đừng hỏi."],
-			["pen", "Kaijin rải khắp căn cứ, đánh gần không xuể. Thẻ Attack Ride Blast đang ở đâu đó quanh đây!"],
-		],
-		"key": [
-			["tsukasa", "ATTACK RIDE: BLAST! Giữ nút Bắn, Ride Booker hóa súng bắn cả chùm đạn. Giáp mỏng đi, đừng để chúng áp sát."],
+			["pen", "Kaijin rải khắp căn cứ, đánh gần không xuể!"],
+			["tsukasa", "ATTACK RIDE: BLAST! Skill 2, Ride Booker hoá súng, bắn cả chùm đạn ảo. Dọn đám ở xa trước."],
 		],
 		"clear": [
 			["pen", "{name}... tôi xin lỗi. Tôi không nhớ hết chuyện hồi ở với Void. Có những mảng ký ức trống trơn."],
@@ -271,7 +276,7 @@ const STORY := {
 		],
 		"clear": [
 			["narrator", "Apollo Geist nổ tung. Giữa khói lửa là một chiếc đai hai khe cắm, bọc trong tinh thể tím: Double Driver."],
-			["narrator", "Mọi thẻ trong Decadriver sáng lại cùng lúc. Complete Form!"],
+			["narrator", "Mọi thẻ trong Decadriver sáng lại cùng lúc. Trên tay hiện ra K-Touch: Complete Form đã sẵn sàng (Lv5)."],
 			["tsukasa", "Tôi đi qua các thế giới để tìm chỗ của mình. Cậu đi để tìm một người. Đừng để lạc nhau đấy."],
 			["pen", "Double Driver. Thế giới kế tiếp có một thám tử... và một thư viện biết mọi thứ trên Trái Đất."],
 		],

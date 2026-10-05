@@ -2,6 +2,16 @@ extends RefCounted
 ## Thế giới 1 · Kamen Rider Kuuga (2000) — "Vì nụ cười"
 ## Rider có script riêng: scripts/riders/kuuga.gd (RIDER để trống). Màn 1-1 chơi ở dạng người.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "rain", "name": "Thiêu rụi nguyên tử", "color": Color(1.0, 0.5, 0.2), "style": "fire", "count": 5},
+	{"kind": "dash", "name": "Lao tới", "color": Color(1.0, 0.3, 0.3)},
+	{"kind": "combo", "name": "Tay không hủy diệt", "color": Color(1.0, 0.5, 0.2)},
+	{"kind": "summon", "name": "Gọi Grongi", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "quake", "name": "Bùng cháy mặt đất", "color": Color(1.0, 0.5, 0.2)},
+]
+
 const WORLD := {
 	"id": "kuuga",
 	"year": 2000,
@@ -18,9 +28,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Mighty Form (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Rising: Final Attack x1.5",
 	],
 	"stages": [
@@ -34,7 +44,7 @@ const WORLD := {
 		{"name": "Kho hàng bến cảng", "form": &"titan", "form_name": "Titan Form", "bg": "harbor",
 			"route": ["left", "up", "left"], "waves": [["basic", "armored", "basic"], ["armored", "basic", "basic"]]},
 		{"name": "Trùm: N-Daguba-Zeba", "bg": "boss_kuuga", "route": ["up", "right"],
-			"boss": {"name": "N-Daguba-Zeba", "hp": 260.0, "damage": 16.0, "poise": 30.0, "speed": 60.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "N-Daguba-Zeba", "hp": 260.0, "damage": 16.0, "poise": 30.0, "speed": 60.0,
 				"traits": [], "color": Color(0.95, 0.92, 0.8), "sprite": "daguba"},
 			"waves": [["basic", "basic"], ["boss"]]},
 	],

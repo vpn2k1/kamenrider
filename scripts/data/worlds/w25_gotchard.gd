@@ -5,6 +5,16 @@ extends RefCounted
 ## Trùm: Glion, kẻ muốn phủ vàng mọi thứ. Hồi 3: tình bạn, gia đình không cùng máu.
 ## Nguồn tra cứu: en/ja.wikipedia "Kamen Rider Gotchard" (form 2 lá Ride Chemy Card, chiêu "<form> Fever").
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "guard", "name": "Hoàng kim bất hoại", "color": Color(1.0, 0.85, 0.3)},
+	{"kind": "fan", "name": "Giả kim tán xạ", "color": Color(1.0, 0.85, 0.3)},
+	{"kind": "beam", "name": "Tia hoàng kim", "color": Color(1.0, 0.85, 0.3)},
+	{"kind": "summon", "name": "Gọi Malgam", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "quake", "name": "Hoá vàng mặt đất", "color": Color(1.0, 0.85, 0.3)},
+]
+
 const WORLD := {
 	"id": "gotchard",
 	"year": 2023,
@@ -21,9 +31,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Steamhopper (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Rainbow Gotchard: Final Attack x1.5",
 	],
 	"stages": [
@@ -36,7 +46,7 @@ const WORLD := {
 		{"name": "Phố đêm phủ vàng", "form": &"burning_gorilla", "form_name": "Burning Gorilla",
 			"bg": "gotchard_4", "bg_theme": "city_night"},
 		{"name": "Trùm: Glion", "bg": "gotchard_b", "bg_theme": "boss_gold",
-			"boss": {"name": "Glion", "hp": 270.0, "damage": 16.0, "poise": 26.0, "speed": 70.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Glion", "hp": 270.0, "damage": 16.0, "poise": 26.0, "speed": 70.0,
 				"traits": [], "color": Color(0.95, 0.8, 0.3)}},
 	],
 }

@@ -4,6 +4,16 @@ extends RefCounted
 ## Echo Rider: Tsugami Shouichi (mất trí nhớ, mê nấu ăn). Hỗ trợ: Hikawa Makoto (G3, cảnh sát).
 ## Quái: Lord (Unknown) săn những người mang mầm sức mạnh Agito. Trùm: Overlord of Darkness.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "fan", "name": "Ánh sáng hủy diệt", "color": Color(1.0, 0.85, 0.3)},
+	{"kind": "warp", "name": "Dịch chuyển", "color": Color(0.9, 0.9, 1.0)},
+	{"kind": "beam", "name": "Tia ánh sáng", "color": Color(1.0, 0.85, 0.3)},
+	{"kind": "summon", "name": "Gọi Lord", "color": Color(1.0, 0.85, 0.3)},
+	{"kind": "vortex", "name": "Hút linh hồn", "color": Color(1.0, 0.85, 0.3)},
+]
+
 const WORLD := {
 	"id": "agito",
 	"year": 2001,
@@ -20,9 +30,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Ground Form (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Shining Form: Final Attack x1.5",
 	],
 	"stages": [
@@ -35,7 +45,7 @@ const WORLD := {
 		{"name": "Rừng núi bình minh", "form": &"trinity", "form_name": "Trinity Form",
 			"bg": "agito_4", "bg_theme": "mountain_dawn"},
 		{"name": "Trùm: Overlord of Darkness", "bg": "agito_b", "bg_theme": "boss_gold",
-			"boss": {"name": "Overlord of Darkness", "hp": 250.0, "damage": 15.0, "poise": 28.0, "speed": 60.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Overlord of Darkness", "hp": 250.0, "damage": 15.0, "poise": 28.0, "speed": 60.0,
 				"traits": [], "color": Color(0.2, 0.18, 0.28), "sprite": "overlord"}},
 	],
 }

@@ -14,14 +14,14 @@ class_name SkillCaster
 ##   [C] buff    : hiệu ứng có thời hạn (_effects), Player hỏi qua các hàm bên dưới
 ## Hồi chiêu đếm theo giây thật; đổi form / về dạng người thì hồi chiêu giữ nguyên, buff bị huỷ.
 
-const CLONE_DAMAGE := 0.5
+const CLONE_DAMAGE := 0.3
 const CLONE_SPACING := 26.0
 const DRUM_BEAT := 0.5           ## giây giữa hai nhịp trống
 const DRUM_WINDOW := 0.13        ## bấm trong chừng này giây quanh nhịp = trúng nhịp
 const DRUM_HIT := 0.35           ## mỗi nhịp đúng cộng chừng này × sát thương skill vào cú "thanh tẩy" cuối
 const DRUM_MISS := 0.08
 const FINAL_LOCK_RANGE := 190.0
-const TIME_ENEMY_SCALE := 0.15
+const TIME_ENEMY_SCALE := 0.35
 const TIME_SPEED_MULT := 1.6
 const ELEMENTS := [&"burn", &"freeze", &"shock"]
 
@@ -140,7 +140,8 @@ func try_skill(i: int) -> bool:
 			return false
 	player.pay_rage(cost)
 	cooldowns[i] = float(s["cooldown"])
-	_announce(s)
+	_announce(s, (targets[0] as Node2D).global_position + Vector2(0, -30) * Units.SCALE if not targets.is_empty()
+		else player.global_position + Vector2(player.facing * 120.0, -30.0) * Units.SCALE)
 	if s.has("heal"):
 		player.heal_rider(float(s["heal"]))      # Kiva Bat: Kivat cắn rồi hồi chút máu
 	match type:
@@ -184,8 +185,12 @@ func try_final() -> bool:
 			d["damage"] = float(d["damage"]) * float(Skills.FINAL_TYPE_DAMAGE["area"])
 			d["size"] = Vector2(Skills.AREA_RADIUS * 2.0, 60)
 			d["offset"] = Vector2(0, -20)
-			Fx.spawn(player.get_parent(), player.global_position + Vector2(0, -20) * Units.SCALE, "ring",
-				player.current_fx()["color"], player.facing, 2.2)
+			var m := final_motion(data)
+			if str(m.get("type", "")) == "slam":
+				d["motion"] = m        # nhảy cao giáng xuống, sóng xung kích lan quanh mình (Mammoth, Powered Builder)
+			else:
+				Fx.spawn(player.get_parent(), player.global_position + Vector2(0, -20) * Units.SCALE, "ring",
+					player.current_fx()["color"], player.facing, 2.2)
 			player.begin_skill(&"final", d)
 		"counter":
 			_start_counter({"damage": float(data["damage"]) * float(Skills.FINAL_TYPE_DAMAGE["counter"]),
@@ -193,6 +198,15 @@ func try_final() -> bool:
 		_:
 			player.start_attack(&"final")
 	return true
+
+
+## Vũ đạo Final của form hiện tại theo nguyên tác (Moves): nhảy đá chéo xuống, lướt chém xuyên, nhảy bổ xuống...
+## {} = đánh tại chỗ (bắn, phép, trống).
+func final_motion(data: Dictionary) -> Dictionary:
+	var form := player.current_form
+	if form == null:
+		return {}
+	return Moves.final_motion(form.final_attack_name(), (data.get("tags", []) as Array).has(&"ranged"), form.final_type())
 
 
 ## Quái / đối thủ phe kia gần nhất phía trước trong tầm `range_px` (đơn vị thiết kế), tối đa `count`.
@@ -213,6 +227,20 @@ func find_targets(range_px: float, count: int) -> Array:
 		found.append([d.length(), n])
 	found.sort_custom(func(a, b): return a[0] < b[0])
 	return found.slice(0, count).map(func(pair): return pair[1])
+
+
+## Quái và người chơi khác phe (chế độ đấu) còn đứng trong bán kính `range_px` (đơn vị thiết kế) quanh mình.
+func foes_near(range_px: float) -> Array[Node2D]:
+	var out: Array[Node2D] = []
+	for node in get_tree().get_nodes_in_group("enemies") + get_tree().get_nodes_in_group("player"):
+		var n := node as Node2D
+		if n == null or n == player or not is_instance_valid(n) or not _alive(n):
+			continue
+		if n is Player and (n as Player).team == player.team:
+			continue
+		if n.global_position.distance_to(player.global_position) <= range_px * Units.SCALE:
+			out.append(n)
+	return out
 
 
 static func _alive(n: Node) -> bool:
@@ -245,13 +273,16 @@ func strike(node: Variant, damage: float, knockback: Vector2, tags: Array, fx_ki
 
 # --- Từng kiểu ------------------------------------------------------------------
 
-func _announce(s: Dictionary) -> void:
+## target: chỗ quái thú được gọi (Summon) lao tới (mục tiêu khoá, hoặc phía trước mặt).
+func _announce(s: Dictionary, target: Vector2) -> void:
 	var fx := player.current_fx()
 	_color = s.get("color", fx["color"])
 	CombatDirector.skill_used.emit(str(s["name"]), _color)
 	Sound.sfx("form_change" if str(s["type"]) == "buff" else "final_charge", 0.05, -8.0)
 	var summon := str(s.get("summon", ""))
-	if summon != "":
+	if Summon.has(summon):
+		Summon.spawn(player.get_parent(), summon, player.global_position, target, player.facing)
+	elif summon != "":
 		Fx.spawn(player.get_parent(), player.global_position + Vector2(0, -30) * Units.SCALE, summon, _color,
 			player.facing, 1.2)
 
@@ -285,9 +316,30 @@ func _aim(s: Dictionary) -> void:
 			player.begin_skill(&"skill", RiderForm.make_attack(s["damage"], 0.1, 0.14, 0.3, Vector2(70, 16),
 				Vector2(40, -14), s.get("knockback", Vector2(-200, -40)), _tags(s, [&"force"]), extra))
 		"leap":
-			extra["lunge"] = Vector2(150, -330)
-			player.begin_skill(&"skill", RiderForm.make_attack(s["damage"], 0.06, 0.45, 0.3, Vector2(40, 46),
-				Vector2(16, -6), kb, _tags(s, [&"heavy"]), extra))
+			# Nhảy cao bổ thẳng xuống, sóng xung kích khi chạm đất (Dragon Leap, Dynamic Chop).
+			extra["motion"] = (Moves.SKILL_MOTIONS["leap"] as Dictionary).duplicate()
+			if s.has("anim"):
+				extra["motion"]["anim"] = str(s["anim"])
+			player.begin_skill(&"skill", RiderForm.make_attack(s["damage"], 0.06, 0.12, 0.3, Vector2(70, 36),
+				Vector2(4, -14), kb, _tags(s, [&"heavy"]), extra))
+		"dive_kick", "steep_kick", "flying_kick":
+			# Cú đá theo nguyên tác: nhảy lên đá chéo xuống / bật cao đạp dốc / bay đá ngang.
+			extra["motion"] = (Moves.SKILL_MOTIONS[move] as Dictionary).duplicate()
+			if s.has("anim") and str(s["anim"]) == "slash":
+				extra["motion"]["anim"] = "slash"    # bổ nhào chém (Eagle Dive của Jack Form)
+			player.begin_skill(&"skill", RiderForm.make_attack(s["damage"], 0.08, 0.1, 0.25, Vector2(30, 30),
+				Vector2(14, -10), kb, _tags(s), extra))
+		"slash_through":
+			# Lướt chém xuyên qua quái, dừng sau lưng (Accel Dash, Mach Strike, Mirror Dash...).
+			extra["motion"] = (Moves.SKILL_MOTIONS["slash_through"] as Dictionary).duplicate()
+			extra["motion"]["anim"] = str(s.get("anim", "slash"))
+			player.begin_skill(&"skill", RiderForm.make_attack(s["damage"], 0.06, 0.1, 0.22, Vector2(44, 34),
+				Vector2(6, -18), kb, _tags(s), extra))
+		"uppercut":
+			# Đấm móc hất tung, người bật lên theo cú đấm.
+			extra["lunge"] = Vector2(110, -360)
+			player.begin_skill(&"skill", RiderForm.make_attack(s["damage"], 0.06, 0.22, 0.28, Vector2(26, 40),
+				Vector2(14, -24), s.get("knockback", Vector2(60, -340)), _tags(s, [&"force"]), extra))
 		_:
 			var d := RiderForm.make_attack(0.0, 0.12, 0.05, 0.22, Vector2.ZERO, Vector2.ZERO, kb, _tags(s, [&"ranged"]), extra)
 			d["on_active"] = _fire_shots.bind(s)
@@ -310,7 +362,7 @@ func _fire_shots(s: Dictionary) -> void:
 	shot.merge(s.get("shot", {}), true)
 	var count := int(shot["count"])
 	var aim := player.aim_dir()
-	var per := float(s["damage"]) * (1.0 if count == 1 else 0.55)
+	var per := float(s["damage"]) * (1.0 if count == 1 else 1.5 / count)   # cả loạt trúng một quái: ×1,5
 	for i in count:
 		var off: float = (i - (count - 1) / 2.0) * float(shot["spread"])
 		var p := player.spawn_projectile(per, aim.rotated(off) * float(shot["speed"]) * Units.SCALE,
@@ -394,9 +446,8 @@ func _area(s: Dictionary) -> void:
 	if s.has("slow"):
 		d["on_active"] = func() -> void:
 			player.fire_attack_hitbox()
-			for e in get_tree().get_nodes_in_group("enemies"):
-				if e is Enemy and (e as Node2D).global_position.distance_to(player.global_position) <= r * Units.SCALE * 1.2:
-					(e as Enemy).slow(float(s["slow"]))
+			for e in foes_near(r * 1.2):
+				player.inflict_status(e, "slow", float(s["slow"]))
 	player.begin_skill(&"skill", d)
 
 
@@ -405,8 +456,9 @@ func _start_counter(s: Dictionary, final: bool) -> void:
 	var window := Skills.FINAL_COUNTER_WINDOW if final else float(s.get("window", Skills.COUNTER_WINDOW))
 	_counter = {"damage": float(s["damage"]), "tags": s.get("tags", []), "fx": str(s.get("fx", "")), "final": final,
 		"knockback": s.get("knockback", Vector2(240, -100))}
+	# Final phản đòn (Kabuto Rider Kick): đứng quay lưng chờ, quái tới thì xoay người đá vòng.
 	var d := RiderForm.make_attack(0.0, 0.0, window, 0.15, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, [],
-		{"anim": "crouch", "no_cancel": true})
+		{"anim": "idle" if final else "crouch", "no_cancel": true})
 	d["on_active"] = func() -> void: pass
 	d["on_end"] = func() -> void:
 		if not _counter.is_empty():
@@ -417,6 +469,8 @@ func _start_counter(s: Dictionary, final: bool) -> void:
 	Fx.spawn(player.get_parent(), player.global_position + Vector2(10 * player.facing, -30) * Units.SCALE, "ring",
 		player.current_fx()["color"], player.facing, 1.0)
 	player.begin_skill(&"final" if final else &"skill", d)
+	if final:
+		player.sprite.flip_h = player.facing > 0
 
 
 ## Player.take_hit gọi trước khi trừ máu. Trả true nếu đòn bị hoá giải (phản đòn, tự né).
@@ -465,9 +519,8 @@ func apply_buff(b: Dictionary, fx_kind := "") -> void:
 		elif key == "heal":
 			player.heal_rider(float(v))
 		elif key == "expose":
-			for e in get_tree().get_nodes_in_group("enemies"):
-				if e is Enemy and (e as Node2D).global_position.distance_to(player.global_position) <= 260.0 * Units.SCALE:
-					(e as Enemy).expose(time)
+			for e in foes_near(260.0):
+				player.inflict_status(e, "expose", time)
 		else:
 			if key == "clock" and not has_effect("clock"):
 				CombatDirector.set_enemy_time_scale(TIME_ENEMY_SCALE)
@@ -502,8 +555,11 @@ func _teleport_behind() -> void:
 		return
 	var e := t[0] as Node2D
 	var side := 1 if e.global_position.x >= player.global_position.x else -1
-	player.global_position = Vector2(e.global_position.x + side * 30.0 * Units.SCALE, player.global_position.y)
-	player.face(-side)
+	var motion := Vector2(e.global_position.x + side * 30.0 * Units.SCALE - player.global_position.x, 0.0)
+	# Mục tiêu đứng sát tường / mép đấu trường: dừng trước tường, không trồi ra ngoài sàn rồi rơi mãi.
+	var hit := player.move_and_collide(motion, true)
+	player.global_position += hit.get_travel() if hit else motion
+	player.face(1 if e.global_position.x >= player.global_position.x else -1)
 	Fx.spawn(player.get_parent(), player.global_position + Vector2(0, -30) * Units.SCALE, "ring",
 		player.current_fx()["color"], player.facing, 1.2)
 
@@ -538,10 +594,7 @@ func on_hitbox_fired(info: DamageInfo, size: Vector2, offset: Vector2) -> void:
 			continue
 		var center := c.global_position + Vector2(offset.x * player.facing, offset.y) * Units.SCALE
 		var rect := Rect2(center - size * Units.SCALE / 2.0, size * Units.SCALE).grow(4.0)
-		for node in get_tree().get_nodes_in_group("enemies"):
-			var e := node as Enemy
-			if e == null or e.state == Enemy.State.DEAD:
-				continue
+		for e in foes_near(INF):
 			if rect.has_point(e.global_position + Vector2(0, -20) * Units.SCALE):
 				strike(e, info.damage * CLONE_DAMAGE, info.knockback, info.tags.filter(func(t): return t != &"final"))
 		c.swing()
@@ -593,16 +646,24 @@ func _final_lock(data: Dictionary, targets: Array, type: String) -> void:
 	d["active"] = 0.15
 	var hits := int(data.get("hits", 1))
 	d["hits"] = 1
-	d["on_active"] = func() -> void:
+	var tags: Array = (data["tags"] as Array).duplicate()
+	tags.append(&"final")
+	if bind:
+		tags.append(&"bind")
+	var hit_one := func(t, scale: float) -> void:
 		_clear_marks()
-		var tags: Array = (data["tags"] as Array).duplicate()
-		tags.append(&"final")
-		if bind:
-			tags.append(&"bind")
-		for t in targets:
-			for h in hits:
-				strike(t, float(data["damage"]) * mult * player.damage_mult(), data["knockback"], tags, "",
-					Skills.BIND_TIME if bind else 0.0)
+		strike(t, float(data["damage"]) * mult * hits * scale * player.damage_mult(), data["knockback"], tags, "",
+			Skills.BIND_TIME if bind else 0.0)
+	var m := final_motion(data)
+	if not m.is_empty():
+		# Vũ đạo lao thẳng vào mục tiêu đã khoá, chạm là ra đòn (Crimson Smash đá khoan vào nón đỏ, SpeeDrop dội qua lại).
+		m["targets"] = targets
+		m["strike"] = hit_one
+		d["motion"] = m
+	else:
+		d["on_active"] = func() -> void:
+			for t in targets:
+				hit_one.call(t, 1.0)
 	player.begin_skill(&"final", d)
 
 

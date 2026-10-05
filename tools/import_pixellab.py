@@ -1483,12 +1483,13 @@ DATA_RIDERS = {
         "dogga": (with_slash(lambda fr: recolor(fr, kiva_rule(0.76), head=0.55), "dogga_hammer"), (170, 100, 230, 255)),
     }),
     # Decade: ảnh gốc sửa từ Kiva bằng PixelLab Pro Flash edit, 5 animation bằng PixelLab animate_image. Attack Ride
-    # Slash / Blast là lá bài: giữ ngoại hình, cầm Ride Booker (kiếm / súng). Kamen Ride: Kabuto biến thành Kabuto thật
-    # nên dùng lại hình Kabuto Rider Form (art/pixelengine/kabuto/).
+    # Slash / Blast là skill của form gốc: animation "slash" cầm Ride Booker dạng kiếm. Complete Form (final form, Lv5):
+    # giáp ngực bạc gắn thẻ các Rider (dải vai-ngực đổi bạc), cầm Ride Booker kiếm. Kamen Ride: Kabuto biến thành
+    # Kabuto thật nên dùng lại hình Kabuto Rider Form (art/pixelengine/kabuto/).
     "decade": ("decade", "w10_decade", {
-        "decade": (None, (235, 60, 150, 255)),
-        "slash": ({"slash": lambda fr: swing_weapon(fr, "booker_sword", HAND_BAND)}, (255, 120, 200, 255)),
-        "blast": (None, (255, 90, 190, 255)),     # súng Ride Booker: weapons/booker_gun.png, hiện lúc bắn
+        "decade": (with_slash(None, "booker_sword"), (235, 60, 150, 255)),
+        "complete": (with_slash(lambda fr: zio_armor(fr, (0.6, 0.04, 1.25), lo=0.26, hi=0.58), "booker_sword"),
+                     (235, 60, 150, 255)),
         "kabuto": (None, (255, 70, 70, 255), "kabuto"),
         # Kamen Ride còn lại (thẻ thắng ở thế giới phụ, scripts/data/side_worlds.gd): dùng lại hình form gốc của Rider đó (Ryuki cầm sẵn Dragclaw của Strike Vent, Den-O cầm
         # DenGasher ở animation "slash", Blade có Blay Rouzer vẽ sẵn trong hình).

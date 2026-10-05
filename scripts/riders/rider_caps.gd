@@ -37,7 +37,7 @@ static func form_tags(rider: StringName, form_id: StringName) -> Array:
 static func skill_tags(sk: Dictionary) -> Array:
 	var tags: Array = (sk.get("tags", []) as Array).duplicate()
 	var type := str(sk["type"])
-	if type == "aim" and str(sk.get("move", "dash")) not in ["dash", "pull", "leap"]:
+	if type == "aim" and str(sk.get("move", "dash")) not in Skills.MELEE_MOVES:
 		tags.append(&"ranged")
 	if type == "bind" and str(sk.get("via", "lock")) == "shot":
 		tags.append(&"ranged")

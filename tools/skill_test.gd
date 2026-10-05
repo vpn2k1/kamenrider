@@ -171,7 +171,7 @@ func _reset_dummies() -> void:
 	for i in 3:
 		var e: Enemy = ENEMY.instantiate()
 		e.max_hp = DUMMY_HP
-		e.scale_with_level = false
+		e.scale_stats = false
 		e.attack_damage = 0.0
 		e.sight_range = 0.0
 		e.poise = 9999.0

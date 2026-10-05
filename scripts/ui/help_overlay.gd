@@ -1,9 +1,11 @@
 extends Control
 class_name HelpOverlay
-## Bảng hướng dẫn nút bấm, chỉ có ở bản web (enabled()): mở bằng nút "?" (menu chính: góc trên phải; trong màn /
-## trận: nút cảm ứng "help" dưới nút Menu, action "help").
-##   Hai trang: BÀN PHÍM (phím của từng hành động, lấy từ GameState.INPUT_KEYS) và NÚT CẢM ỨNG (biểu tượng các nút ảo).
-##   Máy có màn cảm ứng thì mở sẵn trang nút cảm ứng.
+## Bảng "?" (nút cảm ứng "help" góc trên phải, phím Tab / F1, action "help"). Trong màn chơi có ở mọi bản (màn gán
+## `info`); menu chính / trận đấu chỉ có ở bản web (enabled()).
+##   Trang MÀN NÀY (chỉ khi có `info`): thông tin màn đang chơi, Rider, sức mạnh, cách chơi (StageRun._help_info) —
+##   màn chơi không hiện chữ hướng dẫn / trạng thái lên màn hình nữa, mọi thông tin nằm ở đây. Mở sẵn trang này.
+##   BÀN PHÍM (phím của từng hành động, lấy từ GameState.INPUT_KEYS) và NÚT CẢM ỨNG (biểu tượng các nút ảo).
+##   Không có `info` thì máy có màn cảm ứng mở sẵn trang nút cảm ứng.
 ##   Đóng: nút ĐÓNG, chạm ra ngoài bảng, Esc / Enter / Đánh (J).
 ## pause_tree = true (màn chơi): dừng cả màn khi đang mở, đóng thì trả lại trạng thái dừng cũ (hội thoại...).
 ## Chế độ đấu để false (trận qua mạng không dừng được); versus.gd hỏi is_showing() để Esc không thoát trận.
@@ -12,8 +14,9 @@ const GOLD := Color(1, 0.85, 0.3)
 const ICON_DIR := "res://art/ui/icons/"
 const PANEL := Rect2(14, 12, 452, 246)
 const CLOSE := Rect2(190, 230, 100, 22)
-const TABS := [Rect2(140, 32, 96, 16), Rect2(244, 32, 96, 16)]
+const TAB_W := 96.0
 const TAB_NAMES := ["BÀN PHÍM", "NÚT CẢM ỨNG"]
+const INFO_TAB := "MÀN NÀY"
 
 ## Trang bàn phím: [các action (phím ghép bằng " / "), ghi chú thêm sau phím, mô tả]. Hai cột.
 const KEY_ROWS := [
@@ -44,16 +47,21 @@ const TOUCH_ROWS := [
 	["skill", "Kỹ năng", "Đổi form (tốn 10 nộ)"],
 	["skill1", "Skill 1 · Skill 2", "Skill của form, số ở góc = nộ cần"],
 	["ultimate", "Final · Biến thân", "Final Attack 60 nộ · dạng người: biến thân"],
-	["menu", "Menu · ?", "Về màn chọn màn · mở bảng này"],
+	["menu", "Menu · ?", "Menu (trên trái): về màn chọn màn · ? (trên phải, Tab / F1): bảng này"],
 ]
 
 ## Bật bảng hướng dẫn ngoài bản web (xem trước trên máy, bot test).
 static var force := false
 static var _showing := 0
+static var _info_count := 0     ## số bảng có trang MÀN NÀY đang nằm trong cây (màn chơi): nút "?" luôn hiện
 static var _closed_grace := 0   ## số khung hình sau khi đóng vẫn tính là "đang mở" (is_showing)
 
 var pause_tree := false
+## Trang MÀN NÀY: hàm trả về [[tiêu đề, nội dung], ...] (gọi mỗi lần mở bảng). Không gán = không có trang này.
+var info: Callable
 var _tab := 0
+var _off := Vector2.ZERO        ## dời bảng 480×270 vào giữa màn hình thật
+var _sections: Array = []
 var _was_paused := false
 var _restore_pause := 0          ## đóng xong đợi chừng này khung hình mới cho màn chạy lại (phím đóng không lọt xuống)
 var _sb := StyleBoxFlat.new()
@@ -61,7 +69,27 @@ var _icons := {}
 
 
 static func enabled() -> bool:
-	return force or OS.has_feature("web")
+	return force or OS.has_feature("web") or _info_count > 0
+
+
+func _enter_tree() -> void:
+	if info.is_valid():
+		_info_count += 1
+
+
+func _names() -> Array:
+	return ([INFO_TAB] if info.is_valid() else []) + TAB_NAMES
+
+
+func _tab_rect(i: int) -> Rect2:
+	var n := _names().size()
+	var x0 := PANEL.position.x + (PANEL.size.x - n * TAB_W - (n - 1) * 8.0) / 2.0
+	return Rect2(x0 + i * (TAB_W + 8.0), 32, TAB_W, 16)
+
+
+## Trang đang mở là trang nào (theo tên): MÀN NÀY / BÀN PHÍM / NÚT CẢM ỨNG.
+func _page() -> String:
+	return str(_names()[_tab])
 
 
 ## Có bảng hướng dẫn nào đang mở (để màn khác bỏ qua phím Esc / Menu / Đánh). Tính cả khung hình vừa đóng:
@@ -81,9 +109,14 @@ func _init() -> void:
 func open() -> void:
 	if visible or not enabled():
 		return
-	_tab = 1 if DisplayServer.is_touchscreen_available() else 0
+	if info.is_valid():
+		_tab = 0
+		_sections = info.call()
+	else:
+		_tab = 1 if DisplayServer.is_touchscreen_available() else 0
 	position = Vector2.ZERO
 	size = get_viewport_rect().size
+	_off = ((size - Screen.DESIGN) / 2.0).max(Vector2.ZERO)
 	visible = true
 	_showing += 1
 	# Nút ảo đang giữ (cả nút "?") sẽ không nhận được lúc nhả tay khi màn đã dừng: nhả hết trước.
@@ -109,6 +142,8 @@ func close() -> void:
 func _exit_tree() -> void:
 	if visible:
 		_showing -= 1
+	if info.is_valid():
+		_info_count -= 1
 
 
 func _process(_delta: float) -> void:
@@ -137,7 +172,8 @@ func _input(event: InputEvent) -> void:
 		for a in ["move_left", "move_right", "ui_left", "ui_right"]:
 			if event.is_action(a):
 				get_viewport().set_input_as_handled()
-				_tab = 1 - _tab
+				var step := -1 if event.is_action("move_left") or event.is_action("ui_left") else 1
+				_tab = posmod(_tab + step, _names().size())
 				Sound.sfx("ui_move", 0.0)
 				queue_redraw()
 				return
@@ -146,12 +182,12 @@ func _input(event: InputEvent) -> void:
 	if touch == null or not touch.pressed:
 		return
 	get_viewport().set_input_as_handled()
-	var p := touch.position - position
+	var p := touch.position - position - _off
 	if CLOSE.has_point(p) or not PANEL.has_point(p):
 		close()
 		return
-	for i in TABS.size():
-		if (TABS[i] as Rect2).has_point(p) and i != _tab:
+	for i in _names().size():
+		if _tab_rect(i).has_point(p) and i != _tab:
 			_tab = i
 			Sound.sfx("ui_move", 0.0)
 			queue_redraw()
@@ -161,21 +197,48 @@ func _input(event: InputEvent) -> void:
 
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.01, 0.0, 0.04, 0.82))
+	draw_set_transform(_off)
 	_round(PANEL, Color(0.07, 0.06, 0.14, 0.98), 12, GOLD, 1)
 	_text(Vector2(PANEL.position.x, PANEL.position.y + 15), "HƯỚNG DẪN", 11, GOLD, PANEL.size.x)
-	for i in TABS.size():
-		var r: Rect2 = TABS[i]
+	var names := _names()
+	for i in names.size():
+		var r := _tab_rect(i)
 		var on := i == _tab
 		_round(r, Color(0.75, 0.2, 0.25, 0.95) if on else Color(0.18, 0.17, 0.28, 0.95), 8,
 			GOLD if on else Color(0.4, 0.38, 0.55), 1)
-		_text(Vector2(r.position.x, r.position.y + 11), TAB_NAMES[i], 7, Color.WHITE if on else Color(0.7, 0.7, 0.8),
+		_text(Vector2(r.position.x, r.position.y + 11), str(names[i]), 7, Color.WHITE if on else Color(0.7, 0.7, 0.8),
 			r.size.x)
-	if _tab == 0:
-		_draw_keys()
-	else:
-		_draw_touch()
+	match _page():
+		INFO_TAB:
+			_draw_info()
+		"BÀN PHÍM":
+			_draw_keys()
+		_:
+			_draw_touch()
 	_round(CLOSE, Color(0.85, 0.22, 0.25, 0.95), 11, GOLD, 1)
 	_text(Vector2(CLOSE.position.x, CLOSE.position.y + 15), "ĐÓNG", 9, Color.WHITE, CLOSE.size.x)
+
+
+## Trang MÀN NÀY: các mục [tiêu đề, nội dung] chia hai cột, chữ tự xuống dòng; tràn cột trái thì sang cột phải.
+func _draw_info() -> void:
+	var font := ThemeDB.fallback_font
+	var col_w := 212.0
+	var top := PANEL.position.y + 56.0
+	var bottom := CLOSE.position.y - 4.0
+	var col := 0
+	var y := top
+	for sec in _sections:
+		var title := str(sec[0])
+		var body := str(sec[1])
+		var h := 10.0 + font.get_multiline_string_size(body, HORIZONTAL_ALIGNMENT_LEFT, col_w, 7).y
+		if y + h > bottom and y > top and col == 0:
+			col = 1
+			y = top
+		var x := PANEL.position.x + 10.0 + col * 222.0
+		draw_string(font, Vector2(x, y), title, HORIZONTAL_ALIGNMENT_LEFT, col_w, 8, GOLD)
+		draw_multiline_string(font, Vector2(x, y + 10.0), body, HORIZONTAL_ALIGNMENT_LEFT, col_w, 7,
+			maxi(int((bottom - y - 10.0) / 9.0), 1), Color(0.9, 0.9, 0.96))
+		y += h + 6.0
 
 
 func _draw_keys() -> void:

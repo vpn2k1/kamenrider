@@ -32,6 +32,8 @@ const SKILL_SFX := ["form_change", "final_charge", "final_impact", "clock_up", "
 const ENEMY_SFX := ["enemy_shot", "enemy_die", "boss_appear"]
 const MOVE_SFX := ["jump", "dodge", "hurt", "break", "ko"]
 const UI_SFX := ["ui_move", "ui_ok", "ui_back", "text_blip", "pickup", "pickup_key"]
+## Nhóm tắt sẵn khi chưa chỉnh trong Cài đặt: nhạc nền mặc định tắt (bật lại ở màn Cài đặt).
+const DEFAULT_OFF := ["music"]
 
 var master_volume := 1.0
 var enabled := {}                ## khóa nhóm → bool
@@ -68,7 +70,7 @@ func _ready() -> void:
 	_music.volume_db = MUSIC_DB
 	add_child(_music)
 	for c in CATEGORIES:
-		enabled[c[0]] = true
+		enabled[c[0]] = not DEFAULT_OFF.has(c[0])
 	load_settings()
 
 
@@ -117,7 +119,7 @@ func load_settings() -> void:
 	if cfg.load(GameState.SETTINGS_PATH) == OK and GameState.persist:
 		master_volume = float(cfg.get_value("audio", "master", 1.0))
 		for c in CATEGORIES:
-			enabled[c[0]] = bool(cfg.get_value("audio", c[0], true))
+			enabled[c[0]] = bool(cfg.get_value("audio", c[0], not DEFAULT_OFF.has(c[0])))
 	set_master_volume(master_volume)
 	for c in CATEGORIES:
 		set_enabled(c[0], enabled[c[0]])

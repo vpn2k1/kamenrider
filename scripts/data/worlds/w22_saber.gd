@@ -4,6 +4,16 @@ extends RefCounted
 ## Hỗ trợ: Shindo Rintaro (Kiếm sĩ Nước, Blades). Quái: Shimi, Megid. Trùm: Storious, thi sĩ tin mọi câu chuyện
 ## đều phải kết thúc bằng diệt vong. Mạch Hồi 3: hy vọng câu chuyện của Rei còn viết lại được.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "guard", "name": "Tường truyện ký", "color": Color(0.75, 0.4, 1.0)},
+	{"kind": "slam", "name": "Đè trang sách", "color": Color(0.75, 0.4, 1.0)},
+	{"kind": "homing", "name": "Trang sách đuổi", "color": Color(0.9, 0.9, 1.0)},
+	{"kind": "fan", "name": "Trang sách bay", "color": Color(0.9, 0.9, 1.0), "style": "spin"},
+	{"kind": "vortex", "name": "Lốc truyện", "color": Color(0.75, 0.4, 1.0)},
+]
+
 const WORLD := {
 	"id": "saber",
 	"year": 2020,
@@ -20,9 +30,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Brave Dragon (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Xross Saber: Final Attack x1.5",
 	],
 	"stages": [
@@ -35,7 +45,7 @@ const WORLD := {
 		{"name": "Wonder World: Lâu đài cổ tích", "form": &"elemental_dragon", "form_name": "Elemental Primitive Dragon",
 			"bg": "saber_4", "bg_theme": "book_world"},
 		{"name": "Trùm: Storious", "bg": "saber_b", "bg_theme": "boss_storm",
-			"boss": {"name": "Storious", "hp": 320.0, "damage": 18.0, "poise": 30.0, "speed": 65.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Storious", "hp": 320.0, "damage": 18.0, "poise": 30.0, "speed": 65.0,
 				"traits": ["armored"], "color": Color(0.55, 0.6, 0.9)}},
 	],
 }
@@ -54,7 +64,7 @@ const RIDER := {
 			"skills": [
 				{"name": "Kaenken Slash", "type": "aim", "move": "dash", "tags": [&"burn"], "anim": "slash", "fx": "fire",
 					"color": Color(1.0, 0.5, 0.1)},
-				{"name": "Wonder Ride: Dragon", "type": "lock", "tags": [&"burn"], "summon": "dragon", "fx": "dragon",
+				{"name": "Wonder Ride: Dragon", "type": "lock", "tags": [&"burn"], "summon": "brave_dragon", "fx": "fire",
 					"color": Color(0.95, 0.15, 0.2)},
 			]},
 		&"crimson_dragon": {"name": "Crimson Dragon", "style": "lancer", "hp": 140.0, "armor": 14.0, "speed": 168.0,

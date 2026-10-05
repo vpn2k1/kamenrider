@@ -224,8 +224,8 @@ func _form(w: Dictionary, consts: Dictionary, f: StringName, idx: int, drop_stag
 	out.append("- Tag: %s`final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được." % (
 		(_tags(tags) + " + ") if not tags.is_empty() else ""))
 	var hits := int(fin.get("hits", 1))
-	var real1 := float(fin["damage"]) * hits * p.attack_mult * p.level_mult()
-	var real5 := float(fin5["damage"]) * int(fin5.get("hits", 1)) * lv5.attack_mult * lv5.level_mult()
+	var real1 := float(fin["damage"]) * hits * p.attack_mult * p.power_mult()
+	var real5 := float(fin5["damage"]) * int(fin5.get("hits", 1)) * lv5.attack_mult * lv5.power_mult()
 	var mult := float((data.get("lv5", {}) as Dictionary).get("final_mult", 1.0))
 	var note := "Final tăng tốc thời gian **không** nhận ×%s Lv5" % _n(mult) if time and mult != 1.0 else (
 		"đã gồm ×%s Lv5" % _n(mult) if mult != 1.0 else "")

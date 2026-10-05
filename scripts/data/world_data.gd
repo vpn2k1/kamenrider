@@ -80,6 +80,9 @@ const FINAL_DRIVER := &"chrono"
 const FINAL_DRIVER_NAME := "Chrono Driver"
 const BOSS_HP_PER_WORLD := 0.12
 const BOSS_DMG_PER_WORLD := 0.10
+## Độ khó chung của trùm (cả Rider đối thủ ở thế giới phụ): nhân thêm vào máu / sát thương sau khi tính theo thế giới.
+const BOSS_HP_MULT := 1.25
+const BOSS_DMG_MULT := 1.15
 const DEFAULT_BOSS := {"name": "Trùm", "hp": 250.0, "damage": 15.0, "poise": 25.0, "speed": 65.0, "traits": [],
 	"color": Color(0.9, 0.9, 0.9)}
 ## Lộ trình mặc định theo thứ tự màn (Thức tỉnh luôn chạy thẳng sang phải, không vực: màn hướng dẫn).
@@ -104,12 +107,24 @@ const CHALLENGE_THEMES := [&"giant", &"spectral", &"flying", &"phantom", &"spect
 const CHALLENGE_NAMES := {&"flying": "EX: %s có cánh", &"giant": "EX: %s khổng lồ", &"phantom": "EX: %s siêu tốc",
 	&"spectral": "EX: Bóng ma %s"}
 const CHALLENGE_TIER := 3
+## Đợt quái mặc định theo bậc màn: mỗi bậc nhiều biến thể (quái nhanh nhiều / quái giáp nhiều / trộn), màn chọn theo
+## mã thế giới + vị trí màn (_variant) để các thế giới, các màn cạnh nhau không cùng một thành phần quái. Đợt cuối là
+## đợt đánh ở đích (màn Trùm: trùm).
 const DEFAULT_WAVES := [
-	[["basic", "basic", "basic"], ["basic", "armored", "basic"]],
-	[["basic", "basic", "fast"], ["basic", "basic", "basic"]],
-	[["basic", "fast", "armored"], ["basic", "basic", "fast"]],
-	[["fast", "armored", "basic"], ["armored", "basic", "fast"]],
-	[["basic", "fast"], ["boss"]],
+	[[["basic", "basic", "basic"], ["basic", "armored", "basic"]],
+		[["basic", "fast", "basic"], ["fast", "basic", "basic"]]],
+	[[["basic", "basic", "fast"], ["basic", "basic", "basic"]],
+		[["basic", "armored", "basic"], ["armored", "basic", "basic"]],
+		[["fast", "basic", "fast"], ["basic", "fast", "basic"]]],
+	[[["basic", "fast", "armored"], ["basic", "basic", "fast"]],
+		[["fast", "fast", "basic"], ["fast", "armored", "fast"]],
+		[["armored", "basic", "armored"], ["basic", "armored", "basic"]]],
+	[[["fast", "armored", "basic"], ["armored", "basic", "fast"]],
+		[["fast", "fast", "armored"], ["fast", "basic", "fast", "fast"]],
+		[["armored", "armored", "basic"], ["armored", "fast", "armored"]]],
+	[[["basic", "fast"], ["boss"]],
+		[["fast", "armored"], ["boss"]],
+		[["armored", "basic"], ["boss"]]],
 ]
 
 # Thứ tự khai báo quan trọng: các bảng phụ phải có trước WORLDS (_build điền vào chúng).
@@ -126,7 +141,7 @@ static var SIDE_WORLDS: Array = _build_side()
 ## Thế giới 5 màn: bậc = vị trí màn. OOO 9 màn: 0, 1, 1, 1, 2, 2, 3, 3, 4.
 ## Độ khó 0..1 của màn bậc `tier` (0..4) ở thế giới thứ `wi` (0..26): tăng đều theo thế giới, trong một thế giới
 ## tăng thêm theo bậc màn (Trùm khó nhất). StageBuilder / StageRun dùng để chỉnh mật độ quái, lính bắn, độ hung hăng,
-## quái tinh nhuệ và cấp quái thêm (GameState.current_enemy_level).
+## quái tinh nhuệ (máu quái theo thế giới / bậc màn: GameState.enemy_hp_scale).
 static func difficulty_of(wi: int, tier: int) -> float:
 	return clampf((wi + tier / 4.0) / float(maxi(FILES.size() - 1, 1)), 0.0, 1.0)
 
@@ -140,11 +155,25 @@ static func tier_of(si: int, count: int) -> int:
 
 
 
-static func _first_of_tier(tier: int, count: int) -> int:
-	for si in count:
-		if tier_of(si, count) == tier:
-			return si
-	return 0
+## Chọn một biến thể theo thế giới + vị trí màn: cùng màn luôn ra cùng biến thể, màn cạnh nhau / thế giới cạnh nhau
+## thường khác nhau.
+static func _variant(options: Array, world_id: String, si: int) -> Variant:
+	return options[posmod(hash(world_id) + si * 7, options.size())]
+
+
+## Lộ trình của bậc: các mẫu trong DEFAULT_ROUTES và bản lật trái ↔ phải của chúng (đối xứng nên vẫn hợp lệ).
+## Màn Thức tỉnh (bậc 0) là màn hướng dẫn: luôn chạy thẳng sang phải, không lật.
+static func _route_options(tier: int) -> Array:
+	var out: Array = []
+	for r in DEFAULT_ROUTES[tier]:
+		out.append(r)
+		if tier == 0:
+			continue
+		var flip: Array = (r as Array).map(func(x): return "left" if x == "right" else ("right" if x == "left" else x))
+		if not out.has(flip):
+			out.append(flip)
+	return out
+
 
 static func _build() -> Array:
 	var out: Array = []
@@ -165,18 +194,15 @@ static func _build() -> Array:
 			st["difficulty"] = difficulty_of(i, tier)
 			st["reward_level"] = tier + 1
 			if not st.has("route"):
-				# Màn luyện tập thêm (trùng bậc với màn trước) lấy lộ trình kế tiếp trong danh sách để không lặp y hệt.
-				var options: Array = DEFAULT_ROUTES[tier]
-				var repeat := si - _first_of_tier(tier, src.size())
-				st["route"] = options[(i + repeat) % options.size()]
+				st["route"] = _variant(_route_options(tier), str(w["id"]), si)
 			if not st.has("waves"):
-				st["waves"] = DEFAULT_WAVES[tier]
+				st["waves"] = _variant(DEFAULT_WAVES[tier], str(w["id"]), si + 1)
 			st["bg"] = "res://art/backgrounds/%s.png" % str(st.get("bg", "shibuya_night"))
 			if st["type"] == StageType.BOSS:
 				var boss: Dictionary = DEFAULT_BOSS.duplicate()
 				boss.merge(st.get("boss", {}), true)
-				boss["hp"] = float(boss["hp"]) * (1.0 + BOSS_HP_PER_WORLD * i)
-				boss["damage"] = float(boss["damage"]) * (1.0 + BOSS_DMG_PER_WORLD * i)
+				boss["hp"] = float(boss["hp"]) * (1.0 + BOSS_HP_PER_WORLD * i) * BOSS_HP_MULT
+				boss["damage"] = float(boss["damage"]) * (1.0 + BOSS_DMG_PER_WORLD * i) * BOSS_DMG_MULT
 				st["boss"] = boss
 			var beats: Dictionary = (consts.get("STORY", {}) as Dictionary).get(suffix, {})
 			if not beats.is_empty():
@@ -236,13 +262,24 @@ static func _build_side() -> Array:
 			boss["color"] = foe["color"]
 			boss["sprite"] = "rider_%s" % duel
 			boss["traits"] = (src.get("boss_traits", {}) as Dictionary).get(duel, [])
-			boss["hp"] = float(boss["hp"]) * (1.0 + BOSS_HP_PER_WORLD * level_world)
-			boss["damage"] = float(boss["damage"]) * (1.0 + BOSS_DMG_PER_WORLD * level_world)
+			# Rider đối thủ đánh bằng skill riêng theo nguyên tác, khó dần theo thứ tự màn từ Trung bình (DuelKits).
+			var duel_level := DuelKits.level_of(stages.size(), (src["duels"] as Array).size())
+			var lv: Dictionary = DuelKits.LEVELS[duel_level]
+			boss["skills"] = DuelKits.kit(duel, SIDE.DUEL_BOSS["skills"])
+			boss["skill_level"] = duel_level
+			boss["forms"] = DuelKits.forms(duel)      # đổi form theo máu như trong phim
+			boss["player_look"] = str(DuelKits.LOOKS.get(duel, ""))
+			boss["hp"] = float(boss["hp"]) * (1.0 + BOSS_HP_PER_WORLD * level_world) * BOSS_HP_MULT * float(lv["hp"])
+			boss["damage"] = float(boss["damage"]) * (1.0 + BOSS_DMG_PER_WORLD * level_world) * BOSS_DMG_MULT \
+				* float(lv["damage"])
 			var foe_stages: Array = foe["stages"]
 			var st := {
 				"id": "%d-%d" % [n, stages.size() + 1],
 				"name": str(src["stage_name"]).replace("{rider}", foe_name).replace("{year}", str(foe["year"])),
 				"type": StageType.DUEL, "tier": 4, "reward_level": 0, "source_world": si, "level_world": level_world,
+				"duel_level": duel_level,
+				"reward_name": str(src.get("reward", "{rider}")).replace("{rider}", foe_name),
+				"reward_look": str(src.get("reward_look", "")), "reward_color": foe["color"],
 				"form": form, "form_name": form_title, "enemies": foe["enemies"], "boss": boss, "foe_name": foe_name,
 				"route": DEFAULT_ROUTES[4][stages.size() % DEFAULT_ROUTES[4].size()], "waves": DUEL_WAVES,
 				"bg": foe_stages[mini(1, foe_stages.size() - 1)]["bg"],
@@ -316,6 +353,8 @@ static func challenge_of(w: int) -> Dictionary:
 
 ## Tên hiển thị của một form đặc biệt (tra từ các màn có "form"). Không có thì trả về "".
 static func form_name(rider: StringName, form: StringName) -> String:
+	if form == &"":
+		return ""        # màn không rơi form cũng có "form" mặc định &"" (không có "form_name")
 	for world in WORLDS + SIDE_WORLDS:
 		if world["rider"] != rider:
 			continue

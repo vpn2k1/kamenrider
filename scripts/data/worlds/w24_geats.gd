@@ -4,6 +4,16 @@ extends RefCounted
 ## Quái: Jyamato (Pawn / Knight / Rook). Trùm: Kamen Rider Glare (Game Master, Vision Driver).
 ## Hồi 3: {name} viết lên Desire Card điều ước duy nhất của mình: đưa anh Rei về nhà.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "warp", "name": "Hack vị trí", "color": Color(0.4, 1.0, 0.9)},
+	{"kind": "fan", "name": "Glare Vision", "color": Color(0.4, 1.0, 0.9), "style": "bolt"},
+	{"kind": "beam", "name": "Glare Laser", "color": Color(0.4, 1.0, 0.9)},
+	{"kind": "haste", "name": "Ghi đè tốc độ", "color": Color(0.4, 1.0, 0.9)},
+	{"kind": "homing", "name": "Vision đuổi", "color": Color(0.4, 1.0, 0.9)},
+]
+
 const WORLD := {
 	"id": "geats",
 	"year": 2022,
@@ -20,9 +30,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Magnum Form (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Geats IX: Final Attack x1.5",
 	],
 	"stages": [
@@ -35,7 +45,7 @@ const WORLD := {
 		{"name": "Sân khấu chung kết", "form": &"magnum_boost", "form_name": "Magnum Boost Form",
 			"bg": "geats_4", "bg_theme": "arena"},
 		{"name": "Trùm: Kamen Rider Glare", "bg": "geats_b", "bg_theme": "boss_purple",
-			"boss": {"name": "Kamen Rider Glare", "hp": 250.0, "damage": 16.0, "poise": 24.0, "speed": 82.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Kamen Rider Glare", "hp": 250.0, "damage": 16.0, "poise": 24.0, "speed": 82.0,
 				"traits": ["fast"], "color": Color(0.5, 0.38, 0.78)}},
 	],
 }

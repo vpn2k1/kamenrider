@@ -4,6 +4,16 @@ extends RefCounted
 ## Alain (hoàng tử Thế giới Gamma, em trai Adel). Quái: Gamma. Trùm: Adel, kẻ muốn hợp nhất mọi người làm một.
 ## Thức tỉnh: {name} bị cổng kéo hồn ra khỏi xác, phải tìm Ore Eyecon ở dạng hồn ma.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "rain", "name": "Mắt Adel", "color": Color(0.9, 0.9, 1.0), "count": 5},
+	{"kind": "warp", "name": "Dịch chuyển Ganma", "color": Color(0.9, 0.9, 1.0)},
+	{"kind": "beam", "name": "Mắt Adel: tia", "color": Color(0.9, 0.9, 1.0)},
+	{"kind": "summon", "name": "Gọi Ganma", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "vortex", "name": "Hút hồn", "color": Color(0.9, 0.9, 1.0)},
+]
+
 const WORLD := {
 	"id": "ghost",
 	"year": 2015,
@@ -20,9 +30,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Ore Damashii (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Mugen Damashii: Final Attack x1.5",
 	],
 	"stages": [
@@ -35,7 +45,7 @@ const WORLD := {
 		{"name": "Hang Monolith dưới chùa", "form": &"newton", "form_name": "Newton Damashii",
 			"bg": "ghost_4", "bg_theme": "underworld"},
 		{"name": "Trùm: Adel", "bg": "ghost_b", "bg_theme": "boss_red",
-			"boss": {"name": "Adel", "hp": 280.0, "damage": 16.0, "poise": 26.0, "speed": 72.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Adel", "hp": 280.0, "damage": 16.0, "poise": 26.0, "speed": 72.0,
 				"traits": [], "color": Color(0.92, 0.9, 0.98)}},
 	],
 }
@@ -55,7 +65,7 @@ const RIDER := {
 			"skills": [
 				{"name": "Ghost Phase", "type": "buff", "buff": {"phase": true, "time": 2.0}, "fx": "feather",
 					"color": Color(0.8, 0.85, 1.0)},
-				{"name": "Parka Ghost", "type": "lock", "range": 200.0, "fx": "wind", "summon": "eye",
+				{"name": "Parka Ghost", "type": "lock", "range": 200.0, "fx": "wind", "summon": "parka_ghost",
 					"color": Color(1.0, 0.55, 0.15)},
 			]},
 		# Musashi Damashii: song kiếm Gan Gun Saber Nitoryu. Omega Slash: hai nhát chéo liên tiếp.

@@ -4,6 +4,16 @@ extends RefCounted
 ## Quái: Makamou, chỉ bị thanh tẩy bằng âm thanh. Trùm: Orochi, hiện tượng Makamou trào lên hàng loạt.
 ## Mạch truyện: Void đứng giữa biển nhìn ngọn lửa Kurenai; Pen vội kéo {name} đi.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "slam", "name": "Quẫy thân rắn", "color": Color(0.75, 0.4, 1.0)},
+	{"kind": "rain", "name": "Mưa độc", "color": Color(0.5, 0.95, 0.4)},
+	{"kind": "vortex", "name": "Xoáy nước Orochi", "color": Color(0.4, 0.7, 1.0)},
+	{"kind": "summon", "name": "Gọi Makamou", "color": Color(0.5, 0.95, 0.4)},
+	{"kind": "quake", "name": "Rắn trồi lên", "color": Color(0.75, 0.4, 1.0)},
+]
+
 const WORLD := {
 	"id": "hibiki",
 	"year": 2005,
@@ -20,9 +30,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Hibiki (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Armed Hibiki: Final Attack x1.5",
 	],
 	"stages": [
@@ -35,7 +45,7 @@ const WORLD := {
 		{"name": "Bờ biển mùa hè", "form": &"kurenai", "form_name": "Hibiki Kurenai",
 			"bg": "hibiki_4", "bg_theme": "coast"},
 		{"name": "Trùm: Orochi", "bg": "hibiki_b", "bg_theme": "boss_purple",
-			"boss": {"name": "Orochi", "hp": 310.0, "damage": 17.0, "poise": 32.0, "speed": 55.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Orochi", "hp": 310.0, "damage": 17.0, "poise": 32.0, "speed": 55.0,
 				"traits": [], "color": Color(0.45, 0.3, 0.55)}},
 	],
 }

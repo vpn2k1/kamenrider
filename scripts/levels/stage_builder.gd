@@ -49,6 +49,24 @@ const PLATFORM_MAX_H := 95.0
 const CLIMB_STEP_MAX := 56.0            ## Titan (nhảy ×0.8) cao tối đa ~70 px, còn dư ~14 px
 const DROP_STEP_MIN := 70.0
 const DROP_STEP_MAX := 90.0
+## Kiểu địa hình của một đoạn ngang (mỗi đoạn bốc ngẫu nhiên theo seed màn, màn Thức tỉnh luôn "standard"), để các màn
+## không cùng một nhịp vực / bệ / thùng và quái không luôn ùa vào từ mép màn hình:
+##   pit      khả năng có vực ở mỗi nhịp · pit_gap [min, max] khoảng giữa hai nhịp · wide khả năng vực rộng có cột
+##   plat_gap khoảng giữa hai bệ · stack khả năng chồng bệ thứ hai · block_gap khoảng giữa các cụm thùng
+##   spawn    hệ số khoảng cách giữa các đợt quái (nhỏ = dày hơn) · shooter hệ số khả năng có lính bắn
+##   on_plat  khả năng quái đứng sẵn trên bệ (một phần là lính bắn gác trên bệ) · drop khả năng đợt quái rơi từ trên xuống
+const STYLES := {
+	"standard": {"pit": 0.5, "pit_gap": [320.0, 620.0], "wide": 0.3, "plat_gap": [240.0, 440.0], "stack": 0.25,
+		"block_gap": [200.0, 380.0], "spawn": 1.0, "shooter": 1.0, "on_plat": 0.25, "drop": 0.12},
+	"pits": {"pit": 0.85, "pit_gap": [220.0, 420.0], "wide": 0.45, "plat_gap": [260.0, 460.0], "stack": 0.15,
+		"block_gap": [320.0, 520.0], "spawn": 1.1, "shooter": 0.8, "on_plat": 0.3, "drop": 0.08},
+	"heights": {"pit": 0.35, "pit_gap": [360.0, 620.0], "wide": 0.2, "plat_gap": [140.0, 280.0], "stack": 0.6,
+		"block_gap": [280.0, 460.0], "spawn": 1.1, "shooter": 0.9, "on_plat": 0.45, "drop": 0.15},
+	"crates": {"pit": 0.3, "pit_gap": [400.0, 700.0], "wide": 0.2, "plat_gap": [300.0, 500.0], "stack": 0.2,
+		"block_gap": [110.0, 240.0], "spawn": 0.95, "shooter": 1.15, "on_plat": 0.2, "drop": 0.2},
+	"ambush": {"pit": 0.25, "pit_gap": [420.0, 700.0], "wide": 0.1, "plat_gap": [280.0, 480.0], "stack": 0.25,
+		"block_gap": [300.0, 500.0], "spawn": 0.75, "shooter": 1.4, "on_plat": 0.3, "drop": 0.3},
+}
 
 
 static func build(stage: Dictionary, stage_index: int) -> Dictionary:
@@ -258,6 +276,8 @@ class _Gen:
 		var fy := floor_y
 		var w := func(d: float) -> float: return entry + h * d
 		var cam_y := fy - BAND
+		var style: Dictionary = STYLES["standard"] if is_awaken \
+			else STYLES[STYLES.keys()[rng.randi() % STYLES.size()]]
 		if first:
 			add_point(Vector2(w.call(140.0), cam_y))
 			start = Vector2(w.call(60.0), fy - 2.0)
@@ -281,9 +301,9 @@ class _Gen:
 		if not is_awaken:
 			var d := 520.0
 			while d < length - 500.0:
-				d += rng.randf_range(320.0, 620.0)
-				if rng.randf() < 0.5 and d < length - 500.0:
-					var wide := rng.randf() < 0.3
+				d += rng.randf_range(style["pit_gap"][0], style["pit_gap"][1])
+				if rng.randf() < float(style["pit"]) and d < length - 500.0:
+					var wide := rng.randf() < float(style["wide"])
 					var gap := snappedf(rng.randf_range(170.0, 220.0) if wide else rng.randf_range(PIT_MIN, PIT_MAX), 4.0)
 					pits.append(Vector3(d, d + gap, 1.0 if wide else 0.0))
 					d += gap
@@ -306,15 +326,19 @@ class _Gen:
 
 		# Bệ một chiều
 		var d := 380.0 if first else 240.0
+		var plat_spots: Array = []   # [d giữa bệ, độ cao mặt bệ] để đặt quái đứng sẵn
 		while true:
-			d += rng.randf_range(240.0, 440.0)
+			d += rng.randf_range(style["plat_gap"][0], style["plat_gap"][1])
 			var pw := snappedf(rng.randf_range(96.0, 200.0), 32.0)
 			if d + pw > length - 120.0:
 				break
 			var ph := snappedf(rng.randf_range(PLATFORM_MIN_H, PLATFORM_MAX_H), 4.0)
 			_platform(w, d, d + pw, fy - ph)
-			if rng.randf() < 0.25 + 0.05 * idx:
-				_platform(w, d + pw * 0.5, d + pw * 0.5 + 96.0, fy - ph - rng.randf_range(55.0, 75.0))
+			plat_spots.append(Vector2(d + pw / 2.0, fy - ph))
+			if rng.randf() < float(style["stack"]) + 0.05 * idx:
+				var top_y := fy - ph - rng.randf_range(55.0, 75.0)
+				_platform(w, d + pw * 0.5, d + pw * 0.5 + 96.0, top_y)
+				plat_spots.append(Vector2(d + pw * 0.5 + 48.0, top_y))
 
 		# Khối kiểu Contra 2: thùng, chồng thùng, bậc thang
 		var blocks: Array = []   # [d0, d1] đã chiếm
@@ -322,7 +346,8 @@ class _Gen:
 		var tries := 0
 		while d < length - 320.0 or (blocks.is_empty() and tries < 12):
 			tries += 1
-			d = d + rng.randf_range(200.0, 380.0) if d < length - 320.0 else rng.randf_range(160.0, length - 320.0)
+			d = d + rng.randf_range(style["block_gap"][0], style["block_gap"][1]) if d < length - 320.0 \
+				else rng.randf_range(160.0, length - 320.0)
 			var cols: Array
 			match rng.randi() % 5:
 				0, 1:
@@ -360,20 +385,37 @@ class _Gen:
 		var back: float = w.call(ground_from + 40.0) if first else w.call(24.0)
 		d = 360.0 if first else 200.0
 		while true:
-			d += rng.randf_range(250.0, 420.0) * (1.0 - 0.3 * diff) - 10.0 * idx
+			d += rng.randf_range(250.0, 420.0) * (1.0 - 0.3 * diff) * float(style["spawn"]) - 10.0 * idx
 			if d > length - (250.0 if last else 120.0):
 				break
+			# Phía trước (mép màn hình) / sau lưng / rơi từ trên xuống giữa màn hình
+			var roll := rng.randf()
+			var behind_p := 0.12 + 0.18 * diff
+			var side := "behind" if roll < behind_p else ("drop" if roll < behind_p + float(style["drop"]) else "ahead")
 			spawns.append({
 				"s": s_of.call(w.call(d - HALF_W)),
 				"kind": pool[rng.randi() % pool.size()],
 				"count": rng.randi_range(1 + int(diff * 1.5), 2 + int(idx / 2.0) + int(diff * 2.0)),
 				"behavior": "runner" if rng.randf() < runner_share else "melee",
-				"side": "behind" if rng.randf() < 0.12 + 0.18 * diff else "ahead",
+				"side": side,
 				"floor": fy, "dir": h, "limit": limit, "back": back, "pos": Vector2.ZERO,
 			})
+		# Quái đứng sẵn trên bệ (thả khi bệ vừa lọt vào khung nhìn); một phần là lính bắn gác trên bệ
+		if not is_awaken:
+			for spot in plat_spots:
+				if spot.x < 300.0 or rng.randf() >= float(style["on_plat"]) * (1.0 - 0.4 * diff):
+					continue
+				var at := Vector2(w.call(spot.x), spot.y)
+				if rng.randf() < 0.35:
+					shooters.append({"s": s_of.call(w.call(spot.x - HALF_W - 40.0)), "pos": at,
+						"kind": pool[rng.randi() % pool.size()]})
+				else:
+					spawns.append({"s": s_of.call(w.call(spot.x - HALF_W)), "kind": pool[rng.randi() % pool.size()],
+						"count": rng.randi_range(1, 2), "behavior": "melee", "side": "at", "floor": spot.y, "dir": h,
+						"limit": limit, "back": back, "pos": at - Vector2(0, 40)})
 
 		# Lính bắn đứng gác trên mặt đất (không sát vực, không đứng trên / trong khối)
-		var shooter_chance := 0.2 + 0.12 * idx + 0.25 * diff
+		var shooter_chance := (0.2 + 0.12 * idx + 0.25 * diff) * float(style["shooter"])
 		d = 520.0 if first else 320.0
 		while true:
 			d += rng.randf_range(300.0, 520.0) * (1.0 - 0.25 * diff)

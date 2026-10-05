@@ -34,7 +34,7 @@ func open(options: Array[StringName], title_text: String, subtitle_text: String,
 				sets.append(skill_set(pf, form_label(id, fid)))
 				pf.free()
 		entries.append({
-			"id": id, "name": form.display_name.replace("Kamen Rider ", "").to_upper(), "sub": "Lv%d" % form.level,
+			"id": id, "name": form.display_name.replace("Kamen Rider ", "").to_upper(), "sub": "",
 			"prefix": form.animation_prefix(), "fallback": "human", "color": colors.get(id, WorldData.rider_color(id)),
 			"stats": form.stat_summary(), "lines": lines, "skill_sets": sets,
 			"tag": "★ Rider thế giới: form / item rơi ở màn này là của Rider này" if id == world_rider else "",

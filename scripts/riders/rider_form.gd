@@ -21,23 +21,25 @@ class_name RiderForm
 ##   extra (tùy chọn): hits, lunge, no_cancel, anim
 
 const MAX_LEVEL := 5
-const HP_PER_LEVEL := 0.08     ## mỗi cấp +8% máu Rider
 const RAGE_DRAIN := 5.0        ## nộ tụt mỗi giây ở form đặc biệt (đầy thanh dùng được 20 giây nếu không tích thêm)
 const TIME_RAGE_DRAIN := 10.0  ## nộ tụt mỗi giây ở form tăng tốc thời gian (đầy thanh dùng được 10 giây)
 
 var rider_id: StringName = &""
 var display_name := ""
 var tagline := ""           ## một dòng mô tả lối chơi, hiện ở màn chọn Rider
-var max_hp := 150.0         ## máu Rider gốc (chưa tính cấp), tách riêng với máu dạng người
+var max_hp := 150.0         ## máu Rider gốc (chưa tính sức mạnh thế hệ / chỉ số cộng), tách riêng với máu dạng người
 var move_speed := 130.0
 var jump_mult := 1.0
 var attack_mult := 1.0
 var armor := 0.0            ## giáp: sát thương nhận = sát thương × 100 / (100 + giáp)
 var poise := 6.0            ## đòn yếu hơn mức này không làm Rider bị khựng
 var special_cooldown := 1.0
-var level := 1              ## cấp Rider 1..5, tăng khi qua màn ở thế giới của Rider đó
-## Sức mạnh theo thế hệ: Rider của thế giới sau mạnh hơn (GameState.rider_power), nhân vào máu và sát thương,
-## để theo kịp quái các thế giới sau. Kuuga (thế giới 1) = 1.0.
+## Mốc tiến độ 1..5 (ẩn, không hiện "Lv" và không cộng chỉ số): tăng khi qua màn ở thế giới của Rider, chỉ dùng để
+## mở thưởng theo nguyên tác (Kuuga Rising, W Best Match, final form "lv5" như Ryuki Survive, Final ×1,5).
+## Chỉ số tăng nhờ qua màn: GameState.stage_clear_bonus cộng vào từng form (bonus()).
+var level := 1
+## Sức mạnh theo thế hệ: Rider của thế giới sau mạnh hơn (GameState.rider_power, đồng bộ theo thế giới của màn),
+## nhân vào máu và sát thương, để theo kịp quái các thế giới sau. Kuuga (thế giới 1) = 1.0.
 var power := 1.0
 
 var player: Player = null
@@ -164,6 +166,11 @@ func try_special() -> void:
 	special_timer = special_cooldown
 
 
+## Bấm Special được cả khi đang ở form đặc biệt (Decade đổi thẻ liên tục). Mặc định chỉ bấm được ở form gốc.
+func special_anywhere() -> bool:
+	return false
+
+
 ## Đã mở ít nhất một form đặc biệt chưa (để nút Special hiện ra).
 func special_available() -> bool:
 	return false
@@ -222,12 +229,12 @@ func modify_incoming_damage(info: DamageInfo) -> float:
 ## Chỉ số form hiện tại ở cấp hiện tại, cho màn chọn Rider (gọi trên bản mới tạo = form gốc).
 ## Thanh chỉ số không tính sức mạnh thế hệ (màn chọn Rider hiện riêng dòng "Sức mạnh").
 func stat_summary() -> Dictionary:
-	return {"hp": get_max_hp() / power, "armor": armor, "speed": move_speed, "atk": attack_mult * level_mult() / power,
+	return {"hp": get_max_hp() / power, "armor": armor, "speed": move_speed, "atk": attack_mult * power_mult() / power,
 		"jump": jump_mult}
 
 
 func get_max_hp() -> float:
-	return max_hp * (1.0 + HP_PER_LEVEL * (level - 1)) * power * bonus("hp")
+	return max_hp * power * bonus("hp")
 
 
 ## Hệ số tăng sức mạnh của form đang dùng (GameState.form_bonus: hạ quái, chơi lại màn). stat: GameState.BOOST_STATS.
@@ -255,7 +262,7 @@ func _notify_max_hp(old_max: float) -> void:
 		player.rescale_rider_hp(old_max, get_max_hp())
 
 
-## Gọi khi tạo form và mỗi lần Rider lên cấp.
+## Gọi khi tạo form và mỗi lần Rider qua mốc tiến độ (không đổi chỉ số, chỉ mở thưởng: _on_level_changed).
 func set_level(value: int) -> void:
 	var old_max := get_max_hp()
 	level = clampi(value, 1, MAX_LEVEL)
@@ -268,9 +275,9 @@ func _on_level_changed() -> void:
 	pass
 
 
-## Mỗi cấp +10% sát thương, nhân sức mạnh thế hệ.
-func level_mult() -> float:
-	return (1.0 + 0.1 * (level - 1)) * power * bonus("atk")
+## Hệ số sát thương ngoài sức đánh của form: sức mạnh thế hệ × chỉ số "atk" cộng thêm khi qua màn.
+func power_mult() -> float:
+	return power * bonus("atk")
 
 
 ## Tiền tố tên animation trong SpriteFrames của Player, ví dụ "kuuga_mighty" → "kuuga_mighty_run".

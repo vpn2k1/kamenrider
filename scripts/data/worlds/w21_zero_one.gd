@@ -4,6 +4,16 @@ extends RefCounted
 ## soi cho Pen: một AI luôn đứng cạnh người của mình. Quái: Magia. Trùm: Ark-Zero, cơ thể của trí tuệ nhân tạo Ark.
 ## Mạch Hồi 3: {name} vừa biết Void là anh trai Rei, phải chọn đánh hay cứu.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "fan", "name": "Ark Cannon", "color": Color(1.0, 0.3, 0.3), "style": "bolt"},
+	{"kind": "rain", "name": "Ark Destruction", "color": Color(1.0, 0.3, 0.3), "count": 5},
+	{"kind": "beam", "name": "Ark Laser", "color": Color(1.0, 0.3, 0.3)},
+	{"kind": "summon", "name": "Gọi Magia", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "quake", "name": "Ark chấn động", "color": Color(1.0, 0.3, 0.3)},
+]
+
 const WORLD := {
 	"id": "zero_one",
 	"year": 2019,
@@ -20,9 +30,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Rising Hopper (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Zero-Two: Final Attack x1.5",
 	],
 	"stages": [
@@ -35,7 +45,7 @@ const WORLD := {
 		{"name": "Trạm liên lạc vệ tinh Zea", "form": &"shining_hopper", "form_name": "Shining Hopper",
 			"bg": "zero_one_4", "bg_theme": "cyber_city"},
 		{"name": "Trùm: Ark-Zero", "bg": "zero_one_b", "bg_theme": "boss_dark",
-			"boss": {"name": "Ark-Zero", "hp": 310.0, "damage": 18.0, "poise": 30.0, "speed": 72.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Ark-Zero", "hp": 310.0, "damage": 18.0, "poise": 30.0, "speed": 72.0,
 				"traits": ["armored"], "color": Color(0.78, 0.16, 0.22)}},
 	],
 }

@@ -4,6 +4,16 @@ extends RefCounted
 ## Quái: Mirror Monster từ thế giới gương. Trùm: Kamen Rider Odin, con rối vàng của Kanzaki Shiro.
 ## Mạch truyện: Void nói vọng ra từ mặt gương, Pen run rẩy rồi lảng đi.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "warp", "name": "Dịch chuyển Odin", "color": Color(1.0, 0.85, 0.3)},
+	{"kind": "fan", "name": "Gold Feather", "color": Color(1.0, 0.85, 0.3), "style": "arrow"},
+	{"kind": "homing", "name": "Phượng hoàng vàng", "color": Color(1.0, 0.85, 0.3)},
+	{"kind": "rain", "name": "Eternal Chaos", "color": Color(1.0, 0.85, 0.3), "count": 5},
+	{"kind": "beam", "name": "Tia Odin", "color": Color(1.0, 0.85, 0.3)},
+]
+
 const WORLD := {
 	"id": "ryuki",
 	"year": 2002,
@@ -20,9 +30,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Ryuki (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"mở final form Ryuki Survive, Final Attack x1.5",
 	],
 	"stages": [
@@ -35,7 +45,7 @@ const WORLD := {
 		{"name": "Thế giới gương", "form": &"guard_vent", "form_name": "Guard Vent",
 			"bg": "ryuki_4", "bg_theme": "mirror_city"},
 		{"name": "Trùm: Kamen Rider Odin", "bg": "ryuki_b", "bg_theme": "boss_gold",
-			"boss": {"name": "Kamen Rider Odin", "hp": 250.0, "damage": 17.0, "poise": 24.0, "speed": 85.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Kamen Rider Odin", "hp": 250.0, "damage": 17.0, "poise": 24.0, "speed": 85.0,
 				"traits": [], "color": Color(0.95, 0.8, 0.3), "sprite": "odin"}},
 	],
 }
@@ -55,7 +65,7 @@ const RIDER := {
 			"skills": [
 				{"name": "Strike Vent", "type": "aim", "move": "shot", "shot": {"style": "fire", "radius": 6.0},
 					"tags": [&"burn"], "fx": "fire", "color": Color(1.0, 0.5, 0.1)},
-				{"name": "Advent: Dragreder", "type": "lock", "tags": [&"burn"], "fx": "dragon", "summon": "dragon",
+				{"name": "Advent: Dragreder", "type": "lock", "tags": [&"burn"], "fx": "fire", "summon": "dragreder",
 					"color": Color(1.0, 0.15, 0.15)},
 			],
 			"fx": {"hit": "spark", "final": "fire", "color": Color(1.0, 0.4, 0.25)}},
@@ -65,7 +75,7 @@ const RIDER := {
 			"skills": [
 				{"name": "Drag Visor-Zwei", "type": "aim", "move": "shot", "shot": {"style": "fire", "radius": 6.0},
 					"tags": [&"burn"], "fx": "fire", "color": Color(1.0, 0.8, 0.25)},
-				{"name": "Dragranzer", "type": "area", "radius": 90.0, "tags": [&"burn"], "fx": "wheel", "summon": "dragon",
+				{"name": "Dragranzer", "type": "area", "radius": 90.0, "tags": [&"burn"], "fx": "wheel", "summon": "dragranzer",
 					"color": Color(1.0, 0.3, 0.15)},
 			],
 			"fx": {"hit": "fire", "swing": "slash", "shot": "fire", "final": "fire", "color": Color(1.0, 0.6, 0.2)},
@@ -84,7 +94,7 @@ const RIDER := {
 			"jump": 1.0, "atk": 1.0, "poise": 5.0, "final": "Dragclaw Fire",
 			"skills": [
 				{"name": "Dragclaw Fire", "type": "aim", "move": "shot", "shot": {"style": "fire", "radius": 8.0},
-					"tags": [&"burn"], "fx": "dragon", "color": Color(1.0, 0.3, 0.1)},
+					"tags": [&"burn"], "fx": "fire", "summon": "dragreder", "color": Color(1.0, 0.3, 0.1)},
 				{"name": "Fire Wall", "type": "area", "tags": [&"burn"], "fx": "fire", "color": Color(1.0, 0.7, 0.15)},
 			],
 			"fx": {"hit": "fire", "shot": "fire", "final": "fire", "color": Color(1.0, 0.5, 0.15)},
@@ -101,7 +111,7 @@ const RIDER := {
 			"fx": {"hit": "ring", "final": "fire", "color": Color(0.85, 0.85, 0.95)}},
 	},
 	"lv5": {"form": &"survive", "final_mult": 1.5},
-	"final_fx": {"intro": "dragon"},
+	"final_fx": {"intro": "dragreder"},
 }
 
 ## Giọng đai / tiếng hô (tools/gen_audio.py → audio/voice/<rider>_<khóa>.wav): "henshin" lúc biến thân, khóa = id form

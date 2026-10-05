@@ -6,6 +6,16 @@ extends RefCounted
 ## 8 combo cùng hệ (ba Medal cùng màu) theo thứ tự xuất hiện trong phim, mỗi màn luyện tập rơi một combo: 9 màn
 ## (12-1, 12-2..12-8, 12-B). Lv5 = Super TaToBa (Medal từ tương lai).
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "haste", "name": "Tốc độ báo", "color": Color(1.0, 0.95, 0.4)},
+	{"kind": "dash", "name": "Vuốt sư tử", "color": Color(1.0, 0.95, 0.4)},
+	{"kind": "combo", "name": "Vuốt báo liên hoàn", "color": Color(1.0, 0.95, 0.4)},
+	{"kind": "fan", "name": "Hào quang sư tử", "color": Color(1.0, 0.95, 0.4)},
+	{"kind": "vortex", "name": "Lốc Kazari", "color": Color(1.0, 0.95, 0.4)},
+]
+
 const WORLD := {
 	"id": "ooo",
 	"year": 2010,
@@ -22,9 +32,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"TaToBa Combo (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Super TaToBa: Final Attack x1.5",
 	],
 	"stages": [
@@ -45,7 +55,7 @@ const WORLD := {
 		{"name": "Tàn tích vị vua OOO cổ đại", "form": &"burakawani", "form_name": "BuraKaWani Combo",
 			"bg": "ooo_8", "bg_theme": "ruins"},
 		{"name": "Trùm: Kazari", "bg": "ooo_b", "bg_theme": "boss_gold",
-			"boss": {"name": "Kazari", "hp": 250.0, "damage": 16.0, "poise": 22.0, "speed": 85.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Kazari", "hp": 250.0, "damage": 16.0, "poise": 22.0, "speed": 85.0,
 				"traits": [], "color": Color(0.95, 0.78, 0.25)}},
 	],
 }

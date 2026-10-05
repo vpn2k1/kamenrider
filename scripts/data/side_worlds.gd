@@ -12,10 +12,20 @@ extends RefCounted
 ##   "stage_name"   tên màn: {rider} = tên Rider, {year} = năm thế giới của Rider đó
 ##   "form_suffix"  id form = id Rider + hậu tố ("" → &"kuuga", "_armor" → &"kuuga_armor"); form phải có trong RIDER.forms
 ##   "duels"        các Rider đối thủ, theo thứ tự năm. Thêm Rider mới (khi đã có hình) = thêm một dòng.
+##   "reward"       tên món rơi ở đích khi thắng ({rider}), "reward_look": hình món ("card" thẻ / "watch" Ride Watch,
+##                  DriverPickup.reward_icon, tô màu Rider đối thủ)
 ##   "template"     thoại mặc định từng nhịp ({rider}, {form}); STORY[id][rider] ghi đè từng nhịp
 ## Chỉ số Rider đối thủ: DUEL_BOSS, nhân theo thế hệ như trùm (WorldData), traits theo "boss_traits".
 
-const DUEL_BOSS := {"hp": 230.0, "damage": 14.0, "poise": 24.0, "speed": 78.0, "traits": []}
+## Kỹ năng chung của Rider đối thủ (scripts/enemies/boss_skills.gd).
+const DUEL_BOSS := {"hp": 230.0, "damage": 14.0, "poise": 24.0, "speed": 78.0, "traits": [],
+	"skills": [
+		{"kind": "dash", "name": "Rider Dash", "color": Color(1.0, 0.4, 0.4)},
+		{"kind": "fan", "name": "Rider Shot", "color": Color(1.0, 0.85, 0.4)},
+		{"kind": "combo", "name": "Rider Combo", "color": Color(1.0, 0.6, 0.4)},
+		{"kind": "slam", "name": "Rider Kick", "color": Color(1.0, 0.5, 0.3)},
+		{"kind": "beam", "name": "Rider Beam", "color": Color(1.0, 0.85, 0.4)},
+	]}
 
 const WORLDS := [
 	{
@@ -26,6 +36,8 @@ const WORLDS := [
 		"title": "NHÁNH DECADE",
 		"stage_name": "Thế giới {rider}",
 		"form_suffix": "",
+		"reward": "Thẻ Kamen Ride: {rider}",
+		"reward_look": "card",
 		"duels": [&"kuuga", &"agito", &"ryuki", &"faiz", &"blade", &"hibiki", &"den_o", &"kiva", &"double", &"ooo",
 			&"fourze", &"wizard", &"gaim", &"drive", &"ghost", &"ex_aid", &"build", &"zi_o"],
 		"boss_traits": {&"faiz": ["fast"], &"kiva": ["fast"], &"hibiki": ["armored"], &"fourze": ["armored"]},
@@ -44,8 +56,10 @@ const WORLDS := [
 		"title": "NHÁNH ZI-O",
 		"stage_name": "Năm {year} · {rider}",
 		"form_suffix": "_armor",
-		"duels": [&"kuuga", &"agito", &"ryuki", &"faiz", &"blade", &"hibiki", &"kabuto", &"den_o", &"kiva", &"double",
-			&"ooo", &"fourze", &"wizard", &"gaim", &"drive", &"ghost"],
+		"reward": "Ride Watch {rider}",
+		"reward_look": "watch",
+		"duels": [&"kuuga", &"agito", &"ryuki", &"faiz", &"blade", &"hibiki", &"kabuto", &"den_o", &"kiva", &"decade",
+			&"double", &"ooo", &"fourze", &"wizard", &"gaim", &"drive", &"ghost"],
 		"boss_traits": {&"faiz": ["fast"], &"kabuto": ["fast"], &"kiva": ["fast"], &"hibiki": ["armored"]},
 		"template": {
 			"start": [["woz", "Năm {year}. Theo cuốn sách này, Kamen Rider {rider} sẽ thử sức cậu trước khi trao Ride Watch."]],
@@ -112,6 +126,15 @@ const STORY := {
 		},
 	},
 	"zi_o_watches": {
+		&"decade": {
+			"start": [
+				["woz", "Năm 2009. Một bức màn cực quang mở giữa phố. Kẻ du hành qua các thế giới, Kadoya Tsukasa, đang đợi sẵn."],
+				["tsukasa", "Ma Vương tương lai à? Muốn Ride Watch của tôi thì thắng đi đã. Tôi không dễ vậy đâu."],
+			],
+			"goal": [["narrator", "Decade lắp thẻ vào Driver. Kamen Ride! Hắn sẽ đổi thành Rider khác giữa trận."]],
+			"key": [["woz", "Iwae! Zi-O Decade Armor! Kiếm Ride Heisaber, sức mạnh của kẻ hủy diệt thế giới. Chém nhanh, chém mạnh."]],
+			"clear": [["tsukasa", "Hừm, cũng được. Giữ Ride Watch đó cho kỹ, Ma Vương. Tôi chỉ là kẻ đi ngang qua thôi."]],
+		},
 		&"ghost": {
 			"start": [
 				["woz", "Năm 2015, chùa Daitenku. Ghost lơ lửng giữa nghĩa địa, Ride Watch của cậu ấy phát sáng mờ mờ."],

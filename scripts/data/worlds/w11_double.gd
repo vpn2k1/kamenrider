@@ -2,6 +2,16 @@ extends RefCounted
 ## Thế giới 11 · Kamen Rider W (2009) — "Hai người, một Rider"
 ## Rider có script riêng: scripts/riders/double.gd (RIDER để trống). Pen điều khiển nửa Soul.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "dash", "name": "Eternal Edge", "color": Color(0.9, 0.9, 1.0)},
+	{"kind": "rain", "name": "Eternal Requiem", "color": Color(0.4, 0.7, 1.0), "count": 5},
+	{"kind": "homing", "name": "Ký ức T2 bay", "color": Color(0.4, 0.7, 1.0)},
+	{"kind": "summon", "name": "Gọi NEVER", "color": Color(0.9, 0.9, 1.0)},
+	{"kind": "combo", "name": "Eternal Edge liên hoàn", "color": Color(0.9, 0.9, 1.0)},
+]
+
 const WORLD := {
 	"id": "double",
 	"year": 2009,
@@ -18,10 +28,10 @@ const WORLD := {
 	},
 	"unlocks": [
 		"CycloneJoker (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
+		"",
+		"",
 		"Best Match: sát thương +15%",
-		"sát thương +40%, máu +32%",
+		"",
 	],
 	"stages": [
 		{"name": "Văn phòng thám tử", "goal": "Hạ 2 Dopant để lấy lại Gaia Memory Cyclone và Joker", "bg": "fuuto",
@@ -33,7 +43,7 @@ const WORLD := {
 		{"name": "Khu công nghiệp", "form": &"xtreme", "form_name": "Xtreme Memory", "bg": "industrial",
 			"route": ["left", "down", "right", "down", "left"], "waves": [["fast", "armored", "basic"], ["basic", "armored", "fast"]]},
 		{"name": "Trùm: Kamen Rider Eternal", "bg": "boss_w", "route": ["right", "up", "right"],
-			"boss": {"name": "Kamen Rider Eternal", "hp": 300.0, "damage": 18.0, "poise": 30.0, "speed": 65.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Kamen Rider Eternal", "hp": 300.0, "damage": 18.0, "poise": 30.0, "speed": 65.0,
 				"traits": ["armored"], "color": Color(0.95, 0.95, 1.0)},
 			"waves": [["basic", "armored"], ["boss"]]},
 	],

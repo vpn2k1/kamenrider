@@ -4,6 +4,16 @@ extends RefCounted
 ## Quái: Inves từ rừng Helheim. Trùm: Lord Baron, Kaito sau khi ăn trái Helheim và nhận năng lượng Void.
 ## Bài học: số phận là thứ để thay đổi. Gieo trước nỗi sợ "phải đối đầu với người mình quý".
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "dash", "name": "Thương Banana", "color": Color(1.0, 0.3, 0.3)},
+	{"kind": "rain", "name": "Rễ Helheim trồi lên", "color": Color(0.5, 0.95, 0.4), "count": 5},
+	{"kind": "combo", "name": "Thương liên hoàn", "color": Color(1.0, 0.3, 0.3)},
+	{"kind": "guard", "name": "Ý chí vương giả", "color": Color(1.0, 0.3, 0.3)},
+	{"kind": "quake", "name": "Rễ Helheim nối chuỗi", "color": Color(0.5, 0.95, 0.4)},
+]
+
 const WORLD := {
 	"id": "gaim",
 	"year": 2013,
@@ -20,9 +30,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Orange Arms (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Kiwami Arms: Final Attack x1.5",
 	],
 	"stages": [
@@ -35,7 +45,7 @@ const WORLD := {
 		{"name": "Tháp Yggdrasill", "form": &"jimber_lemon", "form_name": "Jimber Lemon Arms",
 			"bg": "gaim_4", "bg_theme": "city_night"},
 		{"name": "Trùm: Lord Baron", "bg": "gaim_b", "bg_theme": "boss_red",
-			"boss": {"name": "Lord Baron", "hp": 300.0, "damage": 18.0, "poise": 30.0, "speed": 65.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Lord Baron", "hp": 300.0, "damage": 18.0, "poise": 30.0, "speed": 65.0,
 				"traits": ["armored"], "color": Color(0.8, 0.15, 0.2)}},
 	],
 }

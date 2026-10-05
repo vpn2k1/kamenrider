@@ -1648,13 +1648,13 @@ Chuỗi nút Đánh: 2 đòn thường + 1 đòn kết. Chuỗi nút Chém: 2 nh
 
 ## 10. Kamen Rider Decade · 2009
 
-- **Driver:** Decadriver · **Lối chơi:** Đổi thẻ · Kamen Ride thành 9 Rider đi trước, kiếm nhân bóng, súng chùm · **Sức mạnh thế hệ:** ×2.08
+- **Driver:** Decadriver · **Lối chơi:** Đổi thẻ · Attack Ride Slash / Blast, Kamen Ride thành các Rider khác (thẻ ở thế giới phụ), Complete Form · **Sức mạnh thế hệ:** ×1.24
 - **Form gốc:** `decade`
-- **Form rơi ở màn luyện tập:** 10-2 → **Attack Ride: Slash** · 10-3 → **Attack Ride: Blast** · 10-4 → **Kamen Ride: Kuuga** · 10-5 → **Kamen Ride: Agito** · 10-6 → **Kamen Ride: Ryuki** · 10-7 → **Kamen Ride: Faiz** · 10-8 → **Kamen Ride: Blade** · 10-9 → **Kamen Ride: Hibiki** · 10-10 → **Kamen Ride: Den-O** · 10-11 → **Kamen Ride: Kiva** · 10-12 → **Kamen Ride: Kabuto**
-- **Thưởng theo cấp:** Lv1: Decade (form gốc) → Lv2: sát thương +10%, máu +8% → Lv3: sát thương +20%, máu +16% → Lv4: sát thương +30%, máu +24% → Lv5: Complete Form: Final Attack x1.5
-- **Lv5 — Complete Form:** tên hiện kèm form, mọi Final ×1.5 và đổi tên thành "Complete Form <tên chiêu>"
+- **Form rơi ở màn luyện tập:** 10-4 → **Kamen Ride: Kabuto** · (màn 10-2, 10-3 không rơi form)
+- **Thưởng theo cấp:** Lv1: Decade (form gốc) → Lv2:  → Lv3:  → Lv4:  → Lv5: Complete Form (final form): Final Attack x1.5
+- **Lv5:** mở form `complete` + mọi Final ×1.5
 - **Dấu hiệu tuyệt chiêu chung (mọi form):** intro `cards` (hàng thẻ bài hologram)
-- **Giọng đai / tiếng hô:** `agito` "Kamen Ride. Agito!" · `blade` "Kamen Ride. Blade!" · `blast` "Attack Ride. Blast!" · `den_o` "Kamen Ride. Den-O!" · `faiz` "Kamen Ride. Faiz!" · `final` "Final Attack Ride. De. De. De. Decade!" · `henshin` "Kamen Ride. Decade!" · `hibiki` "Kamen Ride. Hibiki!" · `kabuto` "Kamen Ride. Kabuto! Attack Ride. Clock Up!" · `kiva` "Kamen Ride. Kiva!" · `kuuga` "Kamen Ride. Kuuga!" · `ryuki` "Kamen Ride. Ryuki! Attack Ride. Strike Vent!" · `slash` "Attack Ride. Slash!"
+- **Giọng đai / tiếng hô:** `agito` "Kamen Ride. Agito!" · `blade` "Kamen Ride. Blade!" · `build` "Kamen Ride. Build!" · `complete` "Final Kamen Ride. Decade!" · `den_o` "Kamen Ride. Den-O!" · `double` "Kamen Ride. Double!" · `drive` "Kamen Ride. Drive!" · `ex_aid` "Kamen Ride. Ex-Aid!" · `faiz` "Kamen Ride. Faiz!" · `final` "Final Attack Ride. De. De. De. Decade!" · `fourze` "Kamen Ride. Fourze!" · `gaim` "Kamen Ride. Gaim!" · `ghost` "Kamen Ride. Ghost!" · `henshin` "Kamen Ride. Decade!" · `hibiki` "Kamen Ride. Hibiki!" · `kabuto` "Kamen Ride. Kabuto! Attack Ride. Clock Up!" · `kiva` "Kamen Ride. Kiva!" · `kuuga` "Kamen Ride. Kuuga!" · `ooo` "Kamen Ride. OOO!" · `ryuki` "Kamen Ride. Ryuki! Attack Ride. Strike Vent!" · `wizard` "Kamen Ride. Wizard!" · `zi_o` "Kamen Ride. Zi-O!"
 
 ### 10.1 Decade  ·  _form gốc, nhận ở màn Thức tỉnh_
 
@@ -1685,11 +1685,16 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
 
 </details>
 
-**Tuyệt chiêu — Dimension Kick** (Lv5: *Complete Form Dimension Kick*)
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Attack Ride: Slash [Đ] · 20 nộ · hồi 3.5 giây
+- Skill 2: Attack Ride: Blast [Đ] · 35 nộ · hồi 7 giây
+
+**Tuyệt chiêu — Dimension Kick [Đ]**
 
 - lao tới 260, bật lên 120 rồi tung đòn (tầm 30); 3 nhịp × 22 = 66 sát thương gốc; hất văng (260, -160).
 - Tag: `heavy` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
-- Sát thương thực (chưa tính combo): **Lv1 ≈ 144** · **Lv5 ≈ 303** (đã gồm ×1.5 Lv5).
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 86** · **Lv5 ≈ 129** (đã gồm ×1.5 Lv5).
 - Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ sóng chấn động dẹt (màu `#ffd980`); tiếng nạp *final_charge* + giọng `decade_final`.
 
 *Mô tả trong game (thoại lúc nhận form):*
@@ -1697,15 +1702,15 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
 > **{name}:** Henshin!
 > **Dẫn truyện:** KAMEN RIDE: DECADE! Những tấm bảng ảo cắm vào mặt nạ, bộ giáp xám bừng lên màu hồng đỏ.
 
-### 10.2 Attack Ride: Slash  ·  _form đặc biệt, rơi ở màn 10-2_
+### 10.2 Complete Form  ·  _form đặc biệt, mở ở Lv5_
 
 | Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
 |---|---|---|---|---|---|---|---|
-| 165 | 28 | 120 | ×1 | ×1.25 | 11 | 4/s | Blade (kiếm) |
+| 195 | 40 | 135 | ×1.1 | ×1.3 | 12 | 5/s | Blade (kiếm) |
 
-**Vũ khí:** Nút Chém: **kiếm (hình mặc định)** (3 nhát + nhát kết, bảng đòn blade).
+**Vũ khí:** Nút Chém: **Booker Sword** (3 nhát + nhát kết, bảng đòn blade).
 
-**Kỹ năng riêng:** Chém (nhát thường): 3.5 sát thương/nhịp, 2 nhịp.
+**Kỹ năng riêng:** Final Attack: 22 sát thương/nhịp, 4 nhịp.
 
 **Hiệu ứng hình ảnh:**
 
@@ -1720,68 +1725,31 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
 |---|---|---|---|---|---|---|---|
 | Đánh (đòn thường) | 5 | 1 | 0.05 / 0.08 / 0.12 | 23 | (50, -20) | — | — |
 | Đánh (đòn kết chuỗi) | 12 | 1 | 0.12 / 0.1 / 0.3 | 27 | (180, -70) | `heavy` | — |
-| Chém (nhát thường) | 3.5 | 2 | 0.07 / 0.08 / 0.14 | 31 | (50, -20) | — | — |
+| Chém (nhát thường) | 6 | 1 | 0.07 / 0.08 / 0.14 | 31 | (50, -20) | — | — |
 | Chém (nhát kết) | 14 | 1 | 0.14 / 0.1 / 0.3 | 36 | (190, -70) | `heavy` | — |
-| **Final Attack** | 65 | 1 | 0.5 / 0.22 / 0.45 | 46 | (260, -100) | `heavy` | lao tới 240, bật lên 60, không hủy được |
+| **Final Attack** | 22 | 4 | 0.5 / 0.22 / 0.45 | 46 | (260, -100) | `heavy` | lao tới 240, bật lên 60, không hủy được |
 
 Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết. Chuỗi nút Chém: 3 nhát + 1 nhát kết.
 
 </details>
 
-**Tuyệt chiêu — Dimension Slash** (Lv5: *Complete Form Dimension Slash*)
+**Skill** (docs/SKILLS.md)
 
-- lao tới 240, bật lên 60 rồi tung đòn (tầm 46); 65 sát thương gốc; hất văng (260, -100).
+- Skill 1: K-Touch: Gọi Rider [C] · 20 nộ · hồi 3.5 giây
+- Skill 2: Dimension Card Wall [P] · 35 nộ · hồi 7 giây
+
+**Tuyệt chiêu — Final Kamen Ride: Decade [Đ]**
+
+- lao tới 240, bật lên 60 rồi tung đòn (tầm 46); 4 nhịp × 22 = 88 sát thương gốc; hất văng (260, -100).
 - Tag: `heavy` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
-- Sát thương thực (chưa tính combo): **Lv1 ≈ 169** · **Lv5 ≈ 355** (đã gồm ×1.5 Lv5).
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 142** · **Lv5 ≈ 213** (đã gồm ×1.5 Lv5).
 - Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ sóng chấn động dẹt (màu `#ffd980`); tiếng nạp *final_charge* + giọng `decade_final`.
 
-*Mô tả trong game (thoại lúc nhận form):*
-
-> **Tsukasa:** ATTACK RIDE: SLASH! Bấm Chém, Ride Booker một nhát thành hai. Nhát cuối phá được giáp.
-
-### 10.3 Attack Ride: Blast  ·  _form đặc biệt, rơi ở màn 10-3_
+### 10.3 Kamen Ride: Kuuga  ·  _form đặc biệt, mở ở Lv5_
 
 | Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
 |---|---|---|---|---|---|---|---|
-| 140 | 12 | 120 | ×1 | ×0.9 | 5 | 4/s | Gunner (bắn) |
-
-**Vũ khí:** Nút Bắn: **booker_gun** — 3.5 sát thương/viên, hồi 0.4s, tốc độ 380, bay 0.8s, bán kính 3, đạn `ball` (viên đạn tròn), 3 viên xòe 0.12 rad.
-
-**Hiệu ứng hình ảnh:**
-
-- Màu hiệu ứng: `#ffd980`
-- Đòn trúng: `spark` — tia va chạm toả ra
-- Final Attack trúng: `ring` — sóng chấn động dẹt
-- Lúc tung Final (quanh Rider): `cards` — hàng thẻ bài hologram
-
-<details><summary>Bảng đòn chi tiết (Lv1)</summary>
-
-| Đòn | Sát thương gốc | Nhịp | Khởi / Ra / Hồi | Tầm | Lực đẩy (x, y) | Tag | Ghi chú |
-|---|---|---|---|---|---|---|---|
-| Đánh (đòn thường) | 5 | 1 | 0.05 / 0.08 / 0.12 | 23 | (50, -20) | — | — |
-| Đánh (đòn kết chuỗi) | 12 | 1 | 0.12 / 0.1 / 0.3 | 27 | (180, -70) | `heavy` | — |
-| **Final Attack** | 50 | 1 | 0.6 / 0.1 / 0.4 | 180 | (200, -60) | `ranged` | không hủy được |
-
-Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
-
-</details>
-
-**Tuyệt chiêu — Dimension Blast** (Lv5: *Complete Form Dimension Blast*)
-
-- phát bắn tầm xa (vùng trúng dài 170, chạm tới 180 trước mặt); 50 sát thương gốc; hất văng (200, -60).
-- Tag: `ranged` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
-- Sát thương thực (chưa tính combo): **Lv1 ≈ 94** · **Lv5 ≈ 197** (đã gồm ×1.5 Lv5).
-- Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ sóng chấn động dẹt (màu `#ffd980`); tiếng nạp *final_charge* + giọng `decade_final`.
-
-*Mô tả trong game (thoại lúc nhận form):*
-
-> **Tsukasa:** ATTACK RIDE: BLAST! Giữ nút Bắn, Ride Booker hóa súng bắn cả chùm đạn. Giáp mỏng đi, đừng để chúng áp sát.
-
-### 10.4 Kamen Ride: Kuuga  ·  _form đặc biệt, rơi ở màn 10-4_
-
-| Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
-|---|---|---|---|---|---|---|---|
-| 170 | 30 | 125 | ×1 | ×1.05 | 8 | 4/s | Brawler (tay chân) |
+| 170 | 30 | 125 | ×1 | ×1.05 | 8 | 5/s | Brawler (tay chân) |
 
 **Vũ khí:** Chỉ tay chân (không nút Chém, không súng).
 
@@ -1806,22 +1774,23 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
 
 </details>
 
-**Tuyệt chiêu — Mighty Kick** (Lv5: *Complete Form Mighty Kick*)
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Mighty Punch [Đ] · 20 nộ · hồi 3.5 giây · `heavy`
+- Skill 2: Linto Seal [T] · 40 nộ · hồi 7 giây · `burn`
+
+**Tuyệt chiêu — Mighty Kick [Đ]**
 
 - lao tới 260, bật lên 120 rồi tung đòn (tầm 30); 60 sát thương gốc; hất văng (260, -160); gây cháy 2s.
 - Tag: `heavy` `burn` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
-- Sát thương thực (chưa tính combo): **Lv1 ≈ 131** · **Lv5 ≈ 275** (đã gồm ×1.5 Lv5).
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 78** · **Lv5 ≈ 117** (đã gồm ×1.5 Lv5).
 - Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ lửa bùng bốc lên (màu `#ff734d`); tiếng nạp *final_charge* + giọng `decade_final`.
 
-*Mô tả trong game (thoại lúc nhận form):*
-
-> **Tsukasa:** KAMEN RIDE: KUUGA! Cân bằng, giáp chắc hơn form gốc một chút. Mighty Kick để lại dấu lửa trên quái.
-
-### 10.5 Kamen Ride: Agito  ·  _form đặc biệt, rơi ở màn 10-5_
+### 10.4 Kamen Ride: Agito  ·  _form đặc biệt, mở ở Lv5_
 
 | Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
 |---|---|---|---|---|---|---|---|
-| 150 | 22 | 138 | ×1.2 | ×1.05 | 6 | 4/s | Brawler (tay chân) |
+| 150 | 22 | 138 | ×1.2 | ×1.05 | 6 | 5/s | Brawler (tay chân) |
 
 **Vũ khí:** Chỉ tay chân (không nút Chém, không súng).
 
@@ -1844,22 +1813,23 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
 
 </details>
 
-**Tuyệt chiêu — Rider Kick** (Lv5: *Complete Form Rider Kick*)
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Agito Crest [C] · 20 nộ · hồi 3.5 giây
+- Skill 2: Ground Uppercut [Đ] · 35 nộ · hồi 7 giây · `force`
+
+**Tuyệt chiêu — Rider Kick [Đ]**
 
 - lao tới 260, bật lên 120 rồi tung đòn (tầm 30); 60 sát thương gốc; hất văng (260, -160).
 - Tag: `heavy` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
-- Sát thương thực (chưa tính combo): **Lv1 ≈ 131** · **Lv5 ≈ 275** (đã gồm ×1.5 Lv5).
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 78** · **Lv5 ≈ 117** (đã gồm ×1.5 Lv5).
 - Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ sóng chấn động dẹt (màu `#ffcc40`); tiếng nạp *final_charge* + giọng `decade_final`.
 
-*Mô tả trong game (thoại lúc nhận form):*
-
-> **Tsukasa:** KAMEN RIDE: AGITO! Nhẹ hơn, nhảy cao hơn. Rider Kick từ trên cao xuống.
-
-### 10.6 Kamen Ride: Ryuki  ·  _form đặc biệt, rơi ở màn 10-6_
+### 10.5 Kamen Ride: Ryuki  ·  _form đặc biệt, mở ở Lv5_
 
 | Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
 |---|---|---|---|---|---|---|---|
-| 145 | 15 | 118 | ×1 | ×1 | 5 | 4/s | Gunner (bắn) |
+| 145 | 15 | 118 | ×1 | ×1 | 5 | 5/s | Gunner (bắn) |
 
 **Vũ khí:** Nút Bắn: **súng** — 9 sát thương/viên, hồi 0.5s, tốc độ 320, bay 0.9s, bán kính 5, đạn `fire` (cầu lửa), tag `burn`.
 
@@ -1882,22 +1852,23 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
 
 </details>
 
-**Tuyệt chiêu — Dragon Rider Kick** (Lv5: *Complete Form Dragon Rider Kick*)
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Strike Vent [Đ] · 20 nộ · hồi 3.5 giây · `burn`
+- Skill 2: Advent: Dragreder [K] · 40 nộ · hồi 7 giây · `burn`
+
+**Tuyệt chiêu — Dragon Rider Kick [Đ]**
 
 - phát bắn tầm xa (vùng trúng dài 170, chạm tới 180 trước mặt); 50 sát thương gốc; hất văng (200, -60).
 - Tag: `ranged` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
-- Sát thương thực (chưa tính combo): **Lv1 ≈ 104** · **Lv5 ≈ 218** (đã gồm ×1.5 Lv5).
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 62** · **Lv5 ≈ 93** (đã gồm ×1.5 Lv5).
 - Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ lửa bùng bốc lên (màu `#ff8026`); tiếng nạp *final_charge* + giọng `decade_final`.
 
-*Mô tả trong game (thoại lúc nhận form):*
-
-> **Tsukasa:** KAMEN RIDE: RYUKI! Kèm Strike Vent: giữ nút Bắn, Dragclaw khạc lửa đốt cháy quái. Giáp mỏng, đứng xa mà đánh.
-
-### 10.7 Kamen Ride: Faiz  ·  _form đặc biệt, rơi ở màn 10-7_
+### 10.6 Kamen Ride: Faiz  ·  _form đặc biệt, mở ở Lv5_
 
 | Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
 |---|---|---|---|---|---|---|---|
-| 125 | 15 | 155 | ×1.05 | ×1.2 | 5 | 4/s | Brawler (tay chân) |
+| 125 | 15 | 155 | ×1.05 | ×1.2 | 5 | 5/s | Brawler (tay chân) |
 
 **Vũ khí:** Nút Bắn: **faiz_phone** — 3 sát thương/viên, hồi 0.45s, tốc độ 300, bay 0.8s, bán kính 2.5, đạn `ball` (viên đạn tròn), 3 viên xòe 0.1 rad.
 
@@ -1920,22 +1891,23 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
 
 </details>
 
-**Tuyệt chiêu — Crimson Smash** (Lv5: *Complete Form Crimson Smash*)
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Grand Impact [Đ] · 20 nộ · hồi 3.5 giây · `stun`
+- Skill 2: Faiz Edge [Đ] · 35 nộ · hồi 7 giây
+
+**Tuyệt chiêu — Crimson Smash [K]**
 
 - lao tới 260, bật lên 120 rồi tung đòn (tầm 30); 60 sát thương gốc; hất văng (260, -160).
 - Tag: `heavy` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
-- Sát thương thực (chưa tính combo): **Lv1 ≈ 150** · **Lv5 ≈ 314** (đã gồm ×1.5 Lv5).
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 89** · **Lv5 ≈ 134** (đã gồm ×1.5 Lv5).
 - Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ sóng chấn động dẹt (màu `#ff4040`); tiếng nạp *final_charge* + giọng `decade_final`.
 
-*Mô tả trong game (thoại lúc nhận form):*
-
-> **Tsukasa:** KAMEN RIDE: FAIZ! Nhanh, đánh đau, nhưng máu mỏng. Faiz Phone bắn ba viên một lượt. Crimson Smash kết thúc.
-
-### 10.8 Kamen Ride: Blade  ·  _form đặc biệt, rơi ở màn 10-8_
+### 10.7 Kamen Ride: Blade  ·  _form đặc biệt, mở ở Lv5_
 
 | Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
 |---|---|---|---|---|---|---|---|
-| 160 | 28 | 128 | ×1.05 | ×1.1 | 8 | 4/s | Blade (kiếm) |
+| 160 | 28 | 128 | ×1.05 | ×1.1 | 8 | 5/s | Blade (kiếm) |
 
 **Vũ khí:** Vũ khí cầm sẵn trong hình (Blay Rouzer): nút Đánh chém luôn, **không có nút Chém**.
 
@@ -1960,22 +1932,23 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
 
 </details>
 
-**Tuyệt chiêu — Lightning Blast** (Lv5: *Complete Form Lightning Blast*)
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Slash Lizard [Đ] · 20 nộ · hồi 3.5 giây
+- Skill 2: Rouse: Metal Trilobite [C] · 35 nộ · hồi 7 giây
+
+**Tuyệt chiêu — Lightning Blast [Đ]**
 
 - lao tới 240, bật lên 60 rồi tung đòn (tầm 46); 65 sát thương gốc; hất văng (260, -100); gây điện lan 2 quái.
 - Tag: `heavy` `shock` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
-- Sát thương thực (chưa tính combo): **Lv1 ≈ 149** · **Lv5 ≈ 312** (đã gồm ×1.5 Lv5).
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 89** · **Lv5 ≈ 133** (đã gồm ×1.5 Lv5).
 - Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ sóng chấn động dẹt (màu `#7399ff`); tiếng nạp *final_charge* + giọng `decade_final`.
 
-*Mô tả trong game (thoại lúc nhận form):*
-
-> **Tsukasa:** KAMEN RIDE: BLADE! Blay Rouzer cầm sẵn trên tay, nút Đánh là chém luôn. Lightning Blast phóng điện lan ra.
-
-### 10.9 Kamen Ride: Hibiki  ·  _form đặc biệt, rơi ở màn 10-9_
+### 10.8 Kamen Ride: Hibiki  ·  _form đặc biệt, mở ở Lv5_
 
 | Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
 |---|---|---|---|---|---|---|---|
-| 195 | 48 | 92 | ×0.9 | ×1.3 | 16 | 4/s | Heavy (nặng, phá giáp) |
+| 195 | 48 | 92 | ×0.9 | ×1.3 | 16 | 5/s | Heavy (nặng, phá giáp) |
 
 **Vũ khí:** Chỉ tay chân (không nút Chém, không súng).
 
@@ -2000,22 +1973,23 @@ Chuỗi nút Đánh: 2 đòn thường + 1 đòn kết.
 
 </details>
 
-**Tuyệt chiêu — Kaen Renda no Kata** (Lv5: *Complete Form Kaen Renda no Kata*)
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Onibi [V] · 20 nộ · hồi 3.5 giây · `burn`
+- Skill 2: Ongekidaiko [T] · 40 nộ · hồi 7 giây
+
+**Tuyệt chiêu — Kaen Renda no Kata [T]**
 
 - đứng tại chỗ tung đòn (tầm 35); 6 nhịp × 11 = 66 sát thương gốc; hất văng (300, -160).
 - Tag: `heavy` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
-- Sát thương thực (chưa tính combo): **Lv1 ≈ 178** · **Lv5 ≈ 375** (đã gồm ×1.5 Lv5).
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 106** · **Lv5 ≈ 160** (đã gồm ×1.5 Lv5).
 - Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ lửa bùng bốc lên (màu `#b373ff`); tiếng nạp *final_charge* + giọng `decade_final`.
 
-*Mô tả trong game (thoại lúc nhận form):*
-
-> **Tsukasa:** KAMEN RIDE: HIBIKI! Chậm mà chắc, đòn nặng phá giáp. Kaen Renda no Kata: sáu nhịp trống lửa liền.
-
-### 10.10 Kamen Ride: Den-O  ·  _form đặc biệt, rơi ở màn 10-10_
+### 10.9 Kamen Ride: Den-O  ·  _form đặc biệt, mở ở Lv5_
 
 | Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
 |---|---|---|---|---|---|---|---|
-| 165 | 25 | 130 | ×1.05 | ×1.15 | 9 | 4/s | Blade (kiếm) |
+| 165 | 25 | 130 | ×1.05 | ×1.15 | 9 | 5/s | Blade (kiếm) |
 
 **Vũ khí:** Nút Chém: **DenGasher Sword** (3 nhát + nhát kết, bảng đòn blade).
 
@@ -2041,22 +2015,23 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết. Chuỗi nút Chém: 3 nh
 
 </details>
 
-**Tuyệt chiêu — Extreme Slash** (Lv5: *Complete Form Extreme Slash*)
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Ore Sanjou [C] · 20 nộ · hồi 3.5 giây
+- Skill 2: Extreme Slash Toss [Đ] · 35 nộ · hồi 7 giây
+
+**Tuyệt chiêu — Extreme Slash [Đ]**
 
 - lao tới 240, bật lên 60 rồi tung đòn (tầm 46); 65 sát thương gốc; hất văng (260, -100).
 - Tag: `heavy` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
-- Sát thương thực (chưa tính combo): **Lv1 ≈ 155** · **Lv5 ≈ 327** (đã gồm ×1.5 Lv5).
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 93** · **Lv5 ≈ 139** (đã gồm ×1.5 Lv5).
 - Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ sóng chấn động dẹt (màu `#ff4d4d`); tiếng nạp *final_charge* + giọng `decade_final`.
 
-*Mô tả trong game (thoại lúc nhận form):*
-
-> **Tsukasa:** KAMEN RIDE: DEN-O! DenGasher dạng kiếm ở nút Chém. Extreme Slash, lưỡi kiếm bay ra chém xa.
-
-### 10.11 Kamen Ride: Kiva  ·  _form đặc biệt, rơi ở màn 10-11_
+### 10.10 Kamen Ride: Kiva  ·  _form đặc biệt, mở ở Lv5_
 
 | Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
 |---|---|---|---|---|---|---|---|
-| 140 | 15 | 165 | ×1.3 | ×0.95 | 5 | 4/s | Lancer (giáo / tầm xa, nhẹ) |
+| 140 | 15 | 165 | ×1.3 | ×0.95 | 5 | 5/s | Lancer (giáo / tầm xa, nhẹ) |
 
 **Vũ khí:** Chỉ tay chân (không nút Chém, không súng).
 
@@ -2081,18 +2056,439 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
 
 </details>
 
-**Tuyệt chiêu — Darkness Moon Break** (Lv5: *Complete Form Darkness Moon Break*)
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Kiva Bat [K] · 25 nộ · hồi 3.5 giây
+- Skill 2: Kiva Emblem [T] · 40 nộ · hồi 7 giây
+
+**Tuyệt chiêu — Darkness Moon Break [T]**
 
 - lao tới 200, bật lên 200 rồi tung đòn (tầm 44); 45 sát thương gốc; hất văng (240, -120); gây choáng 1.2s.
 - Tag: `stun` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
-- Sát thương thực (chưa tính combo): **Lv1 ≈ 89** · **Lv5 ≈ 187** (đã gồm ×1.5 Lv5).
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 53** · **Lv5 ≈ 80** (đã gồm ×1.5 Lv5).
 - Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ sóng chấn động dẹt (màu `#ff4d66`); tiếng nạp *final_charge* + giọng `decade_final`.
 
-*Mô tả trong game (thoại lúc nhận form):*
+### 10.11 Kamen Ride: W  ·  _form đặc biệt, mở ở Lv5_
 
-> **Tsukasa:** KAMEN RIDE: KIVA! Nhanh, nhảy cao, đòn nhẹ mà xa. Darkness Moon Break làm quái choáng.
+| Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
+|---|---|---|---|---|---|---|---|
+| 160 | 25 | 130 | ×1.1 | ×1.05 | 7 | 5/s | Brawler (tay chân) |
 
-### 10.12 Kamen Ride: Kabuto  ·  _form đặc biệt, rơi ở màn 10-12_
+**Vũ khí:** Chỉ tay chân (không nút Chém, không súng).
+
+**Kỹ năng riêng:** Final Attack: 30 sát thương/nhịp, 2 nhịp.
+
+**Hiệu ứng hình ảnh:**
+
+- Màu hiệu ứng: `#66f280`
+- Đòn trúng: `spark` — tia va chạm toả ra
+- Final Attack trúng: `ring` — sóng chấn động dẹt
+- Lúc tung Final (quanh Rider): `cards` — hàng thẻ bài hologram
+
+<details><summary>Bảng đòn chi tiết (Lv1)</summary>
+
+| Đòn | Sát thương gốc | Nhịp | Khởi / Ra / Hồi | Tầm | Lực đẩy (x, y) | Tag | Ghi chú |
+|---|---|---|---|---|---|---|---|
+| Đánh (đòn thường) | 5 | 1 | 0.05 / 0.08 / 0.12 | 23 | (50, -20) | — | — |
+| Đánh (đòn kết chuỗi) | 12 | 1 | 0.12 / 0.1 / 0.3 | 27 | (180, -70) | `heavy` | — |
+| **Final Attack** | 30 | 2 | 0.5 / 0.25 / 0.4 | 30 | (260, -160) | `heavy` | lao tới 260, bật lên 120, không hủy được |
+
+Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
+
+</details>
+
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Cyclone Gust [Đ] · 20 nộ · hồi 3.5 giây · `force`
+- Skill 2: Joker Rush [Đ] · 35 nộ · hồi 7 giây
+
+**Tuyệt chiêu — Joker Extreme [Đ]**
+
+- lao tới 260, bật lên 120 rồi tung đòn (tầm 30); 2 nhịp × 30 = 60 sát thương gốc; hất văng (260, -160).
+- Tag: `heavy` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 78** · **Lv5 ≈ 117** (đã gồm ×1.5 Lv5).
+- Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ sóng chấn động dẹt (màu `#66f280`); tiếng nạp *final_charge* + giọng `decade_final`.
+
+### 10.12 Kamen Ride: OOO  ·  _form đặc biệt, mở ở Lv5_
+
+| Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
+|---|---|---|---|---|---|---|---|
+| 160 | 25 | 130 | ×1.2 | ×1.05 | 7 | 5/s | Brawler (tay chân) |
+
+**Vũ khí:** Chỉ tay chân (không nút Chém, không súng).
+
+**Kỹ năng riêng:** Final Attack: 24 sát thương/nhịp, 3 nhịp.
+
+**Hiệu ứng hình ảnh:**
+
+- Màu hiệu ứng: `#ff664d`
+- Đòn trúng: `spark` — tia va chạm toả ra
+- Final Attack trúng: `ring` — sóng chấn động dẹt
+- Lúc tung Final (quanh Rider): `cards` — hàng thẻ bài hologram
+
+<details><summary>Bảng đòn chi tiết (Lv1)</summary>
+
+| Đòn | Sát thương gốc | Nhịp | Khởi / Ra / Hồi | Tầm | Lực đẩy (x, y) | Tag | Ghi chú |
+|---|---|---|---|---|---|---|---|
+| Đánh (đòn thường) | 5 | 1 | 0.05 / 0.08 / 0.12 | 23 | (50, -20) | — | — |
+| Đánh (đòn kết chuỗi) | 12 | 1 | 0.12 / 0.1 / 0.3 | 27 | (180, -70) | `heavy` | — |
+| **Final Attack** | 24 | 3 | 0.5 / 0.25 / 0.4 | 30 | (260, -160) | `heavy` | lao tới 260, bật lên 120, không hủy được |
+
+Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
+
+</details>
+
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Tora Claws [Đ] · 20 nộ · hồi 3.5 giây
+- Skill 2: Batta Leap [Đ] · 35 nộ · hồi 7 giây · `force`
+
+**Tuyệt chiêu — Tatoba Kick [Đ]**
+
+- lao tới 260, bật lên 120 rồi tung đòn (tầm 30); 3 nhịp × 24 = 72 sát thương gốc; hất văng (260, -160).
+- Tag: `heavy` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 94** · **Lv5 ≈ 141** (đã gồm ×1.5 Lv5).
+- Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ sóng chấn động dẹt (màu `#ff664d`); tiếng nạp *final_charge* + giọng `decade_final`.
+
+### 10.13 Kamen Ride: Fourze  ·  _form đặc biệt, mở ở Lv5_
+
+| Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
+|---|---|---|---|---|---|---|---|
+| 160 | 25 | 130 | ×1.1 | ×1.05 | 7 | 5/s | Brawler (tay chân) |
+
+**Vũ khí:** Chỉ tay chân (không nút Chém, không súng).
+
+**Kỹ năng riêng:** Final Attack: 16 sát thương/nhịp, 4 nhịp.
+
+**Hiệu ứng hình ảnh:**
+
+- Màu hiệu ứng: `#ffd980`
+- Đòn trúng: `spark` — tia va chạm toả ra
+- Final Attack trúng: `ring` — sóng chấn động dẹt
+- Lúc tung Final (quanh Rider): `cards` — hàng thẻ bài hologram
+
+<details><summary>Bảng đòn chi tiết (Lv1)</summary>
+
+| Đòn | Sát thương gốc | Nhịp | Khởi / Ra / Hồi | Tầm | Lực đẩy (x, y) | Tag | Ghi chú |
+|---|---|---|---|---|---|---|---|
+| Đánh (đòn thường) | 5 | 1 | 0.05 / 0.08 / 0.12 | 23 | (50, -20) | — | — |
+| Đánh (đòn kết chuỗi) | 12 | 1 | 0.12 / 0.1 / 0.3 | 27 | (180, -70) | `heavy` | — |
+| **Final Attack** | 16 | 4 | 0.5 / 0.25 / 0.4 | 30 | (260, -160) | `heavy` | lao tới 260, bật lên 120, không hủy được |
+
+Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
+
+</details>
+
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Drill Module [Đ] · 20 nộ · hồi 3.5 giây · `heavy`
+- Skill 2: Chain Array [T] · 40 nộ · hồi 7 giây
+
+**Tuyệt chiêu — Rider Rocket Drill Kick [Đ]**
+
+- lao tới 260, bật lên 120 rồi tung đòn (tầm 30); 4 nhịp × 16 = 64 sát thương gốc; hất văng (260, -160).
+- Tag: `heavy` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 83** · **Lv5 ≈ 125** (đã gồm ×1.5 Lv5).
+- Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ sóng chấn động dẹt (màu `#ffd980`); tiếng nạp *final_charge* + giọng `decade_final`.
+
+### 10.14 Kamen Ride: Wizard  ·  _form đặc biệt, mở ở Lv5_
+
+| Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
+|---|---|---|---|---|---|---|---|
+| 160 | 25 | 130 | ×1.1 | ×1.05 | 7 | 5/s | Brawler (tay chân) |
+
+**Vũ khí:** Chỉ tay chân (không nút Chém, không súng).
+
+**Kỹ năng riêng:** Final Attack: thêm `burn`. Đánh (đòn kết chuỗi): thêm `burn`.
+
+**Hiệu ứng hình ảnh:**
+
+- Màu hiệu ứng: `#ff594d`
+- Đòn trúng: `fire` — lửa bùng bốc lên
+- Final Attack trúng: `fire` — lửa bùng bốc lên
+- Lúc tung Final (quanh Rider): `cards` — hàng thẻ bài hologram
+
+<details><summary>Bảng đòn chi tiết (Lv1)</summary>
+
+| Đòn | Sát thương gốc | Nhịp | Khởi / Ra / Hồi | Tầm | Lực đẩy (x, y) | Tag | Ghi chú |
+|---|---|---|---|---|---|---|---|
+| Đánh (đòn thường) | 5 | 1 | 0.05 / 0.08 / 0.12 | 23 | (50, -20) | — | — |
+| Đánh (đòn kết chuỗi) | 12 | 1 | 0.12 / 0.1 / 0.3 | 27 | (180, -70) | `heavy` `burn` | — |
+| **Final Attack** | 60 | 1 | 0.5 / 0.25 / 0.4 | 30 | (260, -160) | `heavy` `burn` | lao tới 260, bật lên 120, không hủy được |
+
+Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
+
+</details>
+
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Defend (Flame) [P] · 20 nộ · hồi 3.5 giây · `burn`
+- Skill 2: Bind [T] · 40 nộ · hồi 7 giây
+
+**Tuyệt chiêu — Strike Wizard [Đ]**
+
+- lao tới 260, bật lên 120 rồi tung đòn (tầm 30); 60 sát thương gốc; hất văng (260, -160); gây cháy 2s.
+- Tag: `heavy` `burn` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 78** · **Lv5 ≈ 117** (đã gồm ×1.5 Lv5).
+- Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ lửa bùng bốc lên (màu `#ff594d`); tiếng nạp *final_charge* + giọng `decade_final`.
+
+### 10.15 Kamen Ride: Gaim  ·  _form đặc biệt, mở ở Lv5_
+
+| Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
+|---|---|---|---|---|---|---|---|
+| 160 | 25 | 130 | ×1.05 | ×1.1 | 8 | 5/s | Blade (kiếm) |
+
+**Vũ khí:** Nút Chém: **Daidaimaru** (3 nhát + nhát kết, bảng đòn blade).
+
+**Kỹ năng riêng:** Final Attack: thêm `stun`.
+
+**Hiệu ứng hình ảnh:**
+
+- Màu hiệu ứng: `#ffd980`
+- Đòn trúng: `spark` — tia va chạm toả ra
+- Final Attack trúng: `ring` — sóng chấn động dẹt
+- Lúc tung Final (quanh Rider): `cards` — hàng thẻ bài hologram
+
+<details><summary>Bảng đòn chi tiết (Lv1)</summary>
+
+| Đòn | Sát thương gốc | Nhịp | Khởi / Ra / Hồi | Tầm | Lực đẩy (x, y) | Tag | Ghi chú |
+|---|---|---|---|---|---|---|---|
+| Đánh (đòn thường) | 5 | 1 | 0.05 / 0.08 / 0.12 | 23 | (50, -20) | — | — |
+| Đánh (đòn kết chuỗi) | 12 | 1 | 0.12 / 0.1 / 0.3 | 27 | (180, -70) | `heavy` | — |
+| Chém (nhát thường) | 6 | 1 | 0.07 / 0.08 / 0.14 | 31 | (50, -20) | — | — |
+| Chém (nhát kết) | 14 | 1 | 0.14 / 0.1 / 0.3 | 36 | (190, -70) | `heavy` | — |
+| **Final Attack** | 65 | 1 | 0.5 / 0.22 / 0.45 | 46 | (260, -100) | `heavy` `stun` | lao tới 240, bật lên 60, không hủy được |
+
+Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết. Chuỗi nút Chém: 3 nhát + 1 nhát kết.
+
+</details>
+
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Musou Saber Shot [Đ] · 20 nộ · hồi 3.5 giây
+- Skill 2: Daidaimaru Spin [V] · 35 nộ · hồi 7 giây
+
+**Tuyệt chiêu — Naginata Musou Slicer [Đ]**
+
+- lao tới 240, bật lên 60 rồi tung đòn (tầm 46); 65 sát thương gốc; hất văng (260, -100); gây choáng 1.2s.
+- Tag: `heavy` `stun` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 89** · **Lv5 ≈ 133** (đã gồm ×1.5 Lv5).
+- Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ sóng chấn động dẹt (màu `#ffd980`); tiếng nạp *final_charge* + giọng `decade_final`.
+
+### 10.16 Kamen Ride: Drive  ·  _form đặc biệt, mở ở Lv5_
+
+| Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
+|---|---|---|---|---|---|---|---|
+| 155 | 22 | 140 | ×1.05 | ×1.05 | 7 | 5/s | Brawler (tay chân) |
+
+**Vũ khí:** Nút Chém: **Handle-Ken** (3 nhát + nhát kết, bảng đòn blade).
+
+**Kỹ năng riêng:** Final Attack: 20 sát thương/nhịp, 3 nhịp.
+
+**Hiệu ứng hình ảnh:**
+
+- Màu hiệu ứng: `#ffd980`
+- Đòn trúng: `spark` — tia va chạm toả ra
+- Final Attack trúng: `ring` — sóng chấn động dẹt
+- Lúc tung Final (quanh Rider): `cards` — hàng thẻ bài hologram
+
+<details><summary>Bảng đòn chi tiết (Lv1)</summary>
+
+| Đòn | Sát thương gốc | Nhịp | Khởi / Ra / Hồi | Tầm | Lực đẩy (x, y) | Tag | Ghi chú |
+|---|---|---|---|---|---|---|---|
+| Đánh (đòn thường) | 5 | 1 | 0.05 / 0.08 / 0.12 | 23 | (50, -20) | — | — |
+| Đánh (đòn kết chuỗi) | 12 | 1 | 0.12 / 0.1 / 0.3 | 27 | (180, -70) | `heavy` | — |
+| Chém (nhát thường) | 6 | 1 | 0.07 / 0.08 / 0.14 | 31 | (50, -20) | — | — |
+| Chém (nhát kết) | 14 | 1 | 0.14 / 0.1 / 0.3 | 36 | (190, -70) | `heavy` | — |
+| **Final Attack** | 20 | 3 | 0.5 / 0.25 / 0.4 | 30 | (260, -160) | `heavy` | lao tới 260, bật lên 120, không hủy được |
+
+Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết. Chuỗi nút Chém: 3 nhát + 1 nhát kết.
+
+</details>
+
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Tire Koukan: Midnight Shadow [Đ] · 20 nộ · hồi 3.5 giây
+- Skill 2: Handle-Ken Drift [V] · 35 nộ · hồi 7 giây
+
+**Tuyệt chiêu — SpeeDrop [K]**
+
+- lao tới 260, bật lên 120 rồi tung đòn (tầm 30); 3 nhịp × 20 = 60 sát thương gốc; hất văng (260, -160).
+- Tag: `heavy` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 78** · **Lv5 ≈ 117** (đã gồm ×1.5 Lv5).
+- Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ sóng chấn động dẹt (màu `#ffd980`); tiếng nạp *final_charge* + giọng `decade_final`.
+
+### 10.17 Kamen Ride: Ghost  ·  _form đặc biệt, mở ở Lv5_
+
+| Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
+|---|---|---|---|---|---|---|---|
+| 158 | 24 | 132 | ×1.15 | ×1.05 | 7 | 5/s | Brawler (tay chân) |
+
+**Vũ khí:** Nút Chém: **Gan Gun Saber (kiếm)** (3 nhát + nhát kết, bảng đòn blade).
+
+**Hiệu ứng hình ảnh:**
+
+- Màu hiệu ứng: `#ff8c26`
+- Đòn trúng: `spark` — tia va chạm toả ra
+- Vệt vung đòn: `slash` — vệt chém hình cung
+- Final Attack trúng: `fire` — lửa bùng bốc lên
+- Lúc tung Final (quanh Rider): `cards` — hàng thẻ bài hologram
+- **Lượn**: giữ Nhảy khi đang rơi → rơi chậm tối đa 45, rắc lông vũ
+
+<details><summary>Bảng đòn chi tiết (Lv1)</summary>
+
+| Đòn | Sát thương gốc | Nhịp | Khởi / Ra / Hồi | Tầm | Lực đẩy (x, y) | Tag | Ghi chú |
+|---|---|---|---|---|---|---|---|
+| Đánh (đòn thường) | 5 | 1 | 0.05 / 0.08 / 0.12 | 23 | (50, -20) | — | — |
+| Đánh (đòn kết chuỗi) | 12 | 1 | 0.12 / 0.1 / 0.3 | 27 | (180, -70) | `heavy` | — |
+| Chém (nhát thường) | 6 | 1 | 0.07 / 0.08 / 0.14 | 31 | (50, -20) | — | — |
+| Chém (nhát kết) | 14 | 1 | 0.14 / 0.1 / 0.3 | 36 | (190, -70) | `heavy` | — |
+| **Final Attack** | 60 | 1 | 0.5 / 0.25 / 0.4 | 30 | (260, -160) | `heavy` | lao tới 260, bật lên 120, không hủy được |
+
+Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết. Chuỗi nút Chém: 3 nhát + 1 nhát kết.
+
+</details>
+
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Ghost Phase [C] · 20 nộ · hồi 3.5 giây
+- Skill 2: Parka Ghost [K] · 40 nộ · hồi 7 giây
+
+**Tuyệt chiêu — Omega Drive [Đ]**
+
+- lao tới 260, bật lên 120 rồi tung đòn (tầm 30); 60 sát thương gốc; hất văng (260, -160).
+- Tag: `heavy` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 78** · **Lv5 ≈ 117** (đã gồm ×1.5 Lv5).
+- Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ lửa bùng bốc lên (màu `#ff8c26`); tiếng nạp *final_charge* + giọng `decade_final`.
+
+### 10.18 Kamen Ride: Ex-Aid  ·  _form đặc biệt, mở ở Lv5_
+
+| Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
+|---|---|---|---|---|---|---|---|
+| 155 | 22 | 135 | ×1.25 | ×1.05 | 7 | 5/s | Brawler (tay chân) |
+
+**Vũ khí:** Nút Chém: **Gashacon Breaker (búa)** (3 nhát + nhát kết, bảng đòn blade).
+
+**Kỹ năng riêng:** Final Attack: 22 sát thương/nhịp, 3 nhịp.
+
+**Hiệu ứng hình ảnh:**
+
+- Màu hiệu ứng: `#ffd980`
+- Đòn trúng: `spark` — tia va chạm toả ra
+- Final Attack trúng: `ring` — sóng chấn động dẹt
+- Lúc tung Final (quanh Rider): `cards` — hàng thẻ bài hologram
+
+<details><summary>Bảng đòn chi tiết (Lv1)</summary>
+
+| Đòn | Sát thương gốc | Nhịp | Khởi / Ra / Hồi | Tầm | Lực đẩy (x, y) | Tag | Ghi chú |
+|---|---|---|---|---|---|---|---|
+| Đánh (đòn thường) | 5 | 1 | 0.05 / 0.08 / 0.12 | 23 | (50, -20) | — | — |
+| Đánh (đòn kết chuỗi) | 12 | 1 | 0.12 / 0.1 / 0.3 | 27 | (180, -70) | `heavy` | — |
+| Chém (nhát thường) | 6 | 1 | 0.07 / 0.08 / 0.14 | 31 | (50, -20) | — | — |
+| Chém (nhát kết) | 14 | 1 | 0.14 / 0.1 / 0.3 | 36 | (190, -70) | `heavy` | — |
+| **Final Attack** | 22 | 3 | 0.5 / 0.25 / 0.4 | 30 | (260, -160) | `heavy` | lao tới 260, bật lên 120, không hủy được |
+
+Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết. Chuỗi nút Chém: 3 nhát + 1 nhát kết.
+
+</details>
+
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Speed Up [C] · 20 nộ · hồi 3.5 giây
+- Skill 2: Muteki Jump [Đ] · 35 nộ · hồi 7 giây · `stun`
+
+**Tuyệt chiêu — Mighty Critical Strike [Đ]**
+
+- lao tới 260, bật lên 120 rồi tung đòn (tầm 30); 3 nhịp × 22 = 66 sát thương gốc; hất văng (260, -160).
+- Tag: `heavy` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 86** · **Lv5 ≈ 129** (đã gồm ×1.5 Lv5).
+- Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ sóng chấn động dẹt (màu `#ffd980`); tiếng nạp *final_charge* + giọng `decade_final`.
+
+### 10.19 Kamen Ride: Build  ·  _form đặc biệt, mở ở Lv5_
+
+| Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
+|---|---|---|---|---|---|---|---|
+| 160 | 28 | 132 | ×1.3 | ×1.05 | 7 | 5/s | Brawler (tay chân) |
+
+**Vũ khí:** Nút Chém: **Drill Crusher** (3 nhát + nhát kết, bảng đòn blade).
+
+**Kỹ năng riêng:** Final Attack: thêm `stun`.
+
+**Hiệu ứng hình ảnh:**
+
+- Màu hiệu ứng: `#ffd980`
+- Đòn trúng: `spark` — tia va chạm toả ra
+- Final Attack trúng: `ring` — sóng chấn động dẹt
+- Lúc tung Final (quanh Rider): `cards` — hàng thẻ bài hologram
+
+<details><summary>Bảng đòn chi tiết (Lv1)</summary>
+
+| Đòn | Sát thương gốc | Nhịp | Khởi / Ra / Hồi | Tầm | Lực đẩy (x, y) | Tag | Ghi chú |
+|---|---|---|---|---|---|---|---|
+| Đánh (đòn thường) | 5 | 1 | 0.05 / 0.08 / 0.12 | 23 | (50, -20) | — | — |
+| Đánh (đòn kết chuỗi) | 12 | 1 | 0.12 / 0.1 / 0.3 | 27 | (180, -70) | `heavy` | — |
+| Chém (nhát thường) | 6 | 1 | 0.07 / 0.08 / 0.14 | 31 | (50, -20) | — | — |
+| Chém (nhát kết) | 14 | 1 | 0.14 / 0.1 / 0.3 | 36 | (190, -70) | `heavy` | — |
+| **Final Attack** | 60 | 1 | 0.5 / 0.25 / 0.4 | 30 | (260, -160) | `heavy` `stun` | lao tới 260, bật lên 120, không hủy được |
+
+Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết. Chuỗi nút Chém: 3 nhát + 1 nhát kết.
+
+</details>
+
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Rabbit Hop [Đ] · 20 nộ · hồi 3.5 giây
+- Skill 2: Tank Tread [Đ] · 35 nộ · hồi 7 giây · `heavy`
+
+**Tuyệt chiêu — Vortex Finish [T]**
+
+- lao tới 260, bật lên 120 rồi tung đòn (tầm 30); 60 sát thương gốc; hất văng (260, -160); gây choáng 1.2s.
+- Tag: `heavy` `stun` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 78** · **Lv5 ≈ 117** (đã gồm ×1.5 Lv5).
+- Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ sóng chấn động dẹt (màu `#ffd980`); tiếng nạp *final_charge* + giọng `decade_final`.
+
+### 10.20 Kamen Ride: Zi-O  ·  _form đặc biệt, mở ở Lv5_
+
+| Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
+|---|---|---|---|---|---|---|---|
+| 160 | 25 | 130 | ×1.05 | ×1.05 | 7 | 5/s | Brawler (tay chân) |
+
+**Vũ khí:** Nút Chém: **Zikan Girade** (3 nhát + nhát kết, bảng đòn blade).
+
+**Hiệu ứng hình ảnh:**
+
+- Màu hiệu ứng: `#ffd980`
+- Đòn trúng: `spark` — tia va chạm toả ra
+- Final Attack trúng: `ring` — sóng chấn động dẹt
+- Lúc tung Final (quanh Rider): `cards` — hàng thẻ bài hologram
+
+<details><summary>Bảng đòn chi tiết (Lv1)</summary>
+
+| Đòn | Sát thương gốc | Nhịp | Khởi / Ra / Hồi | Tầm | Lực đẩy (x, y) | Tag | Ghi chú |
+|---|---|---|---|---|---|---|---|
+| Đánh (đòn thường) | 5 | 1 | 0.05 / 0.08 / 0.12 | 23 | (50, -20) | — | — |
+| Đánh (đòn kết chuỗi) | 12 | 1 | 0.12 / 0.1 / 0.3 | 27 | (180, -70) | `heavy` | — |
+| Chém (nhát thường) | 6 | 1 | 0.07 / 0.08 / 0.14 | 31 | (50, -20) | — | — |
+| Chém (nhát kết) | 14 | 1 | 0.14 / 0.1 / 0.3 | 36 | (190, -70) | `heavy` | — |
+| **Final Attack** | 60 | 1 | 0.5 / 0.25 / 0.4 | 30 | (260, -160) | `heavy` | lao tới 260, bật lên 120, không hủy được |
+
+Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết. Chuỗi nút Chém: 3 nhát + 1 nhát kết.
+
+</details>
+
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Zikan Girade [Đ] · 20 nộ · hồi 3.5 giây
+- Skill 2: Zikan Jacorder [K] · 40 nộ · hồi 7 giây · `ranged`
+
+**Tuyệt chiêu — Time Break [Đ]**
+
+- lao tới 260, bật lên 120 rồi tung đòn (tầm 30); 60 sát thương gốc; hất văng (260, -160).
+- Tag: `heavy` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 78** · **Lv5 ≈ 117** (đã gồm ×1.5 Lv5).
+- Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ sóng chấn động dẹt (màu `#ffd980`); tiếng nạp *final_charge* + giọng `decade_final`.
+
+### 10.21 Kamen Ride: Kabuto  ·  _form đặc biệt, rơi ở màn 10-4_
 
 | Máu | Giáp | Tốc độ | Nhảy | Sức đánh | Trụ đòn | Nộ tụt | Kiểu đòn |
 |---|---|---|---|---|---|---|---|
@@ -2121,12 +2517,17 @@ Chuỗi nút Đánh: 3 đòn thường + 1 đòn kết.
 
 </details>
 
-**Tuyệt chiêu — Rider Kick** (Lv5: *Complete Form Rider Kick*)
+**Skill** (docs/SKILLS.md)
+
+- Skill 1: Clock Up [C] · 20 nộ · hồi 3.5 giây
+- Skill 2: Rider Kick (counter) [P] · 35 nộ · hồi 7 giây
+
+**Tuyệt chiêu — Rider Kick [P]**
 
 - lao tới 200 rồi tung đòn (tầm 40); 5 nhịp × 16 = 80 sát thương gốc; hất văng (60, -20); gây trúng chắc quái Fast (tag time).
 - Đây là Final dạng tăng tốc thời gian: chuỗi 5 đòn lướt liên hoàn thay cho Final của kiểu đòn.
 - Tag: `time` + `final` (xuyên giáp Armored). Bất tử khi ra chiêu, không hủy được.
-- Sát thương thực (chưa tính combo): **Lv1 ≈ 158** · **Lv5 ≈ 221** (Final tăng tốc thời gian **không** nhận ×1.5 Lv5).
+- Sát thương thực (chưa tính combo): **Lv1 ≈ 94** · **Lv5 ≈ 94** (Final tăng tốc thời gian **không** nhận ×1.5 Lv5).
 - Hình ảnh: quanh Rider hiện hàng thẻ bài hologram, trúng quái nổ sóng chấn động dẹt (màu `#ffd980`); tiếng nạp *final_charge* + giọng `decade_final`.
 
 *Mô tả trong game (thoại lúc nhận form):*
@@ -5694,18 +6095,27 @@ Chỉ số Lv1 chưa nhân sức mạnh thế hệ. *Final thực* = sát thươ
 | 9 | Kiva | Garulu Form | form đặc biệt | 140 | 15 | 160 | 1.2 | 1.2 | blade |  | ✓ | Garulu Howling Slash | 160 | 336 |
 | 9 | Kiva | Basshaa Form | form đặc biệt | 145 | 20 | 115 | 1 | 1 | gunner | ✓ |  | Basshaa Aqua Tornado | 98 | 206 |
 | 9 | Kiva | Dogga Form | form đặc biệt | 215 | 60 | 78 | 0.8 | 1.45 | heavy |  | ✓ | Dogga Thunder Slap | 199 | 418 |
-| 10 | Decade | Decade | form gốc | 160 | 25 | 130 | 1.05 | 1.05 | brawler |  |  | Dimension Kick | 144 | 303 |
-| 10 | Decade | Attack Ride: Slash | form đặc biệt | 165 | 28 | 120 | 1 | 1.25 | blade |  | ✓ | Dimension Slash | 169 | 355 |
-| 10 | Decade | Attack Ride: Blast | form đặc biệt | 140 | 12 | 120 | 1 | 0.9 | gunner | ✓ |  | Dimension Blast | 94 | 197 |
-| 10 | Decade | Kamen Ride: Kuuga | form đặc biệt | 170 | 30 | 125 | 1 | 1.05 | brawler |  |  | Mighty Kick | 131 | 275 |
-| 10 | Decade | Kamen Ride: Agito | form đặc biệt | 150 | 22 | 138 | 1.2 | 1.05 | brawler |  |  | Rider Kick | 131 | 275 |
-| 10 | Decade | Kamen Ride: Ryuki | form đặc biệt | 145 | 15 | 118 | 1 | 1 | gunner | ✓ |  | Dragon Rider Kick | 104 | 218 |
-| 10 | Decade | Kamen Ride: Faiz | form đặc biệt | 125 | 15 | 155 | 1.05 | 1.2 | brawler | ✓ |  | Crimson Smash | 150 | 314 |
-| 10 | Decade | Kamen Ride: Blade | form đặc biệt | 160 | 28 | 128 | 1.05 | 1.1 | blade |  |  | Lightning Blast | 149 | 312 |
-| 10 | Decade | Kamen Ride: Hibiki | form đặc biệt | 195 | 48 | 92 | 0.9 | 1.3 | heavy |  |  | Kaen Renda no Kata | 178 | 375 |
-| 10 | Decade | Kamen Ride: Den-O | form đặc biệt | 165 | 25 | 130 | 1.05 | 1.15 | blade |  | ✓ | Extreme Slash | 155 | 327 |
-| 10 | Decade | Kamen Ride: Kiva | form đặc biệt | 140 | 15 | 165 | 1.3 | 0.95 | lancer |  |  | Darkness Moon Break | 89 | 187 |
-| 10 | Decade | Kamen Ride: Kabuto | form đặc biệt | 130 | 10 | 165 | 1.2 | 0.95 | lancer |  |  | Rider Kick | 158 | 221 |
+| 10 | Decade | Decade | form gốc | 160 | 25 | 130 | 1.05 | 1.05 | brawler |  |  | Dimension Kick | 86 | 129 |
+| 10 | Decade | Complete Form | form đặc biệt | 195 | 40 | 135 | 1.1 | 1.3 | blade |  | ✓ | Final Kamen Ride: Decade | 142 | 213 |
+| 10 | Decade | Kamen Ride: Kuuga | form đặc biệt | 170 | 30 | 125 | 1 | 1.05 | brawler |  |  | Mighty Kick | 78 | 117 |
+| 10 | Decade | Kamen Ride: Agito | form đặc biệt | 150 | 22 | 138 | 1.2 | 1.05 | brawler |  |  | Rider Kick | 78 | 117 |
+| 10 | Decade | Kamen Ride: Ryuki | form đặc biệt | 145 | 15 | 118 | 1 | 1 | gunner | ✓ |  | Dragon Rider Kick | 62 | 93 |
+| 10 | Decade | Kamen Ride: Faiz | form đặc biệt | 125 | 15 | 155 | 1.05 | 1.2 | brawler | ✓ |  | Crimson Smash | 89 | 134 |
+| 10 | Decade | Kamen Ride: Blade | form đặc biệt | 160 | 28 | 128 | 1.05 | 1.1 | blade |  |  | Lightning Blast | 89 | 133 |
+| 10 | Decade | Kamen Ride: Hibiki | form đặc biệt | 195 | 48 | 92 | 0.9 | 1.3 | heavy |  |  | Kaen Renda no Kata | 106 | 160 |
+| 10 | Decade | Kamen Ride: Den-O | form đặc biệt | 165 | 25 | 130 | 1.05 | 1.15 | blade |  | ✓ | Extreme Slash | 93 | 139 |
+| 10 | Decade | Kamen Ride: Kiva | form đặc biệt | 140 | 15 | 165 | 1.3 | 0.95 | lancer |  |  | Darkness Moon Break | 53 | 80 |
+| 10 | Decade | Kamen Ride: W | form đặc biệt | 160 | 25 | 130 | 1.1 | 1.05 | brawler |  |  | Joker Extreme | 78 | 117 |
+| 10 | Decade | Kamen Ride: OOO | form đặc biệt | 160 | 25 | 130 | 1.2 | 1.05 | brawler |  |  | Tatoba Kick | 94 | 141 |
+| 10 | Decade | Kamen Ride: Fourze | form đặc biệt | 160 | 25 | 130 | 1.1 | 1.05 | brawler |  |  | Rider Rocket Drill Kick | 83 | 125 |
+| 10 | Decade | Kamen Ride: Wizard | form đặc biệt | 160 | 25 | 130 | 1.1 | 1.05 | brawler |  |  | Strike Wizard | 78 | 117 |
+| 10 | Decade | Kamen Ride: Gaim | form đặc biệt | 160 | 25 | 130 | 1.05 | 1.1 | blade |  | ✓ | Naginata Musou Slicer | 89 | 133 |
+| 10 | Decade | Kamen Ride: Drive | form đặc biệt | 155 | 22 | 140 | 1.05 | 1.05 | brawler |  | ✓ | SpeeDrop | 78 | 117 |
+| 10 | Decade | Kamen Ride: Ghost | form đặc biệt | 158 | 24 | 132 | 1.15 | 1.05 | brawler |  | ✓ | Omega Drive | 78 | 117 |
+| 10 | Decade | Kamen Ride: Ex-Aid | form đặc biệt | 155 | 22 | 135 | 1.25 | 1.05 | brawler |  | ✓ | Mighty Critical Strike | 86 | 129 |
+| 10 | Decade | Kamen Ride: Build | form đặc biệt | 160 | 28 | 132 | 1.3 | 1.05 | brawler |  | ✓ | Vortex Finish | 78 | 117 |
+| 10 | Decade | Kamen Ride: Zi-O | form đặc biệt | 160 | 25 | 130 | 1.05 | 1.05 | brawler |  | ✓ | Time Break | 78 | 117 |
+| 10 | Decade | Kamen Ride: Kabuto | form đặc biệt | 130 | 10 | 165 | 1.2 | 0.95 | lancer |  |  | Rider Kick | 94 | 94 |
 | 11 | W | CycloneJoker | form gốc | 150 | 20 | 145 | 1.2 | 1 | brawler |  |  | Joker Extreme | 143 | 230 |
 | 11 | W | CycloneMetal | form đặc biệt | 150 | 45 | 145 | 1.2 | 1 | Joker |  | ✓ | Metal Branding | 154 | 216 |
 | 11 | W | CycloneTrigger | form đặc biệt | 150 | 20 | 145 | 1.2 | 1 | Joker | ✓ |  | Trigger Full Burst | 158 | 222 |

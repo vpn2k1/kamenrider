@@ -4,6 +4,16 @@ extends RefCounted
 ## Quái: Dustard và Zodiarts của Horoscopes. Trùm: Sagittarius Zodiarts, thủ lĩnh Horoscopes.
 ## Bài học: tình bạn. Pen nhận cái "bắt tay" đầu tiên.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "fan", "name": "Mũi tên Sagittarius", "color": Color(1.0, 0.85, 0.3), "style": "arrow"},
+	{"kind": "rain", "name": "Mưa tên", "color": Color(1.0, 0.85, 0.3), "style": "arrow", "count": 5},
+	{"kind": "homing", "name": "Mũi tên đuổi", "color": Color(1.0, 0.85, 0.3)},
+	{"kind": "warp", "name": "Dark Nebula", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "beam", "name": "Tia Sagittarius", "color": Color(1.0, 0.85, 0.3)},
+]
+
 const WORLD := {
 	"id": "fourze",
 	"year": 2011,
@@ -20,9 +30,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Base States (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Cosmic States: Final Attack x1.5",
 	],
 	"stages": [
@@ -35,7 +45,7 @@ const WORLD := {
 		{"name": "Phòng thí nghiệm bốc cháy", "form": &"fire", "form_name": "Fire States",
 			"bg": "fourze_4", "bg_theme": "lab"},
 		{"name": "Trùm: Sagittarius Zodiarts", "bg": "fourze_b", "bg_theme": "boss_purple",
-			"boss": {"name": "Sagittarius Zodiarts", "hp": 280.0, "damage": 17.0, "poise": 26.0, "speed": 60.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Sagittarius Zodiarts", "hp": 280.0, "damage": 17.0, "poise": 26.0, "speed": 60.0,
 				"traits": [], "color": Color(0.95, 0.88, 0.6)}},
 	],
 }

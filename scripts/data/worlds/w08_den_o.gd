@@ -4,6 +4,16 @@ extends RefCounted
 ## Mỗi form là một Imagin nhập vào {name}: Momotaros (Sword), Urataros (Rod), Kintaros (Ax), Ryutaros (Gun).
 ## Quái: Imagin. Trùm: Kamen Rider Gaoh. Mạch truyện: Void nói thẳng với Chrono Pass; Ryotaro: "Pass nào cũng nhớ chủ cũ".
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "dash", "name": "Tooth Crash", "color": Color(1.0, 0.85, 0.3)},
+	{"kind": "fan", "name": "Gaoh Gasher", "color": Color(1.0, 0.85, 0.3), "style": "wave"},
+	{"kind": "combo", "name": "Gaoh Gasher liên hoàn", "color": Color(1.0, 0.85, 0.3)},
+	{"kind": "slam", "name": "Gaoh-Liner đâm xuống", "color": Color(1.0, 0.85, 0.3)},
+	{"kind": "vortex", "name": "Gaoh-Liner cuốn", "color": Color(1.0, 0.85, 0.3)},
+]
+
 const WORLD := {
 	"id": "den_o",
 	"year": 2007,
@@ -20,9 +30,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Sword Form (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Climax Form: Final Attack x1.5",
 	],
 	"stages": [
@@ -35,7 +45,7 @@ const WORLD := {
 		{"name": "Sa mạc thời gian", "form": &"gun", "form_name": "Gun Form",
 			"bg": "den_o_4", "bg_theme": "desert_rails"},
 		{"name": "Trùm: Kamen Rider Gaoh", "bg": "den_o_b", "bg_theme": "boss_red",
-			"boss": {"name": "Kamen Rider Gaoh", "hp": 280.0, "damage": 18.0, "poise": 28.0, "speed": 72.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Kamen Rider Gaoh", "hp": 280.0, "damage": 18.0, "poise": 28.0, "speed": 72.0,
 				"traits": [], "color": Color(0.85, 0.7, 0.3)}},
 	],
 }

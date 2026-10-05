@@ -86,6 +86,21 @@ func _ready() -> void:
 		add_child(_help)
 	_settings = SettingsMenu.new()
 	add_child(_settings)
+	if GameState.test_tools_enabled():
+		# Chế độ test (GameState.unlock_all_for_test): chỉ khi chạy từ Godot editor, bản export không có nút này.
+		var test_button := _corner_button("TEST: đang mở hết · về save thật" if GameState.test_save
+			else "Test: mở hết thế giới & Rider")
+		test_button.position = Vector2(8, VIEW.y - test_button.size.y - 8)
+		test_button.pressed.connect(_toggle_test)
+
+
+## Bật: chuyển sang save test đã mở hết. Tắt: về save thật (không mất gì).
+func _toggle_test() -> void:
+	if GameState.test_save:
+		GameState.leave_test_save()
+	else:
+		GameState.unlock_all_for_test()
+	get_tree().reload_current_scene()
 
 
 ## Nút nhỏ bo tròn ở góc màn hình.

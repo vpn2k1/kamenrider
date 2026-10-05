@@ -68,19 +68,19 @@ const SPRITES := {
 	"wind": {"scale": 0.65, "tint": 0.5},
 	"ring": {"scale": 1.2, "tint": 0.35, "grow": [0.3, 1.4], "squash": 0.45},
 	"tachyon": {"scale": 0.7, "tint": 0.4, "y": -22.0},
-	"seal": {"scale": 0.55, "tint": 0.45},
+	"seal": {"scale": 0.43, "tint": 0.45},
 	"crest": {"scale": 1.1, "tint": 1.0, "y": 30.0, "squash": 0.4, "grow": [0.4, 1.1]},
-	"dragon": {"scale": 1.0, "tint": 1.0},
-	"pointer": {"scale": 1.0, "tint": 1.0, "x": 36.0, "grow": [0.5, 1.0]},
-	"phi": {"scale": 0.6, "tint": 1.0},
-	"cards": {"scale": 1.0, "tint": 0.4, "x": 22.0},
-	"taiko": {"scale": 0.6, "tint": 1.0},
-	"moon": {"scale": 0.6, "tint": 1.0, "x": -10.0, "y": -40.0},
+	"dragon": {"scale": 0.85, "tint": 1.0},
+	"pointer": {"scale": 1.2, "tint": 1.0, "x": 36.0, "grow": [0.5, 1.0]},
+	"phi": {"scale": 0.65, "tint": 1.0},
+	"cards": {"scale": 0.6, "tint": 0.4, "x": 22.0},
+	"taiko": {"scale": 0.45, "tint": 1.0},
+	"moon": {"scale": 0.55, "tint": 1.0, "x": -10.0, "y": -40.0},
 	"rings3": {"scale": 0.9, "tint": 1.0, "x": 24.0},
 	"circle": {"scale": 0.75, "tint": 0.4, "x": 12.0, "y": -24.0},
 	"crack": {"scale": 0.7, "tint": 1.0, "y": -34.0},
-	"fruit": {"scale": 0.55, "tint": 1.0, "y": -16.0},
-	"eye": {"scale": 0.8, "tint": 1.0, "y": -30.0},
+	"fruit": {"scale": 0.46, "tint": 1.0, "y": -16.0},
+	"eye": {"scale": 0.65, "tint": 1.0, "y": -30.0},
 }
 const FRAME := 64
 static var _strips := {}
@@ -131,6 +131,7 @@ static func ghost(parent: Node, sprite: AnimatedSprite2D, ghost_color: Color) ->
 	parent.add_child(f)
 	f.global_position = sprite.global_position
 	f.scale = sprite.global_scale
+	f.rotation = sprite.global_rotation   # bóng mờ nghiêng theo cú đá lao chéo (Player vũ đạo)
 
 
 ## Dải khung PixelLab của `fx_kind`, nạp một lần; null nếu kiểu này không có ảnh.

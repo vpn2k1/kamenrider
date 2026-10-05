@@ -5,6 +5,16 @@ extends RefCounted
 ## Mạch truyện: sau khi hạ trùm, Void chặn đường, đánh gục {name}: "Về nhà đi, {name}." Pen thú nhận mình từng là
 ## Chrono Pass của hắn. Chủ đề anh em (Wataru và Taiga) dọn đường cho sự thật ở Zi-O.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "rain", "name": "Ấn Vua Fangire", "color": Color(1.0, 0.3, 0.3), "count": 5},
+	{"kind": "fan", "name": "Bầy dơi", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "vortex", "name": "Ma huyết hút", "color": Color(1.0, 0.3, 0.3)},
+	{"kind": "guard", "name": "Giáp Bóng Tối", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "beam", "name": "Vương ấn: tia", "color": Color(1.0, 0.3, 0.3)},
+]
+
 const WORLD := {
 	"id": "kiva",
 	"year": 2008,
@@ -21,9 +31,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Kiva Form (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Emperor Form: Final Attack x1.5",
 	],
 	"stages": [
@@ -36,7 +46,7 @@ const WORLD := {
 		{"name": "Lâu đài cổ", "form": &"dogga", "form_name": "Dogga Form",
 			"bg": "kiva_4", "bg_theme": "castle_night"},
 		{"name": "Trùm: Dark Kiva", "bg": "kiva_b", "bg_theme": "boss_dark",
-			"boss": {"name": "Dark Kiva", "hp": 320.0, "damage": 19.0, "poise": 30.0, "speed": 70.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Dark Kiva", "hp": 320.0, "damage": 19.0, "poise": 30.0, "speed": 70.0,
 				"traits": ["armored"], "color": Color(0.35, 0.12, 0.2)}},
 	],
 }
@@ -52,7 +62,7 @@ const RIDER := {
 		&"kiva": {"name": "Kiva Form", "style": "brawler", "hp": 160.0, "armor": 22.0, "speed": 135.0,
 			"jump": 1.15, "atk": 1.05, "poise": 7.0, "final": "Darkness Moon Break", "attacks": {"final": {"tags": [&"stun"]}},
 			"skills": [
-				{"name": "Kiva Bat", "type": "lock", "heal": 0.08, "fx": "bat", "color": Color(0.9, 0.15, 0.3),
+				{"name": "Kiva Bat", "type": "lock", "heal": 0.08, "fx": "bat", "summon": "kivat", "color": Color(0.9, 0.15, 0.3),
 					"icon": "wings"},
 				{"name": "Kiva Emblem", "type": "bind", "fx": "moon", "color": Color(1.0, 0.85, 0.3)},
 			],

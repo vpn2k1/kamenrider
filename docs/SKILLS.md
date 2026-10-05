@@ -24,18 +24,22 @@ Trên điện thoại: Skill 1, Skill 2, Final xếp vòng cung quanh nút Đán
 
 | Bậc | Nộ | Hồi chiêu | Dùng cho |
 |---|---|---|---|
-| Skill 1 (nhẹ) | 15 | 2 giây | đòn nhanh, bắn, lướt, khiên |
-| Skill 2 (mạnh) | 30 | 5 giây | trói, khoá, vùng, gọi đồng đội / quái thú |
+| Skill 1 (nhẹ) | 20 | 3,5 giây | đòn nhanh, bắn, lướt, khiên |
+| Skill 2 (mạnh) | 35 | 7 giây | trói, khoá, vùng, gọi đồng đội / quái thú |
 | Final Attack | 60 | — | tuyệt chiêu |
 
-Skill **khoá / trói** đắt hơn cùng bậc +5 nộ (Skill 1 khoá = 20, Skill 2 khoá = 35) vì không trượt.
+Skill **khoá / trói** đắt hơn cùng bậc +5 nộ (Skill 1 khoá = 25, Skill 2 khoá = 40) vì không trượt.
 
-**Sát thương:** chỉ Final Attack là đòn mạnh (~60 gốc). Skill 1 gốc 9 (ngang cú đá kết chuỗi), Skill 2 gốc 14, nhân
+**Sát thương:** chỉ Final Attack là đòn mạnh (~60 gốc). Skill 1 gốc 7 (kém cú đá kết chuỗi), Skill 2 gốc 11, nhân
 hệ số theo kiểu ở mục 2; skill nhiều nhịp ("hits") chia đều tổng sát thương, không cộng dồn.
 
 **Nộ ở form đặc biệt** (mục 5, đã chốt theo đề xuất A): đổi sang form đặc biệt tốn 10 nộ một lần, form không tụt nộ
 nữa, mọi form tích nộ khi đánh trúng. Form tăng tốc thời gian (Axel, Hyper, Formula...) vẫn tụt 10 nộ/giây và về form
 gốc khi hết nộ. Đòn skill và Final không cộng nộ.
+
+**Cân bằng (bản 0.3):** buff dữ liệu chỉ kéo dài 80% thời hạn ghi, Clock Up làm quái chậm còn 35% (trước 15%),
+phân thân đánh 30% sát thương, loạt đạn tỏa trúng hết một quái = ×1,5 (trước ×1,65), đòn thường cộng 0,5 nộ / sát
+thương (trước 0,7).
 
 ## 2. Kiểu skill
 
@@ -58,7 +62,7 @@ gốc khi hết nộ. Đòn skill và Final không cộng nộ.
 
 ## 3. Bảng skill theo Rider
 
-Cột: **Skill 1 (15)** · **Skill 2 (30)** · **Final (60)**. Final giữ tên hiện có trong game, thêm kiểu.
+Cột: **Skill 1 (20)** · **Skill 2 (35)** · **Final (60)**. Final giữ tên hiện có trong game, thêm kiểu.
 Dấu ⚠ = chưa chắc nguyên tác, cần xác minh khi làm.
 
 ### 1 · Kuuga (2000) — màn EX: khổng lồ (Titan)
@@ -144,9 +148,8 @@ Dấu ⚠ = chưa chắc nguyên tác, cần xác minh khi làm.
 
 | Form | Skill 1 | Skill 2 | Final |
 |---|---|---|---|
-| Decade | **Attack Ride: Illusion** [C] 2 phân thân đánh theo 5 giây | **Attack Ride: Invisible** [C] tàng hình 3 giây, quái mất dấu | Dimension Kick [Đ] đá xuyên hàng thẻ |
-| Attack Ride: Slash | **Slash** [Đ] chém nhân bóng (3 vệt) | **Dimension Card Wall** [P] hàng thẻ chặn đòn | Dimension Slash [Đ] |
-| Attack Ride: Blast | **Blast** [Đ] bắn nhân bóng tỏa | **Blast Homing** [K×3] đạn nhân bóng đuổi 3 quái | Dimension Blast [Đ] |
+| Decade | **Attack Ride: Slash** [Đ] Ride Booker hoá kiếm, chém nhân bóng (3 vệt) | **Attack Ride: Blast** [Đ] Ride Booker hoá súng, bắn chùm đạn ảo | Dimension Kick [Đ] đá xuyên hàng thẻ |
+| Complete Form (Lv5) | **K-Touch: Gọi Rider** [C] 3 bóng Rider đánh theo 6 giây | **Dimension Card Wall** [P] hàng thẻ chặn đòn | Final Kamen Ride: Decade [Đ] |
 | Kamen Ride: Kuuga | = Kuuga Mighty: **Mighty Punch** [Đ] | = **Linto Seal** [T] | Mighty Kick [Đ] |
 | Kamen Ride: Agito | = Agito Ground: **Agito Crest** [C] | = **Ground Uppercut** [Đ] | Rider Kick [Đ] |
 | Kamen Ride: Ryuki | = Ryuki: **Strike Vent** [Đ] | = **Advent: Dragreder** [K] | Dragon Rider Kick [Đ] |
@@ -336,11 +339,36 @@ Nguyên tác còn mới, skill chủ yếu suy theo tên form (⚠ cần xác mi
 | Inazuma Plasma | **Plasma Bolt** [Đ] tia sét, `shock` | **Plasma Field** [V] trường điện, `shock` | Plasma Vanish [V] |
 | Paradigm Gravity | **Gravity Press** [V] ép trọng lực, `crush` | **Gravity Well** [T] giếng trọng lực hút và giữ quái | Gravity Vanish [T] |
 
+## 3b. Vũ đạo đòn theo nguyên tác
+
+Final Attack và skill cận chiến chuyển động như phim, không chỉ lướt tới (`scripts/riders/moves.gd`, bảng theo tên đòn):
+
+| Vũ đạo | Chuyển động | Ví dụ |
+|---|---|---|
+| `rider_kick` | khuỵu gối lấy đà, bật cao, khựng tạo dáng, **đá chéo xuống ~40°**, trúng thì bật ngược ra sau | Mighty Kick, Rider Kick (Agito), Joker Extreme, Tatoba Kick, Strike Wizard, Omega Drive, Time Break, Lightning Blast |
+| `high_kick` | bật rất cao rồi đá dốc xuống | Darkness Moon Break, Dragon Rider Kick, Magna Blaze, Rising Impact, Boost Grand Strike |
+| `drill_kick` | đá chéo xuống rồi **khoan** tại chỗ trúng nhiều nhịp | Crimson Smash (vào nón Faiz Pointer), Rocket Drill Kick, Octo Banish |
+| `flying_kick` | nhảy thấp, **bay đá ngang** | Solid Attack (vào lưới Den-O Rod), Pine Squash, Burakawani, Formula Drop |
+| `ricochet` | đá xuyên qua rồi dội ngược đá tiếp, 3 lần | SpeeDrop, Hissatsu Time Break |
+| `spin_kick` | đứng **quay lưng** chờ, xoay người đá vòng | Rider Kick của Kabuto (Final phản đòn) |
+| `slash_through` | thủ thế rồi **lướt chém xuyên** qua quái, dừng sau lưng | Saber Slash, Extreme Slash, Dimension Slash, Omega Slash, Naginata Musou Slicer |
+| `dive_slash` | bật cao bổ nhào chém | Splash Dragon, Lightning Slash (Jack) |
+| `charge` | lao húc / đấm xuyên tới | Dragon Fire Stream, Full Throttle: Wild, Rider Rocket Punch |
+| `slam` / `stomp` | nhảy cao **giáng thẳng xuống**, sóng xung kích khi chạm đất | Dynamic Chop, Mammoth Stamping Finish, Freezing Impact |
+
+Đòn bắn, phép, đánh trống, vùng tại chỗ giữ nguyên (đứng ra đòn). Final khoá / trói vẫn chắc trúng: vũ đạo lao thẳng vào
+mục tiêu đã khoá (Accel Crimson Smash lần lượt đá khoan 4 nón). Skill [Đ] theo tên cũng đổi chuyển động: Batta Leap,
+Hopper Leap, Steam Jump, Drill Module nhảy đá chéo xuống; Rabbit Hop, Muteki Jump, Eagle Dive bật cao đạp dốc; Cyclone
+Gust, Boost Kick, Wani Jaws, Rex Bite, Fox Tail bay đá ngang; Accel Dash, Mach Strike, Mirror Dash, Jackal Dash, Shining
+Arrow, Flame Saber lướt chém xuyên; Ground Uppercut đấm móc hất tung; Dragon Leap, Dynamic Chop Lite nhảy bổ xuống.
+Hình: dùng lại khung có sẵn (khung duỗi chân của animation "final", nghiêng theo hướng lao, bóng mờ), không tốn PixelLab.
+
 ## 4. Trong code
 
 | Phần | File |
 |---|---|
 | Định dạng skill, giá nộ, hồi chiêu, sát thương mặc định | `scripts/riders/skills.gd` (`Skills.resolve`) |
+| Vũ đạo theo nguyên tác (bảng Final / skill → chuyển động) | `scripts/riders/moves.gd`; chạy ở `Player._motion_step` |
 | Thi triển: khoá, trói, vùng, phản đòn, buff, phân thân, đánh trống, Final theo kiểu | `scripts/player/skill_caster.gd`, `skill_clone.gd` |
 | Dữ liệu skill: `"skills"`, `"skills_from"`, `"final_type"`, `"final_targets"` trong form | `scripts/data/worlds/wNN_*.gd`; Kuuga / Faiz / W: hằng `SKILLS` trong `scripts/riders/` |
 | Nút U / Y / O, nộ, bị trói / khoá (chế độ đấu), bay, tàng hình | `scripts/player/player.gd`, `scripts/autoload/game_state.gd` (`INPUT_KEYS`) |

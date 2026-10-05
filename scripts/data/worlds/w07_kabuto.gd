@@ -4,6 +4,16 @@ extends RefCounted
 ## Quái: Worm đội lốt người; Worm đã lột xác thì Clock Up. Trùm: Dark Kabuto, Worm sao chép Tendou.
 ## Mạch truyện: Void vẫn bước đi trong lúc Clock Up; Pen nói lộ rằng hắn "đứng ngoài dòng thời gian".
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "haste", "name": "Clock Up", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "warp", "name": "Clock Up: sau lưng", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "combo", "name": "Clock Up liên hoàn", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "dash", "name": "Rider Kick bóng tối", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "homing", "name": "Zecter bay", "color": Color(0.6, 0.3, 0.8)},
+]
+
 const WORLD := {
 	"id": "kabuto",
 	"year": 2006,
@@ -20,9 +30,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Rider Form (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Perfect Zecter: Final Attack x1.5",
 	],
 	"stages": [
@@ -33,7 +43,7 @@ const WORLD := {
 		{"name": "Xa lộ ven vịnh", "form": &"hyper", "form_name": "Hyper Form",
 			"bg": "kabuto_4", "bg_theme": "race_city"},
 		{"name": "Trùm: Dark Kabuto", "bg": "kabuto_b", "bg_theme": "boss_dark",
-			"boss": {"name": "Dark Kabuto", "hp": 230.0, "damage": 16.0, "poise": 22.0, "speed": 88.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Dark Kabuto", "hp": 230.0, "damage": 16.0, "poise": 22.0, "speed": 88.0,
 				"traits": ["fast"], "color": Color(0.25, 0.25, 0.32)}},
 	],
 }
@@ -49,7 +59,7 @@ const RIDER := {
 		&"rider": {"name": "Rider Form", "style": "brawler", "hp": 155.0, "armor": 22.0, "speed": 138.0,
 			"jump": 1.1, "atk": 1.05, "poise": 7.0, "final": "Rider Kick",
 			"skills": [
-				{"name": "Clock Up", "type": "buff", "buff": {"clock": "CLOCK UP", "time": 4.0}, "fx": "clock",
+				{"name": "Clock Up", "type": "buff", "buff": {"clock": "CLOCK UP", "time": 4.0}, "fx": "clock", "summon": "kabuto_zecter",
 					"color": Color(1.0, 0.3, 0.3)},
 				{"name": "Rider Kick (counter)", "type": "counter", "fx": "tachyon", "color": Color(1.0, 0.85, 0.4),
 					"icon": "kick"},

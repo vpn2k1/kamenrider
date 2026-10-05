@@ -60,6 +60,8 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	var ts: float = CombatDirector.enemy_time_scale if team == &"enemy" else 1.0
+	if team != &"enemy" and is_instance_valid(source) and source is Player:
+		ts = (source as Player).clock_mult()   # chế độ đấu: người bắn đang bị thời gian chậm thì đạn cũng chậm
 	if _life0 == 0.0:
 		_life0 = life
 	if homing:
@@ -76,10 +78,13 @@ func _physics_process(delta: float) -> void:
 func _home(delta: float) -> void:
 	var best: Node2D = null
 	var best_d := HOMING_RANGE * Units.SCALE
-	for e in get_tree().get_nodes_in_group("enemies"):
+	for e in get_tree().get_nodes_in_group("enemies") + get_tree().get_nodes_in_group("player"):
 		var n := e as Node2D
-		if n == null or (n is Enemy and (n as Enemy).state == Enemy.State.DEAD):
+		if n == null or n == source or not SkillCaster._alive(n):
 			continue
+		var hb := n.get_node_or_null("Hurtbox") as Hurtbox
+		if hb == null or hb.team == team:
+			continue      # chỉ đuổi phe kia (chế độ đấu: cả người chơi khác phe; đạn của trùm: người chơi)
 		var d := n.global_position + Vector2(0, -20) - global_position
 		if d.length() < best_d and d.dot(velocity) > 0.0:
 			best_d = d.length()

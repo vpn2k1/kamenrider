@@ -4,6 +4,16 @@ extends RefCounted
 ## Quái: Ghoul và Phantom săn các Gate, đẩy họ vào tuyệt vọng. Trùm: Wiseman, thủ lĩnh Phantom.
 ## Bài học: hy vọng. {name} suýt thành "Gate" vì nỗi đau về anh trai; Pen hứa sẽ kéo cậu lên.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "warp", "name": "Teleport phép", "color": Color(0.9, 0.9, 1.0)},
+	{"kind": "rain", "name": "Mưa thiên thạch", "color": Color(1.0, 0.5, 0.2), "style": "fire"},
+	{"kind": "homing", "name": "Cầu phép", "color": Color(0.9, 0.9, 1.0)},
+	{"kind": "summon", "name": "Gọi Ghoul", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "vortex", "name": "Hút ma lực", "color": Color(0.6, 0.3, 0.8)},
+]
+
 const WORLD := {
 	"id": "wizard",
 	"year": 2012,
@@ -20,9 +30,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Flame Style (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Infinity Style: Final Attack x1.5",
 	],
 	"stages": [
@@ -35,7 +45,7 @@ const WORLD := {
 		{"name": "Mỏ đá ngoại ô", "form": &"land", "form_name": "Land Style",
 			"bg": "wizard_4", "bg_theme": "mountain_dawn"},
 		{"name": "Trùm: Wiseman", "bg": "wizard_b", "bg_theme": "boss_dark",
-			"boss": {"name": "Wiseman", "hp": 280.0, "damage": 17.0, "poise": 28.0, "speed": 65.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Wiseman", "hp": 280.0, "damage": 17.0, "poise": 28.0, "speed": 65.0,
 				"traits": [], "color": Color(0.92, 0.92, 0.98)}},
 	],
 }

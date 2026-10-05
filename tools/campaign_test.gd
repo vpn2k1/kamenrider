@@ -227,7 +227,8 @@ func _jump_to(stage_id: String) -> void:
 	push_warning("CAMP_FROM: không có màn %s" % stage_id)
 
 
-## Coi như đã qua màn i của thế giới w: Driver kích hoạt, lên cấp, form của màn đã nhặt, Driver thế giới kế phong ấn.
+## Coi như đã qua màn i của thế giới w: Driver kích hoạt, mốc tiến độ, form của màn đã nhặt, chỉ số cộng khi qua màn,
+## Driver thế giới kế phong ấn.
 ## Màn EX không thuộc chuỗi tiến trình nên bỏ qua.
 func _grant(w: int, i: int) -> void:
 	var world: Dictionary = WorldData.WORLDS[w]
@@ -239,6 +240,7 @@ func _grant(w: int, i: int) -> void:
 	GameState.set_level(rider, int(st["reward_level"]))
 	if st.has("form"):
 		GameState.unlock_form(rider, st["form"])
+	GameState.stage_clear_bonus(rider, GameState._base_form_of(rider), true)   # như qua màn bằng form gốc
 	if st["type"] == WorldData.StageType.BOSS:
 		GameState.obtain_driver(world["next_driver"])
 

@@ -4,6 +4,16 @@ extends RefCounted
 ## biết trước lịch sử, "Iwae!"). Quái: Kasshine, Another Rider của Time Jacker. Trùm: Another Zi-O.
 ## Màn B `clear`: Woz đọc sách, tiết lộ tên thật của Void là Rei, anh trai {name}. Pen xác nhận.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "haste", "name": "Ngưng thời gian", "color": Color(0.5, 0.95, 0.4)},
+	{"kind": "warp", "name": "Đảo thời gian", "color": Color(0.5, 0.95, 0.4)},
+	{"kind": "combo", "name": "Kim giờ liên hoàn", "color": Color(0.5, 0.95, 0.4)},
+	{"kind": "fan", "name": "Kim đồng hồ", "color": Color(0.5, 0.95, 0.4), "style": "arrow"},
+	{"kind": "homing", "name": "Kim phút đuổi", "color": Color(0.5, 0.95, 0.4)},
+]
+
 const WORLD := {
 	"id": "zi_o",
 	"year": 2018,
@@ -20,9 +30,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Zi-O (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Grand Zi-O: Final Attack x1.5",
 	],
 	"stages": [
@@ -32,10 +42,10 @@ const WORLD := {
 			"bg": "zi_o_2", "bg_theme": "sky_wall"},
 		{"name": "Năm 2016 · Bệnh viện Seito", "form": &"ex_aid_armor", "form_name": "Ex-Aid Armor",
 			"bg": "zi_o_3", "bg_theme": "hospital"},
-		{"name": "Năm 2068 · Tàn tích Ma Vương", "form": &"decade_armor", "form_name": "Decade Armor",
+		{"name": "Năm 2068 · Tàn tích Ma Vương",
 			"bg": "zi_o_4", "bg_theme": "city_night"},
 		{"name": "Trùm: Another Zi-O", "bg": "zi_o_b", "bg_theme": "boss_purple",
-			"boss": {"name": "Another Zi-O", "hp": 290.0, "damage": 17.0, "poise": 26.0, "speed": 78.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Another Zi-O", "hp": 290.0, "damage": 17.0, "poise": 26.0, "speed": 78.0,
 				"traits": ["fast"], "color": Color(0.82, 0.62, 0.3)}},
 	],
 }
@@ -46,8 +56,8 @@ const WORLD := {
 ## Decade Armor (kiếm Ride Heisaber) chém mạnh. Armor của Rider Heisei đời đầu: Kuuga cân bằng đá lửa; Agito kiếm Flame
 ## Saber; Ryuki khạc lửa; Faiz nhanh, bắn Faiz Phone; Blade kiếm, đòn kết giật điện; Hibiki nặng, dùi trống; Kabuto nhanh;
 ## Den-O kiếm DenGasher; Kiva nhanh, choáng; W đá đôi; Fourze đấm tên lửa.
-## Build / Ex-Aid / Decade Armor rơi ở thế giới này; các Armor còn lại thắng Rider đó ở thế giới phụ "Kho Ride Watch"
-## (scripts/data/side_worlds.gd).
+## Build / Ex-Aid Armor rơi ở thế giới này; các Armor còn lại (cả Decade Armor, như phim: thắng Tsukasa mới có Ride Watch
+## Decade) thắng Rider đó ở thế giới phụ "Kho Ride Watch" (scripts/data/side_worlds.gd).
 const RIDER := {
 	"name": "Kamen Rider Zi-O",
 	"tagline": "Kế thừa · khoác Armor của các Rider (Ride Watch ở thế giới phụ)",
@@ -230,9 +240,6 @@ const STORY := {
 	"4": {
 		"start": [
 			["woz", "Năm 2068, nơi tôi sinh ra. Another Faiz và Another Build cùng tấn công. Cần một sức mạnh đổi được theo đối thủ."],
-		],
-		"key": [
-			["woz", "Iwae! Zi-O Decade Armor! Kiếm Ride Heisaber, sức mạnh của kẻ hủy diệt thế giới. Chém nhanh, chém mạnh."],
 		],
 		"clear": [
 			["narrator", "Thời gian ngừng lại. Một bóng áo choàng đứng trên đỉnh tháp đổ nát."],

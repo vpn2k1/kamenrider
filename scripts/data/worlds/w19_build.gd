@@ -4,6 +4,16 @@ extends RefCounted
 ## (cựu võ sĩ, Cross-Z). Quái: Smash, Guardian. Trùm: Evolto, kẻ đã hủy diệt Sao Hỏa.
 ## Thức tỉnh: hạ Smash, tịnh hóa Fullbottle Rabbit và Tank.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "rain", "name": "Hố đen", "color": Color(0.6, 0.3, 0.8), "count": 5},
+	{"kind": "warp", "name": "Dịch chuyển Evolto", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "vortex", "name": "Hố đen hút", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "haste", "name": "Tiến hoá", "color": Color(1.0, 0.3, 0.3)},
+	{"kind": "beam", "name": "Tia Evolution", "color": Color(1.0, 0.3, 0.3)},
+]
+
 const WORLD := {
 	"id": "build",
 	"year": 2017,
@@ -20,9 +30,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"RabbitTank (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Genius Form: Final Attack x1.5",
 	],
 	"stages": [
@@ -35,7 +45,7 @@ const WORLD := {
 		{"name": "Căn cứ Seito về đêm", "form": &"ninnin_comic", "form_name": "NinninComic",
 			"bg": "build_4", "bg_theme": "city_night"},
 		{"name": "Trùm: Evolto", "bg": "build_b", "bg_theme": "boss_red",
-			"boss": {"name": "Evolto", "hp": 300.0, "damage": 18.0, "poise": 28.0, "speed": 78.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Evolto", "hp": 300.0, "damage": 18.0, "poise": 28.0, "speed": 78.0,
 				"traits": ["fast"], "color": Color(0.88, 0.22, 0.32)}},
 	],
 }

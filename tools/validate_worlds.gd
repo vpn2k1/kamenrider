@@ -305,7 +305,7 @@ func _check_skills(fid: StringName, fm: Dictionary) -> void:
 		if d.has("move") and not Skills.MOVES.has(str(d["move"])):
 			_err("form %s: skill %s move \"%s\" lạ" % [fid, d["name"], d["move"]])
 		for fk in ["fx", "summon"]:
-			if d.has(fk) and not str(d[fk]) in Fx.KINDS:
+			if d.has(fk) and not str(d[fk]) in Fx.KINDS and not (fk == "summon" and Summon.has(str(d[fk]))):
 				_err("form %s: skill %s %s \"%s\" không có trong Fx.KINDS" % [fid, d["name"], fk, d[fk]])
 		for tag in d.get("tags", []):
 			if not SKILL_TAGS.has(tag):
@@ -385,7 +385,8 @@ func _check_rider(r: Dictionary) -> void:
 		if str(fm.get("style", "")) == "gunner" and not fm.has("gun"):
 			_err("form %s kiểu gunner nên có \"gun\"" % fid)
 	for fk in (r.get("final_fx", {}) as Dictionary):
-		if not fk in ["intro", "signature"] or not str(r["final_fx"][fk]) in Fx.KINDS:
+		var v := str(r["final_fx"][fk])
+		if not fk in ["intro", "signature"] or not (v in Fx.KINDS or (fk == "intro" and Summon.has(v))):
 			_err("RIDER.final_fx.%s \"%s\" không hợp lệ (Fx.KINDS)" % [fk, r["final_fx"][fk]])
 	var lv5: Dictionary = r.get("lv5", {})
 	if str(lv5.get("name", "")).is_empty() and not lv5.has("form"):

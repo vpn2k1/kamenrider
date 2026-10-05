@@ -8,8 +8,8 @@ extends Node2D
 ##              (docs/SKILLS.md: mờ khi thiếu nộ, vòng hồi chiêu, số nộ cần ở góc nút).
 ##              Vòng cung ngoài: Bắn (form có súng), Chém (form có kiếm), Kỹ năng (đổi form). Nút chưa dùng được
 ##              thì tự ẩn (TouchButton), chỗ của nó để trống, các nút không bao giờ đè nhau.
-##   Góc trên trái, bên trái thanh máu: Menu (về màn chọn màn), dưới nó nút "?" mở bảng hướng dẫn (chỉ bản web,
-##              HelpOverlay). Mỗi màn một Rider nên không có nút Đổi Rider.
+##   Góc trên trái, bên trái thanh máu: Menu (về màn chọn màn). Góc trên phải: nút "?" mở bảng thông tin màn / cách
+##              chơi / nút bấm (HelpOverlay). Mỗi màn một Rider nên không có nút Đổi Rider.
 ## Gán `player` để các nút biết hồi chiêu và điều kiện dùng.
 
 const ICON_DIR := "res://art/ui/icons/"
@@ -49,7 +49,7 @@ const LAYOUT := [
 	["special", "skill", ATTACK + OUTER[2], SMALL_R, Color(1, 0.85, 0.3), false, "Kỹ năng", ""],
 	["dodge", "dodge", DODGE, DODGE_R, Color(0.5, 0.85, 1.0), false, "Né", ""],
 	["menu", "menu", Vector2(15, 14), 10.0, Color(0.85, 0.85, 0.95), false, "", ""],
-	["help", "help", Vector2(15, 38), 9.0, Color(0.85, 0.85, 0.95), false, "", ""],
+	["help", "help", Vector2(15, 14), 10.0, Color(0.85, 0.85, 0.95), false, "", ""],
 ]
 
 var player: Player:
@@ -104,8 +104,11 @@ func _layout() -> void:
 	var d := Screen.DESIGN
 	for i in _buttons.size():
 		var p: Vector2 = LAYOUT[i][2]
-		if LAYOUT[i][0] in ["menu", "help"]:
+		if LAYOUT[i][0] == "menu":
 			_buttons[i].position = lo + p
+			continue
+		if LAYOUT[i][0] == "help":       # "?" bám góc trên phải
+			_buttons[i].position = Vector2(hi.x - p.x, lo.y + 14.0)
 			continue
 		if p.x < d.x / 2.0:
 			_buttons[i].position = Vector2(lo.x, hi.y) + (p - Vector2(0, d.y)) * k   # nửa trái (Né): neo góc dưới trái

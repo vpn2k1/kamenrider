@@ -158,6 +158,28 @@ func _next_form() -> StringName:
 	return _cycle(data.get("order", []))
 
 
+func special_anywhere() -> bool:
+	return data.get("card_swap", false)
+
+
+## "card_swap" (Decade): ở form nào cũng lắp thẻ kế tiếp theo "order" trong các thẻ dùng được; hết vòng thì về form
+## gốc (không tốn nộ). Rider khác: như RiderForm (chỉ bấm ở form gốc).
+func try_special() -> void:
+	if not special_anywhere():
+		super()
+		return
+	if special_timer > 0.0 or player == null:
+		return
+	var usable: Array = (data.get("order", []) as Array).filter(func(f): return f == base_form() or has_form(f))
+	if usable.size() < 2:
+		return
+	var target: StringName = usable[(usable.find(current_form_id()) + 1) % usable.size()]
+	if target != base_form() and not player.pay_form_switch():
+		return
+	set_form(target)
+	special_timer = special_cooldown
+
+
 func _set_form(form_id: StringName) -> void:
 	var forms: Dictionary = data.get("forms", {})
 	if not forms.has(form_id) or form_id == form:

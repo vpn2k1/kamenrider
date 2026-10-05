@@ -654,6 +654,8 @@ func _draw_info() -> void:
 	elif int(stage["type"]) == WorldData.StageType.DUEL:
 		drop = "Thắng %s: %s%s" % [stage["boss"]["name"], stage["form_name"],
 			" ✓" if GameState.owns_form(rider, stage["form"]) else ""]
+		if stage.has("duel_level"):
+			drop += " · %s" % DuelKits.level_name(int(stage["duel_level"]))   # độ khó Rider đối thủ
 	elif stage.has("form"):
 		var kind := "item" if GameState.is_item(rider, stage["form"]) else "form"
 		drop = "Quái rơi %s: %s%s" % [kind, stage["form_name"], " ✓" if GameState.has_form(rider, stage["form"]) else ""]

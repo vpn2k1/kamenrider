@@ -2,6 +2,16 @@ extends RefCounted
 ## Thế giới 4 · Kamen Rider Faiz (2003) — "Giấc mơ"
 ## Rider có script riêng: scripts/riders/faiz.gd (RIDER để trống).
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "haste", "name": "Dạng Rồng: siêu tốc", "color": Color(1.0, 0.3, 0.3)},
+	{"kind": "dash", "name": "Lao móng rồng", "color": Color(1.0, 0.3, 0.3)},
+	{"kind": "combo", "name": "Vuốt rồng liên hoàn", "color": Color(1.0, 0.3, 0.3)},
+	{"kind": "slam", "name": "Dạng Ma Nhân: đập đất", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "quake", "name": "Rồng đội đất", "color": Color(0.6, 0.3, 0.8)},
+]
+
 const WORLD := {
 	"id": "faiz",
 	"year": 2003,
@@ -18,10 +28,10 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Faiz (form gốc, bắn bằng Faiz Phone)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
-		"sát thương +40%, máu +32%",
+		"",
+		"",
+		"",
+		"",
 	],
 	"stages": [
 		{"name": "Tiệm giặt ủi Kikuchi", "goal": "Bảo vệ Takumi, giành lại Faiz Phone từ tay Orphnoch",
@@ -33,7 +43,7 @@ const WORLD := {
 		{"name": "Phòng thí nghiệm", "form": &"blaster", "form_name": "Blaster Form", "bg": "lab",
 			"route": ["left", "down", "right"], "waves": [["basic", "fast", "basic"], ["fast", "basic", "fast"]]},
 		{"name": "Trùm: Dragon Orphnoch", "bg": "boss_faiz", "route": ["left"],
-			"boss": {"name": "Dragon Orphnoch", "hp": 220.0, "damage": 14.0, "poise": 20.0, "speed": 85.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Dragon Orphnoch", "hp": 220.0, "damage": 14.0, "poise": 20.0, "speed": 85.0,
 				"traits": ["fast"], "color": Color(0.85, 0.3, 0.3)},
 			"waves": [["basic", "fast"], ["boss"]]},
 	],

@@ -53,6 +53,7 @@ signal net_hit(info: DamageInfo)                 ## net_puppet bị đánh trún
 signal shot_fired(projectile: Projectile)        ## vừa bắn một viên đạn (chế độ đấu gửi bản sao sang máy kia)
 signal parried(perfect: bool)                    ## vừa chém tan (false) hoặc phản (true) một viên đạn
 signal lock_marked(targets: Array, time: float)  ## skill khoá vừa hiện dấu khoá lên các mục tiêu (chế độ đấu báo đối thủ)
+signal status_inflicted(target: Player, kind: String, time: float)  ## làm chậm / lộ yếu bản sao đối thủ (chế độ đấu gửi đi)
 
 enum State { NORMAL, ATTACK, DODGE, HURT, HENSHIN, SWAP, BREAK, KO, CROUCH, RELEASE }
 
@@ -109,7 +110,7 @@ const CROUCH_HURTBOX_HEIGHT := 30.0
 
 # Nộ
 const RAGE_ON_HIT_HUMAN := 8.0
-const RAGE_ON_DEAL := 0.7                    ## × sát thương gây ra (đạn chỉ tính một nửa)
+const RAGE_ON_DEAL := 0.5                    ## × sát thương gây ra (đạn chỉ tính một nửa)
 const RAGE_ON_DAMAGE := 0.8                  ## × máu mất
 const RAGE_ON_KILL := 4.0                    ## hạ một quái
 const DRAIN_GAIN_MULT := 0.25                ## form đang tụt nộ: nộ tích được chỉ bằng chừng này lượng thường
@@ -118,6 +119,18 @@ const FORM_ENTER_MIN_RAGE := 10.0            ## nộ tối thiểu để vào fo
 const FORM_SWITCH_COST := 10.0               ## nộ tốn mỗi lần đổi sang form đặc biệt
 const FINAL_MIN_RAGE := Skills.FINAL_COST    ## nộ của Final Attack (vạch trắng trên thanh nộ)
 const VERSUS_BIND_TIME := 1.2                ## chế độ đấu: bị skill trói đứng im tối đa chừng này giây
+# Chế độ đấu: hiệu ứng skill của đối thủ lên mình (nhẹ hơn lên quái, xem apply_status / _apply_hit_status).
+const VERSUS_FREEZE_TIME := 0.8              ## đòn đóng băng: đứng im
+const VERSUS_STUN_TIME := 0.6                ## đòn choáng: đứng im
+const VERSUS_SHOCK_TIME := 0.35              ## đòn điện: giật khựng
+const VERSUS_BURN_TIME := 2.0                ## đòn cháy: mất máu dần
+const VERSUS_BURN_TICK := 0.5
+const VERSUS_BURN_RATIO := 0.1               ## mỗi nhịp cháy mất chừng này sát thương của đòn gây cháy
+const VERSUS_SLOW_MULT := 0.6                ## skill làm chậm: tốc độ (chạy, ra đòn) còn chừng này
+const VERSUS_SLOW_MAX := 2.5
+const VERSUS_EXPOSE_MULT := 1.2              ## bị lộ yếu: nhận thêm sát thương
+const VERSUS_EXPOSE_MAX := 3.0
+const VERSUS_TIME_SOFTEN := 0.5              ## đối thủ tăng tốc thời gian (Clock Up, Axel): mình chậm bằng nửa mức quái
 const FLY_SPEED := 120.0                     ## buff bay (Hurricane Fly...): tốc độ lên / xuống
 const HIDDEN_ALPHA := 0.3
 
@@ -186,7 +199,14 @@ var _parry_tokens := 0         ## chế độ đấu: số đòn đạn sắp b�
 var _parry_token_timer := 0.0
 var _parry_force := false      ## thế phản đòn [P]: đạn trong tầm luôn bị phản
 var _lock_mark := 0.0          ## đang bị đối thủ khoá (chế độ đấu): vẽ khung ngắm
-var skills: SkillCaster        ## thi triển Skill 1 / Skill 2 / Final (null ở bản sao mạng)
+var _slow_time := 0.0          ## chế độ đấu: đang bị skill làm chậm
+var _time_slow := 1.0          ## chế độ đấu: đối thủ đang tăng tốc thời gian (set_time_slow)
+var _exposed := 0.0            ## chế độ đấu: đang bị lộ yếu
+var _burn := 0.0               ## chế độ đấu: còn cháy chừng này giây
+var _burn_tick := 0.0
+var _burn_damage := 0.0
+var _motion := {}              ## vũ đạo của đòn đang ra (Moves, _motion_step): {} = đòn thường đứng tại chỗ
+var skills: SkillCaster       ## thi triển Skill 1 / Skill 2 / Final (null ở bản sao mạng)
 
 
 func _ready() -> void:
@@ -241,9 +261,11 @@ func _physics_process(delta: float) -> void:
 		# Buff bay: giữ Nhảy / ↑ bay lên, ↓ hạ xuống, thả thì lơ lửng.
 		var up := Input.is_action_pressed("jump") or Input.is_action_pressed("move_up")
 		var vy := -1.0 if up and not input_locked else (1.0 if Input.is_action_pressed("move_down") else 0.0)
-		velocity.y = move_toward(velocity.y, vy * FLY_SPEED * Units.SCALE, 900.0 * Units.SCALE * delta)
+		velocity.y = move_toward(velocity.y, vy * FLY_SPEED * _time_slow * Units.SCALE, 900.0 * Units.SCALE * delta)
 	elif not is_on_floor():
-		velocity.y += _gravity * delta
+		velocity.y += _gravity * delta * _time_slow * _time_slow   # thời gian chậm: rơi lơ lửng
+	if state != State.ATTACK and (not _motion.is_empty() or sprite.rotation != 0.0):
+		_motion_reset()            # bị đánh / đổi trạng thái giữa vũ đạo
 	_update_fx(delta)
 	match state:
 		State.NORMAL:
@@ -274,7 +296,12 @@ func current_armor() -> float:
 func current_speed() -> float:
 	var buff := skills.speed_mult() if skills else 1.0
 	return (current_form.move_speed * current_form.bonus("speed") if current_form else human_speed * GameState.human_bonus("speed")) \
-		* speed_mult * buff * Units.SCALE
+		* time_mult() * buff * Units.SCALE
+
+
+## Nhịp thời gian của nhân vật: tăng tốc của mình (speed_mult) nhân với làm chậm do đối thủ gây ra (chế độ đấu).
+func time_mult() -> float:
+	return speed_mult * _time_slow * (VERSUS_SLOW_MULT if _slow_time > 0.0 else 1.0)
 
 
 # --- Tài nguyên -----------------------------------------------------------
@@ -396,7 +423,7 @@ func _state_normal(delta: float) -> void:
 			_drop_through()            # ↓ + nhảy trên bệ = xuống khỏi bệ (như Contra)
 			return
 		_air_time = COYOTE_TIME + 1.0   # đã nhảy: hết quyền nhảy trên không tới khi chạm đất lại
-		velocity.y = jump_velocity * Units.SCALE * (current_form.jump_mult * current_form.bonus("jump") if current_form else GameState.human_bonus("jump"))
+		velocity.y = jump_velocity * Units.SCALE * _time_slow * (current_form.jump_mult * current_form.bonus("jump") if current_form else GameState.human_bonus("jump"))
 		Sound.sfx("jump", 0.03, -4.0)
 	if Input.is_action_just_pressed("move_down") and is_on_floor():
 		# Bấm đúp ↓ trên bệ = xuống khỏi bệ (nút cảm ứng không bấm được ↓ cùng lúc với nhảy).
@@ -447,10 +474,13 @@ func _state_normal(delta: float) -> void:
 
 
 func _state_attack(delta: float) -> void:
+	if not _motion.is_empty():
+		_motion_step(delta)
+		return
 	velocity.x = move_toward(velocity.x, 0.0, 900.0 * Units.SCALE * delta)
 	if _parry_timer > 0.0:
 		_check_parry()
-		_parry_timer -= delta * speed_mult
+		_parry_timer -= delta * time_mult()
 	if skills and skills.drum_active() and not input_locked and Input.is_action_just_pressed("attack_light"):
 		skills.drum_hit()
 	var cancellable: bool = not _attack.get("no_cancel", false)
@@ -478,7 +508,7 @@ func _state_attack(delta: float) -> void:
 		if _attack_phase == 2 and not input_locked and _switch_cancel():
 			return
 
-	_state_timer -= delta * speed_mult   # tăng tốc thời gian: ra đòn nhanh như chạy
+	_state_timer -= delta * time_mult()   # tăng tốc thời gian: ra đòn nhanh như chạy
 	if _state_timer > 0.0:
 		return
 	match _attack_phase:
@@ -487,7 +517,7 @@ func _state_attack(delta: float) -> void:
 			_hits_left = int(_attack.get("hits", 1))
 			if _attack.has("lunge"):
 				var lunge: Vector2 = _attack["lunge"]
-				velocity = Vector2(lunge.x * facing, lunge.y) * Units.SCALE
+				velocity = Vector2(lunge.x * facing, lunge.y) * Units.SCALE * _time_slow
 			if _attack.has("on_active"):
 				# Skill: ra đòn bằng hàm riêng (đòn chắc trúng, bắn đạn, bật buff) thay cho hitbox.
 				_hits_left = 1
@@ -565,7 +595,7 @@ func _set_crouch(on: bool) -> void:
 
 func _state_timed(delta: float) -> void:
 	velocity.x = move_toward(velocity.x, 0.0, 500.0 * Units.SCALE * delta)
-	_state_timer -= delta
+	_state_timer -= delta * (_time_slow if state == State.DODGE else 1.0)   # khựng / choáng không kéo dài thêm
 	if _state_timer <= 0.0:
 		invincible = false
 		state = State.NORMAL
@@ -632,6 +662,10 @@ func start_attack(kind: StringName) -> void:
 	_slash_chain = _slash_chain + 1 if kind == &"slash" else 0
 	if kind == &"kick" and not data.has("anim"):
 		data["anim"] = "heavy"   # bộ hình cú đá trong SpriteFrames tên là "<form>_heavy"
+	if kind == &"final" and skills and not data.has("motion"):
+		var m := skills.final_motion(data)   # vũ đạo Final theo nguyên tác (Moves)
+		if not m.is_empty():
+			data["motion"] = m
 	_begin_attack(kind, data)
 
 
@@ -798,7 +832,7 @@ func start_dodge() -> void:
 	state = State.DODGE
 	_state_timer = dodge_time
 	invincible = true
-	velocity.x = d * dodge_speed * Units.SCALE * (1.2 if current_form == null else 1.0)
+	velocity.x = d * dodge_speed * Units.SCALE * _time_slow * (1.2 if current_form == null else 1.0)
 	_play("dodge")
 	Sound.sfx("dodge")
 
@@ -836,6 +870,8 @@ func on_form_changed(form: RiderForm) -> void:
 	if form == current_form:
 		var fx := current_fx()
 		var mark := str(fx["intro"]) if str(fx["intro"]) != "" else (str(fx["signature"]) if str(fx["signature"]) != "" else "ring")
+		if Summon.has(mark):     # quái thú của Rider (Dragreder...): đổi form chỉ hiện vòng sáng, quái thú để dành cho Final
+			mark = "ring"
 		Fx.spawn(get_parent(), global_position + Vector2(0, -28) * Units.SCALE, mark, fx["color"], facing, 1.4)
 		CombatDirector.skill_used.emit(form.form_display_name(), fx["color"])
 
@@ -882,6 +918,7 @@ func reset_for_stage() -> void:
 		skills.clear(true)
 	_combo = 0
 	combo_changed.emit(0)
+	_clear_status()
 	active_slot = 0
 	state = State.NORMAL
 	invincible = false
@@ -936,7 +973,10 @@ func final_fanfare() -> void:
 	Sound.sfx("final_charge", 0.0)
 	Sound.voice("%s_final" % current_form.rider_id)
 	var fx := current_fx()
-	if str(fx["intro"]) != "":       # dấu hiệu tuyệt chiêu riêng quanh Rider (rồng lửa Ryuki, vòng Medal OOO...)
+	if Summon.has(str(fx["intro"])):     # quái thú lượn một vòng quanh Rider rồi đẩy cú đá (Final Vent của Ryuki)
+		Summon.spawn(get_parent(), str(fx["intro"]), global_position,
+			global_position + Vector2(facing * 200.0, -30.0) * Units.SCALE, facing, "orbit")
+	elif str(fx["intro"]) != "":       # dấu hiệu tuyệt chiêu riêng quanh Rider (vòng Medal OOO...)
 		Fx.spawn(get_parent(), global_position + Vector2(0, -30) * Units.SCALE, str(fx["intro"]), fx["color"], facing, 1.2)
 	CombatDirector.final_attack_started.emit(current_form.rider_id, current_form.final_attack_name())
 
@@ -963,6 +1003,9 @@ func take_hit(info: DamageInfo) -> bool:
 		return false      # phản đòn [P], tự né (Prediction), thân lỏng (Liquid)
 	var blocking := state == State.CROUCH
 	var mult := CROUCH_DAMAGE_MULT if blocking else 1.0
+	if _exposed > 0.0:
+		mult *= VERSUS_EXPOSE_MULT
+	var holds := info.has_tag(&"bind") or (GameState.versus and _hold_time(info) > 0.0)
 	if current_form:
 		var dmg := current_form.modify_incoming_damage(info) * mult * skills.guard_mult()
 		if not blocking:
@@ -974,9 +1017,10 @@ func take_hit(info: DamageInfo) -> bool:
 		if rider_hp <= 0.0:
 			_henshin_break()
 			return true
-		if info.damage < current_form.poise * current_form.bonus("poise") and not info.has_tag(&"bind"):
+		_apply_hit_status(info)
+		if info.damage < current_form.poise * current_form.bonus("poise") and not holds:
 			return true   # siêu giáp: đòn nhẹ không làm Rider khựng
-		if skills.superarmor() and not info.has_tag(&"bind"):
+		if skills.superarmor() and not holds:
 			return true   # buff thân thép (Metal Trilobite): không bị khựng
 	else:
 		var dmg := info.damage * 100.0 / (100.0 + HUMAN_ARMOR) * mult
@@ -989,6 +1033,7 @@ func take_hit(info: DamageInfo) -> bool:
 		if hp <= 0:
 			_die()
 			return true
+		_apply_hit_status(info)
 	if blocking:
 		return true   # đang thủ thế: không bị khựng, không bị đẩy
 	hitbox.deactivate()
@@ -1002,8 +1047,128 @@ func take_hit(info: DamageInfo) -> bool:
 		# Bị đối thủ trói (chế độ đấu): đứng im.
 		_state_timer = minf(info.bind_time, VERSUS_BIND_TIME)
 		velocity = Vector2.ZERO
+	elif GameState.versus and _hold_time(info) > 0.0:
+		# Đóng băng / choáng / giật điện do đối thủ (chế độ đấu): đứng im ngắn.
+		_state_timer = maxf(_state_timer, _hold_time(info))
+		velocity = Vector2.ZERO
 	_play("hurt")
 	return true
+
+
+## Chế độ đấu: thời gian đứng im theo tag của đòn (0 = không).
+func _hold_time(info: DamageInfo) -> float:
+	var t := 0.0
+	if info.has_tag(&"freeze"):
+		t = VERSUS_FREEZE_TIME
+	if info.has_tag(&"stun"):
+		t = maxf(t, VERSUS_STUN_TIME)
+	if info.has_tag(&"shock"):
+		t = maxf(t, VERSUS_SHOCK_TIME)
+	return t
+
+
+## Chế độ đấu: đòn của đối thủ gây cháy thì mất máu dần (gọi sau khi trừ máu, còn đứng).
+func _apply_hit_status(info: DamageInfo) -> void:
+	if not GameState.versus or not info.has_tag(&"burn"):
+		return
+	_burn = VERSUS_BURN_TIME
+	_burn_damage = maxf(_burn_damage if _burn_tick > 0.0 else 0.0, maxf(info.damage * VERSUS_BURN_RATIO, 1.0))
+	_burn_tick = VERSUS_BURN_TICK
+
+
+## Chế độ đấu: hiệu ứng skill của đối thủ không qua đòn đánh ("slow" làm chậm, "expose" lộ yếu = nhận thêm sát thương).
+## versus.gd gọi theo tin nhắn mạng; trên cùng máy thì SkillCaster gọi qua inflict_status.
+func apply_status(kind: String, time: float) -> void:
+	if state == State.KO:
+		return
+	match kind:
+		"slow":
+			_slow_time = minf(maxf(_slow_time, time), VERSUS_SLOW_MAX)
+		"expose":
+			_exposed = minf(maxf(_exposed, time), VERSUS_EXPOSE_MAX)
+	_update_status_tint()
+
+
+## Chế độ đấu: đối thủ đang tăng tốc thời gian, `enemy_scale` = hệ số họ làm chậm quái (1 = hết).
+## Thời gian chậm làm chậm mọi nhịp: chạy, ra đòn, skill, né, nhảy / rơi, hồi chiêu, đạn mình bắn (Projectile hỏi
+## clock_mult). Riêng khựng / choáng không kéo dài thêm. Bản sao mạng cũng được đặt để đạn bản sao bay chậm khớp.
+func set_time_slow(enemy_scale: float) -> void:
+	var old := _time_slow
+	_time_slow = lerpf(1.0, clampf(enemy_scale, 0.0, 1.0), VERSUS_TIME_SOFTEN)
+	if not net_puppet and not is_equal_approx(old, _time_slow):
+		velocity *= _time_slow / old      # đang bay / rơi giữa chừng: chậm lại ngay
+	_update_status_tint()
+
+
+## Hệ số thời gian do đối thủ tăng tốc thời gian (1 = bình thường).
+func clock_mult() -> float:
+	return _time_slow
+
+
+## Gây hiệu ứng `kind` lên `target` (quái, hoặc người chơi khác phe ở chế độ đấu). Bản sao mạng thì báo versus.gd gửi đi.
+func inflict_status(target: Node, kind: String, time: float) -> void:
+	if target is Enemy:
+		match kind:
+			"slow":
+				(target as Enemy).slow(time)
+			"expose":
+				(target as Enemy).expose(time)
+	elif target is Player and target != self and (target as Player).team != team:
+		if (target as Player).net_puppet:
+			status_inflicted.emit(target, kind, time)
+		else:
+			(target as Player).apply_status(kind, time)
+
+
+func _clear_status() -> void:
+	_slow_time = 0.0
+	_time_slow = 1.0
+	_exposed = 0.0
+	_burn = 0.0
+	_burn_tick = 0.0
+	_update_status_tint()
+
+
+func _tick_status(delta: float) -> void:
+	if _slow_time <= 0.0 and _exposed <= 0.0 and _burn <= 0.0:
+		return
+	_slow_time = maxf(_slow_time - delta, 0.0)
+	_exposed = maxf(_exposed - delta, 0.0)
+	if _burn > 0.0:
+		_burn -= delta
+		_burn_tick -= delta
+		if _burn_tick <= 0.0 and state != State.KO:
+			_burn_tick = VERSUS_BURN_TICK
+			_lose_hp(_burn_damage)
+	_update_status_tint()
+
+
+## Mất máu không khựng (cháy): Rider về 0 thì Henshin Break, người về 0 thì gục.
+func _lose_hp(dmg: float) -> void:
+	if current_form:
+		rider_hp -= dmg
+		rider_hp_changed.emit(maxf(rider_hp, 0.0), current_form.get_max_hp())
+		if rider_hp <= 0.0:
+			_burn = 0.0
+			_henshin_break()
+	else:
+		hp -= ceili(dmg)
+		hp_changed.emit(maxi(hp, 0), max_hp)
+		if hp <= 0:
+			_burn = 0.0
+			_die()
+
+
+## Màu báo hiệu ứng trên người: cháy cam, chậm tím, lộ yếu đỏ.
+func _update_status_tint() -> void:
+	var c := Color.WHITE
+	if _burn > 0.0:
+		c = Color(1.0, 0.7, 0.5)
+	elif _slow_time > 0.0 or _time_slow < 1.0:
+		c = Color(0.75, 0.7, 1.0)
+	elif _exposed > 0.0:
+		c = Color(1.0, 0.6, 0.6)
+	sprite.self_modulate = c
 
 
 # --- Cho nút bấm trên màn hình --------------------------------------------
@@ -1028,8 +1193,8 @@ func cooldown_of(action: String) -> Vector2:
 func is_action_available(action: String) -> bool:
 	match action:
 		"special":
-			return current_form != null and current_form.special_available() and not in_special_form() \
-				and rage >= FORM_ENTER_MIN_RAGE
+			return current_form != null and current_form.special_available() \
+				and (not in_special_form() or current_form.special_anywhere()) and rage >= FORM_ENTER_MIN_RAGE
 		"swap_rider":
 			return current_form != null and equipped.size() >= 2
 		"ultimate":
@@ -1049,7 +1214,8 @@ func is_action_visible(action: String) -> bool:
 		"attack_slash":
 			return current_form != null and current_form.has_blade()
 		"special":
-			return current_form != null and current_form.special_available() and not in_special_form()
+			return current_form != null and current_form.special_available() \
+				and (not in_special_form() or current_form.special_anywhere())
 		"swap_rider":
 			return current_form != null and equipped.size() >= 2
 		"ultimate":
@@ -1152,7 +1318,13 @@ func counter_pose(final: bool) -> void:
 	_attack_phase = 2
 	_state_timer = 0.35
 	_parry_force = false
+	sprite.flip_h = facing < 0
 	_play("final" if final else "heavy", "", true)
+	if final:
+		# Kabuto Rider Kick: xoay người một vòng rồi đá vòng vào kẻ vừa lao tới.
+		var tw := create_tween()
+		tw.tween_property(sprite, "scale:x", -absf(sprite.scale.x), 0.06)
+		tw.tween_property(sprite, "scale:x", absf(sprite.scale.x), 0.06)
 	Sound.sfx("parry_perfect", 0.0)
 	if team == &"player":
 		CombatDirector.hit_stop(0.08, 0.1)
@@ -1304,12 +1476,360 @@ func _begin_attack(kind: StringName, data: Dictionary) -> void:
 	state = State.ATTACK
 	invincible = kind in [&"final", &"swap_in", &"henshin"] and not data.has("parry")
 	_play(str(data.get("anim", kind)), "", true)
+	_motion_reset()
+	if data.has("motion") and not net_puppet:
+		_motion_begin(data["motion"])
 	var fx := current_fx()
 	var swing := str(fx["swing"])
 	if current_form and swing != "" and not (&"ranged" in data["tags"]):
 		var off: Vector2 = data["offset"]
 		Fx.spawn(get_parent(), global_position + Vector2(off.x * facing, off.y) * Units.SCALE, swing, fx["color"],
 			facing, 1.3 if kind in [&"kick", &"final"] else 1.0)
+
+
+# --- Vũ đạo đòn theo nguyên tác (Moves) ------------------------------------------
+
+const MOTION_GHOST := 0.03             ## giây giữa hai bóng mờ khi lao đòn
+const KICK_BOX := Vector2(30, 30)      ## vùng đòn cú đá lao: chân dẫn đầu, chéo xuống phía trước
+const KICK_OFFSET := Vector2(14, -10)
+const DASH_BOX := Vector2(44, 34)      ## vùng đòn khi lướt xuyên: cả thân người
+const DASH_OFFSET := Vector2(6, -18)
+const SPIN_BOX := Vector2(64, 26)      ## đá xoay vòng: trúng cả trước lẫn sau
+const DRILL_TICKS := 4
+const SLAM_WIDTH := 64.0               ## sóng xung kích khi giáng xuống: rộng tối thiểu (trúng cả hai bên)
+const SLAM_DAMAGE := 0.8               ## trúng cả vùng nên nhẹ hơn đòn một mục tiêu (như Final kiểu vùng)
+const DRILL_FIRST := 0.4               ## đá khoan: cú chạm đầu chừng này phần sát thương, phần còn lại chia cho các nhịp khoan
+const KICK_AIM_RANGE := 260.0         ## cú đá không khoá vẫn ngắm mềm quái gần nhất phía trước trong tầm này
+const KICK_AIM_SLACK := 0.6            ## lệch tối đa (radian) so với góc đá của vũ đạo
+const KICK_CONTACT := 26.0             ## Final khoá: chạm mục tiêu khi tâm người cách tâm quái chừng này (đơn vị thiết kế)
+
+
+## Bắt đầu vũ đạo `m` (Moves). Final khoá truyền m["targets"] và m["strike"] (Callable(mục tiêu, hệ số sát thương)):
+## lao vào lần lượt từng mục tiêu, chạm là đánh chắc trúng. Không có targets thì cú lao bật hitbox như đòn thường.
+func _motion_begin(m: Dictionary) -> void:
+	_motion = m.duplicate()
+	var targets: Array = (m.get("targets", []) as Array).duplicate()
+	_motion["targets"] = targets
+	_motion["left"] = maxi(int(m.get("repeat", 1)), 1) * maxi(targets.size(), 1)
+	_motion["done"] = 0
+	_motion_phase("charge")
+
+
+func _motion_reset() -> void:
+	if _motion.is_empty() and sprite.rotation == 0.0:
+		return
+	_motion = {}
+	sprite.rotation = 0.0
+	sprite.flip_h = facing < 0
+	if not sprite.is_playing():
+		sprite.play()
+
+
+func _motion_end() -> void:
+	hitbox.deactivate()
+	_motion_reset()
+	invincible = _attack_kind == &"final"
+	_attack_phase = 2
+	_state_timer = float(_attack["recovery"])
+	_play("idle" if is_on_floor() else "jump", "", true)
+	if _attack.has("on_end"):
+		(_attack["on_end"] as Callable).call()
+
+
+func _motion_phase(p: String) -> void:
+	_motion["phase"] = p
+	_motion["t"] = 0.0
+	var type := str(_motion["type"])
+	match p:
+		"charge":
+			if type == "spin":
+				sprite.flip_h = facing > 0          # quay lưng về phía quái, chờ rồi xoay người đá
+				_play("idle", "", true)
+			elif type == "through":
+				_hold_frame(str(_motion.get("anim", "slash")), 0.0)
+			else:
+				_play("crouch", "", true)           # thủ thế, khuỵu gối lấy đà
+		"rise":
+			_motion_face()
+			hitbox.deactivate()
+			sprite.rotation = 0.0
+			_play("jump", "", true)
+		"pose":
+			_hold_frame(str(_motion.get("anim", "final")), float(_motion.get("frac", 0.65)))
+			if not _motion_targeted() and skills:
+				var near := skills.find_targets(KICK_AIM_RANGE, 1)   # cú đá ngắm quái gần nhất phía trước
+				_motion["aim_at"] = near[0] if not near.is_empty() else null
+		"dive":
+			_motion.erase("contact")
+			if not _motion_targeted():
+				_fire_hitbox(_hits_scale() * _kick_scale(), KICK_BOX, KICK_OFFSET)
+		"drill":
+			_motion["tick"] = 0.0
+			Fx.spawn(get_parent(), global_position + Vector2(facing * 14.0, -14.0) * Units.SCALE, "drill",
+				current_fx()["color"], facing, 1.2)
+		"pass":
+			hitbox.deactivate()
+		"bounce":
+			hitbox.deactivate()
+			sprite.rotation = 0.0
+			velocity = Vector2(-facing * 170.0, -300.0) * Units.SCALE   # bật ngược ra sau sau cú đá
+			_play("jump", "", true)
+			sprite.play()
+		"dash":
+			invincible = true
+			_motion_face()
+			_motion["x0"] = global_position.x
+			_motion["struck"] = []
+			var reach := float(_motion.get("dist", 150.0))
+			for tgt in _motion["targets"]:
+				if is_instance_valid(tgt):
+					reach = maxf(reach, absf((tgt as Node2D).global_position.x - global_position.x) / Units.SCALE + 34.0)
+			_motion["reach"] = reach
+			_hold_frame(str(_motion.get("anim", "slash")), 0.99)
+			if not _motion_targeted():
+				_fire_hitbox(_hits_scale(), DASH_BOX, DASH_OFFSET)
+		"hold":
+			hitbox.deactivate()
+			for tgt in _motion["targets"]:       # khoá: quái chưa bị lướt qua vẫn trúng (chắc trúng)
+				if not (_motion["struck"] as Array).has(tgt):
+					_motion_strike(tgt, 1.0)
+		"fall":
+			_hold_frame(str(_motion.get("anim", "slash")), 0.35)
+		"impact":
+			sprite.play()
+			var size: Vector2 = _attack["size"]
+			size = Vector2(maxf(size.x, SLAM_WIDTH), maxf(size.y, 40.0))
+			Fx.spawn(get_parent(), global_position + Vector2(0, -6) * Units.SCALE, "ring", current_fx()["color"],
+				facing, size.x / 30.0)
+			CombatDirector.shake(4.0)
+			if _motion_targeted():
+				for tgt in _motion["targets"]:
+					_motion_strike(tgt, 1.0)
+			else:
+				var widened := (_attack["size"] as Vector2).x < SLAM_WIDTH   # Final kiểu vùng đã giảm sát thương sẵn
+				_fire_hitbox(_hits_scale() * (SLAM_DAMAGE if widened else 1.0), size, Vector2(4, -14))
+		"spin":
+			sprite.flip_h = facing < 0
+			_play("final", "", true)
+			if not _motion_targeted():
+				_fire_hitbox(_hits_scale(), SPIN_BOX, Vector2(4, -14))
+
+
+func _motion_step(delta: float) -> void:
+	var m := _motion
+	var s := Units.SCALE * _time_slow
+	m["t"] = float(m["t"]) + delta * time_mult()
+	var t := float(m["t"])
+	var type := str(m["type"])
+	match str(m["phase"]):
+		"charge":
+			velocity.x = move_toward(velocity.x, 0.0, 1800.0 * s * delta)
+			if t >= float(_attack["startup"]):
+				match type:
+					"kick", "slam":
+						_motion_phase("rise")
+					"through":
+						_motion_phase("dash")
+					_:
+						_motion_phase("spin")
+		"rise":
+			var rise := float(m.get("rise", 360.0))
+			var rise_t := float(m.get("rise_t", 0.3))
+			velocity = Vector2(facing * rise * (0.22 if type == "kick" else 0.15), -rise * clampf(1.0 - t / rise_t, 0.0, 1.0)) * s
+			if t >= rise_t:
+				_motion_phase("pose" if type == "kick" else "fall")
+		"pose":
+			velocity = Vector2.ZERO
+			var pose_t := maxf(float(m.get("pose_t", 0.12)), 0.01)
+			sprite.rotation = lerpf(0.0, _dive_rot(_dive_dir()), clampf(t / pose_t, 0.0, 1.0))
+			if t >= pose_t:
+				_motion_phase("dive")
+		"dive":
+			var dir := _dive_dir()
+			velocity = dir * float(m.get("speed", 540.0)) * s
+			sprite.rotation = _dive_rot(dir)
+			_motion_ghost(delta)
+			var hit := _motion_contact(t)
+			if hit != null:
+				_kick_contact(hit)
+			elif (is_on_floor() and t > 0.05) or t > float(m.get("max_t", 0.75)):
+				_kick_landed()
+		"drill":
+			velocity = Vector2.ZERO
+			var drill := float(m.get("drill", 0.4))
+			sprite.rotation = _dive_rot(_dive_dir()) + sin(t * 70.0) * 0.1   # khoan rung
+			m["tick"] = float(m["tick"]) + delta * time_mult()
+			if float(m["tick"]) >= drill / DRILL_TICKS:
+				m["tick"] = 0.0
+				var per := (1.0 - DRILL_FIRST) / DRILL_TICKS / float(maxi(int(m.get("repeat", 1)), 1))
+				var tgt = m.get("hit_at")
+				if _motion_targeted():
+					if tgt is Node2D and is_instance_valid(tgt):
+						_motion_strike(tgt, per)
+				else:
+					_fire_hitbox(_hits_scale() * per, KICK_BOX, KICK_OFFSET)
+			if t >= drill:
+				_kick_done()
+		"pass":
+			_motion_ghost(delta)
+			if t >= 0.1:
+				if not _motion_targeted():
+					face(-facing)                     # dội ngược lại đá tiếp (SpeeDrop)
+				m["rise_t"] = minf(float(m.get("rise_t", 0.3)), 0.14)
+				m["rise"] = minf(float(m.get("rise", 360.0)), 260.0)
+				m["pose_t"] = 0.04
+				_motion_phase("rise")
+		"bounce":
+			velocity.x = move_toward(velocity.x, 0.0, 300.0 * s * delta)
+			if (is_on_floor() and t > 0.1) or t > 1.2:
+				_motion_end()
+		"dash":
+			velocity = Vector2(facing * float(m.get("speed", 700.0)), 0.0) * s
+			_motion_ghost(delta)
+			for tgt in m["targets"]:
+				if is_instance_valid(tgt) and not (m["struck"] as Array).has(tgt) \
+						and ((tgt as Node2D).global_position.x - global_position.x) * facing <= 0.0:
+					_motion_strike(tgt, 1.0)
+			if absf(global_position.x - float(m["x0"])) >= float(m["reach"]) * s or is_on_wall() or t > 0.6:
+				velocity.x = 0.0
+				_motion_phase("hold")
+		"hold":
+			velocity.x = 0.0                          # đứng thủ thế sau lưng quái (zanshin)
+			if t >= 0.22:
+				_motion_end()
+		"fall":
+			velocity = Vector2(facing * 50.0, 780.0) * s
+			if (is_on_floor() and t > 0.02) or t > 1.0:
+				_motion_phase("impact")
+		"impact", "spin":
+			velocity.x = 0.0
+			if t >= maxf(float(_attack["active"]), 0.18):
+				_motion_end()
+
+
+func _motion_targeted() -> bool:
+	return not (_motion["targets"] as Array).is_empty()
+
+
+## Mục tiêu khoá của cú đá hiện tại (lần lượt theo số cú đã đá), bỏ qua mục tiêu đã gục.
+func _motion_target() -> Node2D:
+	var targets: Array = _motion["targets"]
+	for i in targets.size():
+		var tgt = targets[(int(_motion["done"]) + i) % targets.size()]
+		if is_instance_valid(tgt) and tgt is Node2D and SkillCaster._alive(tgt):
+			return tgt
+	return null
+
+
+func _motion_face() -> void:
+	var tgt := _motion_target() if _motion_targeted() else null
+	if tgt:
+		face(1 if tgt.global_position.x >= global_position.x else -1)
+
+
+func _motion_strike(tgt, scale: float) -> void:
+	if _motion.has("struck"):
+		(_motion["struck"] as Array).append(tgt)
+	if _motion.has("strike"):
+		(_motion["strike"] as Callable).call(tgt, scale)
+
+
+## Hướng lao của cú đá: vào mục tiêu khoá, hoặc chéo xuống theo "angle".
+func _dive_dir() -> Vector2:
+	if _motion_targeted():
+		var tgt := _motion_target()
+		if tgt:
+			var d := (tgt.global_position + Vector2(0, -22) * Units.SCALE) - (global_position + Vector2(0, -20) * Units.SCALE)
+			if d.length() > 2.0:
+				return d.normalized()
+	var a := deg_to_rad(float(_motion.get("angle", 38.0)))
+	var aim = _motion.get("aim_at")
+	if aim is Node2D and is_instance_valid(aim) and SkillCaster._alive(aim):
+		# Ngắm mềm: lệch góc đá về phía quái nhưng vẫn giữ dáng cú đá (chéo xuống / bay ngang).
+		var d: Vector2 = ((aim as Node2D).global_position + Vector2(0, -22) * Units.SCALE) \
+			- (global_position + Vector2(0, -20) * Units.SCALE)
+		if d.x * facing > 4.0:
+			var want := atan2(d.y, absf(d.x))
+			a = clampf(want, a - KICK_AIM_SLACK, a + KICK_AIM_SLACK)
+	return Vector2(facing * cos(a), sin(a))
+
+
+## Nghiêng hình cú đá theo hướng lao (chân duỗi thẳng theo đường lao).
+func _dive_rot(dir: Vector2) -> float:
+	return facing * clampf(atan2(dir.y, absf(dir.x)), -1.2, 1.2)
+
+
+func _motion_contact(t: float) -> Node2D:
+	if _motion_targeted():
+		var tgt := _motion_target()
+		if tgt == null:
+			return null
+		var me := global_position + Vector2(0, -20) * Units.SCALE
+		var at := tgt.global_position + Vector2(0, -22) * Units.SCALE
+		if me.distance_to(at) <= KICK_CONTACT * Units.SCALE or (is_on_floor() and t > 0.05):
+			return tgt
+		return null
+	var c = _motion.get("contact")
+	return c if c is Node2D and is_instance_valid(c) else null
+
+
+## Hệ số sát thương một cú chạm: chia đều cho số cú đá nối nhau, đá khoan thì cú chạm đầu chỉ một phần.
+func _kick_scale() -> float:
+	var sc := 1.0 / float(maxi(int(_motion.get("repeat", 1)), 1))
+	if float(_motion.get("drill", 0.0)) > 0.0:
+		sc *= DRILL_FIRST
+	return sc
+
+
+## Đòn "hits" nhịp đi theo vũ đạo chỉ trúng một lần: nhân bù để tổng sát thương như cũ.
+func _hits_scale() -> float:
+	return float(maxi(int(_attack.get("hits", 1)), 1))
+
+
+func _kick_contact(tgt: Node2D) -> void:
+	if _motion_targeted():
+		_motion_strike(tgt, _kick_scale())
+	_motion["hit_at"] = tgt
+	if float(_motion.get("drill", 0.0)) > 0.0:
+		_motion_phase("drill")
+	else:
+		_kick_done()
+
+
+func _kick_done() -> void:
+	_motion["done"] = int(_motion["done"]) + 1
+	var more := int(_motion["done"]) < int(_motion["left"])
+	if more and (not _motion_targeted() or _motion_target() != null):
+		_motion_phase("pass")
+	else:
+		_motion_phase("bounce")
+
+
+## Cú đá chạm đất mà chưa trúng ai: Final khoá vẫn chắc trúng, còn lại tiếp đất bụi tung.
+func _kick_landed() -> void:
+	if _motion_targeted():
+		var tgt := _motion_target()
+		if tgt:
+			_kick_contact(tgt)
+			return
+	Fx.spawn(get_parent(), global_position + Vector2(0, -4) * Units.SCALE, "ring", current_fx()["color"], facing, 1.0)
+	_motion_end()
+
+
+func _motion_ghost(delta: float) -> void:
+	_ghost_timer -= delta
+	if _ghost_timer <= 0.0:
+		_ghost_timer = MOTION_GHOST
+		Fx.ghost(get_parent(), sprite, current_fx()["color"])
+
+
+## Dừng hình ở khung `frac` (0..1) của animation `action` (khung duỗi chân của cú đá, khung vung kiếm hết tầm).
+func _hold_frame(action: String, frac: float) -> void:
+	_play(action, "", true)
+	if sprite.sprite_frames and sprite.sprite_frames.has_animation(sprite.animation):
+		var n := sprite.sprite_frames.get_frame_count(sprite.animation)
+		sprite.frame = clampi(roundi((n - 1) * frac), 0, n - 1)
+	sprite.pause()
 
 
 ## Quét đạn phe kia trong tầm lưỡi khi đang vung vũ khí (xem đầu file).
@@ -1401,9 +1921,9 @@ func _face_close_enemy() -> void:
 	if net_puppet or input_locked or Input.get_axis("move_left", "move_right") != 0.0:
 		return
 	var behind := false
-	for e in get_tree().get_nodes_in_group("enemies"):
+	for e in get_tree().get_nodes_in_group("enemies") + get_tree().get_nodes_in_group("player"):
 		var en := e as Node2D
-		if en == null or (en is Enemy and (en as Enemy).state == Enemy.State.DEAD):
+		if en == null or en == self or not SkillCaster._alive(en) or (en is Player and (en as Player).team == team):
 			continue
 		var d := en.global_position - global_position
 		if absf(d.y) > 40.0:
@@ -1418,7 +1938,8 @@ func _face_close_enemy() -> void:
 		sprite.flip_h = facing < 0
 
 
-func _fire_hitbox() -> void:
+## dmg_scale / size / offset: vũ đạo đổi sát thương và vùng đòn theo pha (cú đá lao, khoan, sóng xung kích).
+func _fire_hitbox(dmg_scale := 1.0, size := Vector2.ZERO, offset := Vector2.ZERO) -> void:
 	_state_timer = _attack["active"]
 	var base_tags: Array = _attack["tags"]
 	var tags := base_tags.duplicate()
@@ -1428,13 +1949,16 @@ func _fire_hitbox() -> void:
 		for t in current_form.special_tags() + skills.extra_tags():   # &"crush" form nặng, &"time" tăng tốc...
 			if not tags.has(t):
 				tags.append(t)
-	var dmg: float = _attack["damage"] * _damage_mult()
+	var dmg: float = _attack["damage"] * _damage_mult() * dmg_scale
 	var info := DamageInfo.new(dmg, _attack["knockback"], facing, tags, self)
 	info.bind_time = float(_attack.get("bind_time", 0.0))
-	var box := _melee_box(_attack["size"], _attack["offset"], tags.has(&"ranged"))
+	if size == Vector2.ZERO:
+		size = _attack["size"]
+		offset = _attack["offset"]
+	var box := _melee_box(size, offset, tags.has(&"ranged"))
 	hitbox.activate(info, box[0], box[1])
 	if skills and current_form:
-		skills.on_hitbox_fired(info, _attack["size"], _attack["offset"])
+		skills.on_hitbox_fired(info, size, offset)
 
 
 ## Skill bật hitbox của đòn đang ra (khi on_active cần thêm việc khác, như vùng làm chậm).
@@ -1449,7 +1973,7 @@ func damage_mult() -> float:
 func _damage_mult() -> float:
 	var m := 1.0 + minf(_combo * COMBO_BONUS_PER_HIT, COMBO_BONUS_MAX)
 	if current_form:
-		m *= current_form.attack_mult * current_form.level_mult() * (skills.damage_mult() if skills else 1.0)
+		m *= current_form.attack_mult * current_form.power_mult() * (skills.damage_mult() if skills else 1.0)
 	else:
 		m *= HUMAN_ATTACK_MULT * GameState.human_power() * GameState.human_bonus("atk")
 	return m
@@ -1542,7 +2066,7 @@ func _die() -> void:
 func _tick_timers(delta: float) -> void:
 	swap_cooldown = maxf(swap_cooldown - delta, 0.0)
 	_down_tap += delta
-	shoot_cooldown = maxf(shoot_cooldown - delta, 0.0)
+	shoot_cooldown = maxf(shoot_cooldown - delta * _time_slow, 0.0)
 	if _gun_timer > 0.0:
 		if state in [State.NORMAL, State.CROUCH] and Input.is_action_pressed("shoot") and not input_locked:
 			_gun_timer = GUN_SHOW_TIME     # đang giữ Bắn: súng ở yên trên tay, xoay theo hướng ngắm
@@ -1554,17 +2078,18 @@ func _tick_timers(delta: float) -> void:
 		if _gun_timer <= 0.0:
 			_gun.visible = false
 	_grace_timer = maxf(_grace_timer - delta, 0.0)
-	dodge_cooldown = maxf(dodge_cooldown - delta, 0.0)
+	dodge_cooldown = maxf(dodge_cooldown - delta * _time_slow, 0.0)
 	if _parry_tokens > 0:
 		_parry_token_timer -= delta
 		if _parry_token_timer <= 0.0:
 			_parry_tokens = 0
 	_tick_rage(delta)
 	if skills:
-		skills.tick(delta)
+		skills.tick(delta * _time_slow)   # hồi chiêu, thời gian buff chậm theo thời gian
 	if _lock_mark > 0.0:
 		_lock_mark = maxf(_lock_mark - delta, 0.0)
 		queue_redraw()
+	_tick_status(delta)
 	if _combo > 0:
 		_combo_timer -= delta
 		if _combo_timer <= 0.0:
@@ -1575,6 +2100,8 @@ func _tick_timers(delta: float) -> void:
 func _on_hit_landed(target: Node, info: DamageInfo) -> void:
 	if info.has_tag(&"henshin"):
 		return
+	if not _motion.is_empty() and not _motion.has("contact") and not info.has_tag(&"ranged"):
+		_motion["contact"] = target     # cú đá / lướt của vũ đạo vừa chạm quái
 	_hit_sound(info)
 	if not info.has_tag(&"ranged") and target is Node2D:   # đạn tự vẽ hiệu ứng trúng (Projectile.hit_fx)
 		var fx := current_fx()
@@ -1626,7 +2153,7 @@ func current_fx() -> Dictionary:
 
 ## Bóng mờ khi tăng tốc thời gian / form tốc độ, lượn khi giữ Nhảy (Jack Form), animation nhanh theo speed_mult.
 func _update_fx(delta: float) -> void:
-	sprite.speed_scale = speed_mult
+	sprite.speed_scale = time_mult()
 	if current_form == null:
 		return
 	var fx := current_fx()
@@ -1636,9 +2163,9 @@ func _update_fx(delta: float) -> void:
 		if _ghost_timer <= 0.0:
 			_ghost_timer = GHOST_INTERVAL
 			Fx.ghost(get_parent(), sprite, fx["color"])
-	if fx["glide"] and not is_on_floor() and velocity.y > GLIDE_FALL * Units.SCALE \
+	if fx["glide"] and not is_on_floor() and velocity.y > GLIDE_FALL * Units.SCALE * _time_slow \
 			and Input.is_action_pressed("jump") and state in [State.NORMAL, State.ATTACK]:
-		velocity.y = GLIDE_FALL * Units.SCALE
+		velocity.y = GLIDE_FALL * Units.SCALE * _time_slow
 		_feather_timer -= delta
 		if _feather_timer <= 0.0:
 			_feather_timer = FEATHER_INTERVAL

@@ -4,6 +4,16 @@ extends RefCounted
 ## Quái: Bugster. Trùm: Dan Kuroto / Kamen Rider Genm, kẻ tự xưng là "thần" tạo ra mọi Gashat.
 ## Thức tỉnh: phá đảo mini-game Mighty Action X trong Game Area.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "warp", "name": "Respawn", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "summon", "name": "Gọi Bugster", "color": Color(1.0, 0.6, 0.2)},
+	{"kind": "homing", "name": "Gashacon Bugvisor", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "dash", "name": "Critical End", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "quake", "name": "Game Over", "color": Color(0.6, 0.3, 0.8)},
+]
+
 const WORLD := {
 	"id": "ex_aid",
 	"year": 2016,
@@ -20,9 +30,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Action Gamer Level 2 (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Muteki Gamer: Final Attack x1.5",
 	],
 	"stages": [
@@ -35,7 +45,7 @@ const WORLD := {
 		{"name": "Game Area: Drago Knight Hunter Z", "form": &"hunter", "form_name": "Hunter Action Gamer Level 5",
 			"bg": "ex_aid_4", "bg_theme": "game_world"},
 		{"name": "Trùm: Kamen Rider Genm", "bg": "ex_aid_b", "bg_theme": "boss_purple",
-			"boss": {"name": "Kamen Rider Genm", "hp": 290.0, "damage": 16.0, "poise": 26.0, "speed": 70.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Kamen Rider Genm", "hp": 290.0, "damage": 16.0, "poise": 26.0, "speed": 70.0,
 				"traits": ["armored"], "color": Color(0.6, 0.5, 0.72)}},
 	],
 }

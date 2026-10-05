@@ -41,6 +41,50 @@ static func driver_icon(rider: StringName) -> Texture2D:
 	return load(path) as Texture2D if ResourceLoader.exists(path) else null
 
 
+## Hình món thắng từ Rider đối thủ, vẽ bằng code (không cần ảnh): "card" thẻ Kamen Ride (khung bạc, mặt màu Rider,
+## vạch mắt), "watch" Ride Watch (vỏ tròn bạc, mặt màu Rider, kim). Có cache theo kiểu + màu.
+static var _reward_cache := {}
+
+
+static func reward_icon(look: String, tint: Color) -> Texture2D:
+	var key := "%s/%s" % [look, tint.to_html()]
+	if _reward_cache.has(key):
+		return _reward_cache[key]
+	var img: Image
+	var dark := Color(0.08, 0.08, 0.1)
+	var silver := Color(0.82, 0.84, 0.9)
+	if look == "watch":
+		img = Image.create_empty(20, 20, false, Image.FORMAT_RGBA8)
+		var c := Vector2(9.5, 9.5)
+		for y in 20:
+			for x in 20:
+				var d := Vector2(x, y).distance_to(c)
+				if d <= 9.5:
+					img.set_pixel(x, y, dark if d > 8.6 else (silver if d > 6.8 else tint))
+		for i in 5:      # kim đồng hồ chỉ lên
+			img.set_pixel(9 + (1 if i > 3 else 0), 9 - i, Color.WHITE)
+		for i in 3:
+			img.set_pixel(10 + i, 10, dark)
+		for x in [7, 8, 11, 12]:     # núm vặn trên đỉnh
+			img.set_pixel(x, 0, silver)
+	else:
+		img = Image.create_empty(16, 22, false, Image.FORMAT_RGBA8)
+		for y in 22:
+			for x in 16:
+				var edge := x == 0 or y == 0 or x == 15 or y == 21
+				var frame := x <= 1 or y <= 1 or x >= 14 or y >= 20
+				img.set_pixel(x, y, dark if edge else (silver if frame else tint.darkened(0.15 * (y / 21.0))))
+		for x in range(4, 12):       # mặt nạ Rider: vạch mắt sáng
+			img.set_pixel(x, 8, Color(1, 1, 1))
+			img.set_pixel(x, 9, tint.lightened(0.6))
+		for y in range(13, 18):      # dải tên dưới thẻ
+			for x in range(3, 13):
+				img.set_pixel(x, y, dark if y == 13 or y == 17 else silver.darkened(0.2))
+	var tex := ImageTexture.create_from_image(img)
+	_reward_cache[key] = tex
+	return tex
+
+
 func _ready() -> void:
 	collision_layer = 0
 	collision_mask = 2   # lớp "player"

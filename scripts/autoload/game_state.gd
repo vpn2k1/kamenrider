@@ -1,8 +1,10 @@
 extends Node
-## Dữ liệu toàn cục (autoload "GameState"): tiến trình thế giới/màn, Driver đã có, cấp Rider,
+## Dữ liệu toàn cục (autoload "GameState"): tiến trình thế giới/màn, Driver đã có, chỉ số cộng của form,
 ## đội hình, Mảnh Ký Ức, lưu/đọc save. Đồng thời khai báo phím điều khiển.
 ##
-## Trạng thái một Driver:  chưa có  →  phong ấn (nhận từ trùm)  →  hoạt động Lv1 (nhặt ở màn Thức tỉnh)  →  Lv5
+## Trạng thái một Driver:  chưa có  →  phong ấn (nhận từ trùm)  →  hoạt động (nhặt ở màn Thức tỉnh)
+## Không có cấp Rider: qua màn thì form dùng trong màn được cộng chỉ số (stage_clear_bonus). "level" trong drivers chỉ là
+## mốc tiến độ ẩn 1..5 để mở thưởng theo nguyên tác (Rising, Best Match, final form "lv5").
 ## Form đặc biệt của Rider (Dragon, Axel, HeatMetal...) mở khi nhặt được ở màn tương ứng (WorldData "form").
 ## Đội hình trong màn: Rider CHÍNH (chọn trước mỗi màn, choose_main) + Rider của thế giới đang chơi nếu đã kích hoạt.
 ## Đổi Rider giữa màn chỉ đổi qua lại giữa hai Rider này.
@@ -15,6 +17,10 @@ signal fragments_changed(amount: int)
 signal form_unlocked(rider_id: StringName, form_id: StringName)
 
 const SAVE_PATH := "user://save.json"
+## Chế độ test (unlock_all_for_test): mở hết thế giới / Rider / form / item, lưu vào save riêng này để không đè lên
+## tiến trình thật. Chỉ có khi chạy từ Godot editor (test_tools_enabled); bật / tắt ở màn hình chính, nhớ trong
+## settings.cfg ("debug", "test_save"). Bản export (APK, web) luôn dùng save thật.
+const TEST_SAVE_PATH := "user://save_test.json"
 ## Cài đặt người chơi (tên nhân vật), tách khỏi save tiến trình: save cũ / hỏng bị làm lại thì tên vẫn còn.
 const SETTINGS_PATH := "user://settings.cfg"
 const SAVE_VERSION := 4                ## 4: OOO có 9 màn (chỉ số màn thế giới 12 đổi)
@@ -23,19 +29,33 @@ const MAX_ITEMS := 2                    ## số item (vũ khí) mang vào một 
 ## Đặt true để mỗi lần mở game đều chơi lại từ màn 1-1 (không đọc save). Mặc định đọc save: Driver, cấp, form và
 ## item đã nhặt, màn đã qua được giữ lại giữa các lần mở game (user://save.json; bản web lưu trong trình duyệt).
 const DEBUG_FRESH_START := false
-## Cấp quái: mỗi bậc màn (WorldData.tier_of) +1, mỗi thế giới +2/3 (làm tròn xuống): thế giới 1 Lv1–5, thế giới 4 Lv3–7, thế giới 11
-## Lv7–11, thế giới 27 Lv18–22. Trùm +2. Tăng chậm để khớp với sức mạnh Rider theo thế hệ (POWER_PER_WORLD).
-const ENEMY_LEVELS_PER_WORLD := 2.0 / 3.0
+## Sức mạnh quái theo màn (liên tục, không làm tròn): máu × (1 + 0,12 × thế giới) × (1 + 0,05 × bậc màn), sát thương
+## × (1 + 0,11 × thế giới) × (1 + 0,04 × bậc màn). Thế giới đếm từ 0 (level_world), bậc màn 0..4 (WorldData.tier_of).
+## Mỗi thế giới quái mạnh lên đúng bằng Rider của thế giới đó (POWER_PER_WORLD); trong một thế giới, quái tăng vừa
+## bằng chỉ số form nhận được khi qua các màn trước (STAGE_BONUS). Độ khó cao thì quái đánh dồn hơn
+## (StageRun._apply_difficulty), không dồn thêm máu.
+const ENEMY_HP_PER_WORLD := 0.12
+const ENEMY_DAMAGE_PER_WORLD := 0.11
+const ENEMY_HP_PER_TIER := 0.05
+const ENEMY_DAMAGE_PER_TIER := 0.04
+const ELITE_HP_MULT := 1.15             ## quái tinh nhuệ (★): nhỉnh hơn quái thường, đặc tính thêm mới là cái khó
+const ELITE_DAMAGE_MULT := 1.1
 ## Sức mạnh Rider theo thế hệ: Rider của thế giới thứ i (đếm từ 0) có máu và sát thương × (1 + 0.12 × i).
 ## Quái mỗi thế giới cũng mạnh thêm chừng đó, nên dùng Rider mới nhất thì độ khó các thế giới xấp xỉ nhau.
+## Đồng bộ theo màn: trong màn của thế giới w, Rider tính tối đa như Rider thế giới w + POWER_SYNC_AHEAD (Rider đời sau
+## về màn cũ vẫn mạnh hơn một chút nhưng không áp đảo; Rider đời trước sang màn mới thì không được nâng lên).
+## Luyện lại: Rider đời trước muốn dùng ở thế giới sau phải chơi lại màn đã qua. Mỗi lần qua lại một màn bằng Rider đó,
+## Rider được thêm TRAIN_PER_REPLAY đời sức mạnh (trùm TRAIN_PER_BOSS), lưu ở drivers[rider]["train"], tối đa bằng
+## Rider của thế giới cuối. Ví dụ Kuuga muốn mạnh như Rider thế giới 10 cần khoảng 9 / 0,5 = 18 lần qua lại màn.
 const POWER_PER_WORLD := 0.12
+const POWER_SYNC_AHEAD := 2
+const TRAIN_PER_REPLAY := 0.5
+const TRAIN_PER_BOSS := 1.0
 ## Dạng người cũng mạnh dần theo hành trình: máu và sức đánh × (1 + 0.06 × số thế giới đã qua).
 const HUMAN_POWER_PER_WORLD := 0.06
 ## Tên nhân vật chính do người chơi đặt ở màn nhập tên (scenes/ui/name_entry.tscn, sau màn hình chính).
 const DEFAULT_PLAYER_NAME := "Sora"
 const MAX_NAME_LENGTH := 12
-const BOSS_LEVEL_BONUS := 2
-const DIFFICULTY_EXTRA_LEVELS := 3.0   ## quái ở độ khó tối đa (thế giới cuối) mạnh hơn thêm chừng này cấp
 const CHALLENGE_FRAGMENTS := 150        ## qua màn EX lần đầu (WorldData.StageType.CHALLENGE)
 ## Hệ số sát thương của quái theo tiến độ, để các màn đầu dễ thở:
 ##   chưa có Driver nào (màn 1-1, đánh tay không) 35% · thế giới 1: 1-2 60%, 1-3 75%, 1-4 90%, trùm 100%
@@ -68,7 +88,7 @@ const INPUT_KEYS := {
 	"skill_1": [KEY_U],          ## skill nhẹ của form (docs/SKILLS.md)
 	"skill_2": [KEY_Y],          ## skill mạnh của form
 	"ultimate": [],   ## nút tuyệt chiêu trên màn hình: biến thân hoặc Final Attack
-	"help": [],       ## nút "?" trên màn hình (chỉ bản web): mở bảng hướng dẫn nút bấm (HelpOverlay)
+	"help": [KEY_TAB, KEY_F1],   ## nút "?" góc trên phải: bảng thông tin màn + hướng dẫn (HelpOverlay)
 }
 
 var world_index := 0                    ## màn đang chơi (chọn ở màn chọn màn)
@@ -79,19 +99,25 @@ var in_stage := false                   ## đang trong màn (gục thì tải l�
 var carried_items: Array[StringName] = []   ## item của Rider chính mang vào màn đang chơi (tối đa MAX_ITEMS)
 ## Form biến đổi dùng được trong màn đang chơi: form chọn trước màn (tối đa 1, như trận đấu) + form nhặt giữa màn.
 var carried_forms: Array[StringName] = []
-var chosen_form: StringName = &""       ## form chọn mang vào màn (&"" = form gốc), nhận thưởng CLEAR_BOOST
+var chosen_form: StringName = &""       ## form chọn mang vào màn (&"" = form gốc), nhận chỉ số khi qua màn (stage_clear_bonus)
 var worlds_cleared := 0
 var drivers := {}                       ## "kuuga" -> {"active": bool, "level": int, "forms": ["dragon", ...]}
 ## Chỉ số cộng thêm của từng form: "kuuga" -> {"dragon" -> {"atk": 0.0123, ...}} = +1.23% sức đánh cho riêng form đó
-## (RiderForm.bonus; dạng người lưu ở HUMAN_KEY / HUMAN_KEY, Player tự áp). Chỉ số: BOOST_STATS. Nhận được từ:
-##   - hạ mỗi quái: +KILL_BOOST một chỉ số ngẫu nhiên của dạng đang dùng (form Rider hoặc dạng người)
-##   - qua màn của thế giới đã qua hết các màn từ trước (chơi lại): +CLEAR_BOOST một chỉ số ngẫu nhiên cho form mang
-##     vào màn (form gốc nếu không mang form nào; chưa có Rider thì dạng người). Lần đầu đi qua thế giới thì không,
-##     thưởng vẫn là lên cấp / Driver / form như cũ.
+## (RiderForm.bonus; dạng người lưu ở HUMAN_KEY / HUMAN_KEY, Player tự áp). Chỉ số: BOOST_STATS.
+## Nhận được khi qua màn (stage_clear_bonus): form mang vào màn (form gốc nếu không mang form nào; chưa có Rider thì
+## dạng người) được STAGE_BONUS: Sát thương + Máu + một chỉ số đặc trưng của form (form nặng thêm Giáp, form nhanh
+## thêm Tốc độ...). Các form khác Rider đó đã có nhận OTHER_FORMS_SHARE phần. Chơi lại màn đã qua: REPLAY_SHARE phần.
+## Form mới nhặt kế thừa Sát thương / Máu đã cộng của form gốc (không phải bắt đầu lại từ 0). Mỗi chỉ số có trần
+## BONUS_CAP. Hạ quái không cộng chỉ số (chỉ cho nộ). Qua 4 màn đầu của một thế giới, Rider được khoảng +24% sát thương,
+## +20% máu: bằng mức quái mạnh lên tới màn Trùm (ENEMY_*_PER_TIER).
 var form_bonus := {}
 const BOOST_STEP := 0.01        ## (save cũ) mỗi điểm cũ = +1%, đổi sang tỉ lệ khi đọc save
-const KILL_BOOST := 0.0001      ## +0.01% mỗi quái hạ được
-const CLEAR_BOOST := 0.001      ## +0.1% mỗi màn chơi lại
+const STAGE_BONUS := {"atk": 0.06, "hp": 0.05, "signature": 0.05}
+const OTHER_FORMS_SHARE := 0.75
+const REPLAY_SHARE := 1.0 / 3.0
+const BONUS_CAP := {"atk": 0.5, "hp": 0.5, "armor": 0.25, "speed": 0.25, "jump": 0.25, "poise": 0.25}
+## Mức "bình thường" của từng chỉ số đặc trưng: form có tỉ lệ chỉ số / mức này cao nhất thì chỉ số đó là đặc trưng.
+const SIGNATURE_NORMS := {"armor": 25.0, "speed": 125.0, "jump": 1.0, "poise": 10.0}
 const HUMAN_KEY := &"human"
 const HUMAN_BOOST_STATS := ["hp", "atk", "speed", "jump"]   ## dạng người không có giáp / trụ vững
 const BOOST_STATS := {"hp": "Máu", "atk": "Sát thương", "armor": "Giáp", "speed": "Tốc độ", "jump": "Sức nhảy",
@@ -118,6 +144,7 @@ var versus_form: StringName = &""          ## &"" = chỉ form gốc
 var versus_items: Array[StringName] = []   ## tối đa MAX_ITEMS
 ## false: không đọc / ghi save (bot test gọi use_test_profile để không đè lên tiến trình thật của người chơi).
 var persist := true
+var test_save := false   ## đang dùng save test (TEST_SAVE_PATH) đã mở hết
 
 
 func _ready() -> void:
@@ -149,6 +176,11 @@ func _tap_key(key: Key) -> void:
 ## Bot test: bắt đầu từ tiến trình trống và không ghi save (save thật của người chơi giữ nguyên).
 func use_test_profile() -> void:
 	persist = false
+	_reset_progress()
+
+
+## Xoá tiến trình trong bộ nhớ (không đụng file save).
+func _reset_progress() -> void:
 	world_index = 0
 	stage_index = 0
 	frontier_world = 0
@@ -170,6 +202,63 @@ func use_test_profile() -> void:
 	versus_form = &""
 	versus_items.clear()
 	rebuild_team()
+
+
+## Chế độ test: chuyển sang save test rồi mở hết mọi thế giới (chính + phụ), mọi Driver ở cấp tối đa, mọi form và
+## item. Save thật (SAVE_PATH) giữ nguyên; leave_test_save() để quay về.
+func unlock_all_for_test() -> void:
+	if not test_tools_enabled():
+		return
+	_set_test_save(true)
+	_reset_progress()
+	load_settings()              # giữ tên nhân vật
+	var keep_persist := persist
+	persist = false              # ghi một lần ở cuối, không ghi mỗi form
+	for world in WorldData.WORLDS:
+		var rider: StringName = world["rider"]
+		activate_driver(rider)
+		set_level(rider, MAX_LEVEL)
+		var forms := RiderCaps.all_forms(rider)
+		for i in range(1, forms.size()):          # forms[0] là form gốc
+			unlock_form(rider, forms[i])
+	for w in WorldData.WORLDS.size() + WorldData.SIDE_WORLDS.size():
+		for stage in WorldData.world_at(w)["stages"]:
+			if not cleared_stages.has(str(stage["id"])):
+				cleared_stages.append(str(stage["id"]))
+	frontier_world = WorldData.WORLDS.size()
+	frontier_stage = 0
+	worlds_cleared = WorldData.WORLDS.size()
+	name_set = true
+	persist = keep_persist
+	rebuild_team()
+	save_game()
+
+
+## Thoát chế độ test: về save thật như lúc chưa bật.
+func leave_test_save() -> void:
+	_set_test_save(false)
+	_reset_progress()
+	load_settings()
+	load_game()
+
+
+func _set_test_save(on: bool) -> void:
+	test_save = on
+	if not persist:
+		return
+	var cfg := ConfigFile.new()
+	cfg.load(SETTINGS_PATH)
+	cfg.set_value("debug", "test_save", on)
+	cfg.save(SETTINGS_PATH)
+
+
+## Công cụ test chỉ chạy khi mở game từ Godot editor trên máy phát triển, không bao giờ trong bản export.
+func test_tools_enabled() -> bool:
+	return OS.has_feature("editor")
+
+
+func _save_path() -> String:
+	return TEST_SAVE_PATH if test_save else SAVE_PATH
 
 
 # --- Tiến trình ----------------------------------------------------------
@@ -209,9 +298,19 @@ func enemy_damage_mult() -> float:
 	return 1.0
 
 
-func current_enemy_level() -> int:
-	return 1 + int(level_world() * ENEMY_LEVELS_PER_WORLD) + int(current_stage().get("tier", stage_index)) \
-		+ int(difficulty() * DIFFICULTY_EXTRA_LEVELS)
+## Bậc của màn đang chơi 0..4 (WorldData.tier_of).
+func current_tier() -> int:
+	return int(current_stage().get("tier", stage_index))
+
+
+## Hệ số máu quái thường của màn đang chơi (trùm có chỉ số chỉnh tay trong WorldData).
+func enemy_hp_scale() -> float:
+	return (1.0 + ENEMY_HP_PER_WORLD * level_world()) * (1.0 + ENEMY_HP_PER_TIER * current_tier())
+
+
+## Hệ số sát thương quái thường của màn đang chơi (nhân thêm enemy_damage_mult của các màn đầu).
+func enemy_damage_scale() -> float:
+	return (1.0 + ENEMY_DAMAGE_PER_WORLD * level_world()) * (1.0 + ENEMY_DAMAGE_PER_TIER * current_tier())
 
 
 ## Độ khó 0..1 của màn đang chơi (WorldData.difficulty_of): thế giới càng sau càng khó.
@@ -224,9 +323,34 @@ func level_world() -> int:
 	return int(current_stage().get("level_world", world_index))
 
 
-## Hệ số sức mạnh thế hệ của Rider (RiderForm.power).
+## Hệ số sức mạnh thế hệ của Rider (RiderForm.power), đồng bộ theo thế giới của màn đang chơi (POWER_SYNC_AHEAD).
+## Chế độ đấu: mọi Rider = 1 cho công bằng.
 func rider_power(id: StringName) -> float:
-	return 1.0 + POWER_PER_WORLD * maxi(WorldData.world_index_of(id), 0)
+	if versus:
+		return 1.0
+	var gen := minf(rider_generation(id), float(level_world() + POWER_SYNC_AHEAD))
+	return 1.0 + POWER_PER_WORLD * gen
+
+
+## Đời sức mạnh của Rider chưa đồng bộ theo màn: thế giới gốc (đếm từ 0) + số đời đã luyện lại.
+func rider_generation(id: StringName) -> float:
+	var base := float(maxi(WorldData.world_index_of(id), 0))
+	var train := float((drivers.get(String(id), {}) as Dictionary).get("train", 0.0))
+	return minf(base + train, float(WorldData.WORLDS.size() - 1))
+
+
+## Qua lại màn đã qua bằng Rider `id`: cộng đời sức mạnh luyện lại. Trả về số đời vừa cộng (0 nếu đã tối đa).
+func train_rider(id: StringName, boss: bool) -> float:
+	var key := String(id)
+	if not drivers.has(key):
+		return 0.0
+	var room := float(WorldData.WORLDS.size() - 1) - rider_generation(id)
+	var gain := minf(TRAIN_PER_BOSS if boss else TRAIN_PER_REPLAY, room)
+	if gain <= 0.0:
+		return 0.0
+	drivers[key]["train"] = float(drivers[key].get("train", 0.0)) + gain
+	save_game()
+	return gain
 
 
 ## Hệ số sức mạnh dạng người (máu và sức đánh).
@@ -386,6 +510,12 @@ func unlock_form(id: StringName, form_id: StringName) -> bool:
 	var forms: Array = drivers[key].get("forms", [])
 	forms.append(String(form_id))
 	drivers[key]["forms"] = forms
+	if not is_item(id, form_id):
+		var base := _base_form_of(id)
+		for stat in ["atk", "hp"]:      # kế thừa chỉ số đã cộng của form gốc
+			var gap := bonus_value(id, base, stat) - bonus_value(id, form_id, stat)
+			if gap > 0.0:
+				add_bonus(id, form_id, stat, gap, false)
 	# Form nhặt giữa màn dùng được ngay trong màn này
 	if in_stage and not versus and id == main_rider and not is_item(id, form_id) and not carried_forms.has(form_id):
 		carried_forms.append(form_id)
@@ -462,7 +592,10 @@ func form_usable(id: StringName, form_id: StringName) -> bool:
 		return false
 	if versus:
 		return true
-	return carried_items.has(form_id) if is_item(id, form_id) else carried_forms.has(form_id)
+	if is_item(id, form_id):
+		return carried_items.has(form_id)
+	# Decade: mọi thẻ Kamen Ride đã có đều dùng được, không giới hạn 1 form mang vào ("card_swap" trong RIDER).
+	return carried_forms.has(form_id) or WorldData.rider_data(id).get("card_swap", false)
 
 
 ## Các Rider chọn được làm Rider chính (mọi Driver đã kích hoạt), theo thứ tự thế giới.
@@ -527,8 +660,11 @@ func add_fragments(amount: int) -> void:
 
 # --- Lưu / đọc -----------------------------------------------------------
 
-## Hệ số của chỉ số `stat` cho form `form` của Rider `rider`: 1 + tỉ lệ đã cộng.
+## Hệ số của chỉ số `stat` cho form `form` của Rider `rider`: 1 + tỉ lệ đã cộng. Chế độ đấu: luôn 1 (chỉ số cộng
+## thêm từ hạ quái / chơi lại màn không mang vào trận, người mới và người chơi lâu ngang nhau).
 func bonus_mult(rider: StringName, form: StringName, stat: String) -> float:
+	if versus:
+		return 1.0
 	return 1.0 + bonus_value(rider, form, stat)
 
 
@@ -540,7 +676,7 @@ func bonus_value(rider: StringName, form: StringName, stat: String) -> float:
 
 ## Hệ số chỉ số của dạng người. Chế độ đấu: dạng người ai cũng như nhau.
 func human_bonus(stat: String) -> float:
-	return 1.0 if versus else bonus_mult(HUMAN_KEY, HUMAN_KEY, stat)
+	return bonus_mult(HUMAN_KEY, HUMAN_KEY, stat)
 
 
 ## Cộng `amount` (mặc định BOOST_STEP) vào chỉ số `stat` của form. save = false: chỉ ghi khi có dịp lưu kế tiếp
@@ -553,6 +689,68 @@ func add_bonus(rider: StringName, form: StringName, stat: String, amount := BOOS
 	form_bonus[String(rider)] = forms
 	if save:
 		save_game()
+
+
+## Qua màn: cộng chỉ số cho form mang vào màn (`form`, của Rider `rider`; rider = &"" thì dạng người) và một phần cho
+## các form khác của Rider đó. first = lần đầu qua màn này (chơi lại chỉ được REPLAY_SHARE). Trả về
+## [{"stat", "amount"}] đã cộng cho form mang vào màn (sau khi chạm trần), để hiện ở bảng kết quả.
+func stage_clear_bonus(rider: StringName, form: StringName, first: bool) -> Array:
+	var share := 1.0 if first else REPLAY_SHARE
+	if rider == &"":
+		var got := _apply_stage_bonus(HUMAN_KEY, HUMAN_KEY, "speed", share)
+		save_game()
+		return got
+	var gained: Array = []
+	var base := _base_form_of(rider)
+	for f in RiderCaps.all_forms(rider):
+		var is_main: bool = f == form
+		if not is_main and f != base and not owns_form(rider, f):
+			continue
+		if is_item(rider, f):
+			continue
+		var got := _apply_stage_bonus(rider, f, signature_stat(rider, f), share * (1.0 if is_main else OTHER_FORMS_SHARE))
+		if is_main:
+			gained = got
+	save_game()
+	return gained
+
+
+func _apply_stage_bonus(rider: StringName, form: StringName, signature: String, share: float) -> Array:
+	var got: Array = []
+	for key in STAGE_BONUS:
+		var stat: String = signature if key == "signature" else key
+		var have := bonus_value(rider, form, stat)
+		var amount := minf(float(STAGE_BONUS[key]) * share, float(BONUS_CAP[stat]) - have)
+		if amount > 0.0001:
+			add_bonus(rider, form, stat, amount, false)
+			got.append({"stat": stat, "amount": amount})
+	return got
+
+
+func _base_form_of(rider: StringName) -> StringName:
+	var f := create_form(rider)
+	if f == null:
+		return &""
+	var id := f.base_form()
+	f.free()
+	return id
+
+
+## Chỉ số đặc trưng của form (giáp / tốc độ / sức nhảy / trụ vững): chỉ số cao nhất so với SIGNATURE_NORMS.
+func signature_stat(rider: StringName, form: StringName) -> String:
+	var f := FigurePicker.preview_form(rider, form)
+	if f == null:
+		return "armor"
+	var values := {"armor": f.armor, "speed": f.move_speed, "jump": f.jump_mult, "poise": f.poise}
+	f.free()
+	var best := "armor"
+	var best_r := -1.0
+	for k in values:
+		var r := float(values[k]) / float(SIGNATURE_NORMS[k])
+		if r > best_r:
+			best_r = r
+			best = k
+	return best
 
 
 ## Cộng `amount` vào một chỉ số ngẫu nhiên; rider = HUMAN_KEY cho dạng người. Trả về khóa chỉ số đã cộng.
@@ -594,7 +792,7 @@ func save_game() -> void:
 		"seen_story": seen_story,
 		"versus": {"rider": str(versus_rider), "form": str(versus_form), "items": versus_items.map(func(f): return str(f))},
 	}
-	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	var file := FileAccess.open(_save_path(), FileAccess.WRITE)
 	if file == null:
 		push_error("Không ghi được save: %s" % FileAccess.get_open_error())
 		return
@@ -617,12 +815,13 @@ func load_settings() -> void:
 		return
 	player_name = str(cfg.get_value("player", "name", DEFAULT_PLAYER_NAME))
 	name_set = bool(cfg.get_value("player", "name_set", false))
+	test_save = test_tools_enabled() and bool(cfg.get_value("debug", "test_save", false))
 
 
 func load_game() -> void:
-	if not persist or not FileAccess.file_exists(SAVE_PATH):
+	if not persist or not FileAccess.file_exists(_save_path()):
 		return
-	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
+	var file := FileAccess.open(_save_path(), FileAccess.READ)
 	if file == null:
 		return
 	var data = JSON.parse_string(file.get_as_text())
@@ -667,10 +866,29 @@ func load_game() -> void:
 	versus_items.clear()
 	for f in vs.get("items", []):
 		versus_items.append(StringName(str(f)))
+	_drop_removed_forms()
 	# Save cũ: Rider đã Lv5 trước khi có final form thì mở bù
 	for key in drivers:
 		_unlock_level_forms(StringName(key))
 	rebuild_team()
+
+
+## Save cũ còn form đã bỏ khỏi dữ liệu (Decade Slash / Blast nay là skill của form gốc): xoá khỏi danh sách form đã
+## nhặt và bộ đồ chọn cho chế độ đấu. Chỉ xét Rider dựng từ dữ liệu ("order" trong RIDER).
+func _drop_removed_forms() -> void:
+	for key in drivers:
+		var order: Array = WorldData.rider_data(StringName(key)).get("order", [])
+		if order.is_empty():
+			continue
+		var kept: Array = []
+		for f in drivers[key].get("forms", []):
+			if order.has(StringName(str(f))):
+				kept.append(f)
+		drivers[key]["forms"] = kept
+		if StringName(key) == versus_rider:
+			if versus_form != &"" and not order.has(versus_form):
+				versus_form = &""
+			versus_items.assign(versus_items.filter(func(f: StringName) -> bool: return order.has(f)))
 
 
 func _setup_input() -> void:

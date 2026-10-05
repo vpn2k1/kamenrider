@@ -36,20 +36,18 @@ class_name Enemy
 ## Lượt tấn công (CombatDirector, tối đa 2 quái đánh cùng lúc): đánh xong nghỉ TOKEN_REST giây mới xin lượt mới,
 ## lùi ra vòng ngoài, để quái đang chờ được vào đánh (không để 2 con giữ lượt mãi).
 ##
-## Cấp độ: máu +18% và sát thương +15% mỗi cấp (tính từ chỉ số cấp 1 đặt trong Inspector).
-## Trùm đặt scale_with_level = false vì chỉ số đã được chỉnh tay trong WorldData.
+## Sức mạnh theo màn: máu × hp_scale, sát thương × damage_scale (màn chơi gán từ GameState.enemy_hp_scale /
+## enemy_damage_scale, quái tinh nhuệ nhân thêm). Trùm đặt scale_stats = false vì chỉ số đã chỉnh tay trong WorldData.
 
 signal died(enemy: Enemy)
 signal damaged(amount: float)
 signal evaded
 signal immune_hit(special: StringName)   ## đòn bị quái đặc biệt chặn (khóa của SPECIALS)
 
-enum State { IDLE, CHASE, WINDUP, ATTACK, RECOVER, HURT, DEAD }
+enum State { IDLE, CHASE, WINDUP, ATTACK, RECOVER, HURT, DEAD, SKILL }   ## SKILL: trùm đang tung kỹ năng (BossSkills)
 
 const FAST_EVADE_CHANCE := 0.75
 const ARMORED_DAMAGE_MULT := 0.4
-const HP_PER_LEVEL := 0.18
-const DAMAGE_PER_LEVEL := 0.15
 const BAR_WIDTH := 30.0
 const JUMP_VELOCITY := -330.0  ## cùng sức nhảy với người chơi (đơn vị thiết kế)
 const ENGAGE_RANGE := 70.0     ## quái chạy ào tới gần người chơi chừng này (cùng độ cao) thì dừng lại đuổi đánh
@@ -98,14 +96,21 @@ const LOCK_COLOR := Color(1.0, 0.25, 0.3)
 @export var display_name := "Grongi"
 ## Tiền tố animation trong enemy_frames.tres, ví dụ "grongi_zu" → "grongi_zu_run". Để trống = hiện hình tạm.
 @export var sprite_prefix := ""
+var anim_alias := {}                  ## tên animation quái → tên trong bộ hình đang dùng (BossSkills._change_form)
+## Rider đối thủ chưa có hình quái riêng ("rider_<id>"): mượn bộ hình người chơi có tiền tố này (Decade...).
+@export var player_look := ""
+const PLAYER_FRAMES_PATH := "res://art/characters/player_frames.tres"
+## Bộ hình người chơi không có "windup" / "attack" / "die" như quái: dùng animation gần nhất.
+const PLAYER_LOOK_ANIMS := {"windup": "crouch", "attack": "light", "die": "hurt"}
 @export var behavior := "melee"
 @export var run_dir := -1
 @export var shoot_interval := 2.2
 @export var shot_windup := 0.6       ## tụ đòn trước khi bắn, đủ lâu để đọc được độ cao
 @export var shot_speed := 150.0
 @export var shot_range := 300.0
-@export var level := 1
-@export var scale_with_level := true
+@export var hp_scale := 1.0
+@export var damage_scale := 1.0
+@export var scale_stats := true
 @export var max_hp := 30.0
 @export var move_speed := 55.0
 @export var sight_range := 180.0
@@ -125,6 +130,7 @@ const LOCK_COLOR := Color(1.0, 0.25, 0.3)
 @export var fragment_reward := 5
 @export var fall_limit := 420.0      ## rơi xuống quá độ cao này thì biến mất (màn chơi đặt theo đáy bố cục)
 @export var is_boss := false
+var boss_skills: BossSkills = null      ## kỹ năng của trùm (StageRun gắn), null với quái thường
 
 @onready var sprite: AnimatedSprite2D = $Sprite
 @onready var hitbox: Hitbox = $Hitbox
@@ -161,9 +167,9 @@ var _dive_target := Vector2.ZERO
 
 func _ready() -> void:
 	add_to_group("enemies")
-	if scale_with_level:
-		max_hp *= 1.0 + HP_PER_LEVEL * (level - 1)
-		attack_damage *= 1.0 + DAMAGE_PER_LEVEL * (level - 1)
+	if scale_stats:
+		max_hp *= hp_scale
+		attack_damage *= damage_scale
 	hp = max_hp
 	if traits.has(&"giant"):
 		_make_giant()
@@ -195,6 +201,8 @@ func _physics_process(delta: float) -> void:
 		_player = get_tree().get_first_node_in_group("player") as Node2D
 	if _player is Player and (_player as Player).is_hidden():
 		_player = null      # tàng hình (Attack Ride: Invisible): quái mất dấu
+	if boss_skills:
+		boss_skills.tick(d)
 	match state:
 		State.IDLE:
 			_state_idle()
@@ -215,6 +223,8 @@ func _physics_process(delta: float) -> void:
 				_state_attack(d)
 		State.HURT:
 			_state_hurt(d)
+		State.SKILL:
+			boss_skills.step(d)
 		State.DEAD:
 			velocity.x = move_toward(velocity.x, 0.0, 400.0 * Units.SCALE * d)
 	_update_status(d)
@@ -240,6 +250,8 @@ func _physics_process(delta: float) -> void:
 		modulate = Color(1.6, 1.3, 1.3)            # ửng đỏ báo sắp ra đòn
 	else:
 		modulate = Color.WHITE
+	if boss_skills and boss_skills.phase == "warp_out":
+		modulate.a = 0.0                           # trùm đang dịch chuyển
 	if traits.has(&"spectral") and state != State.DEAD:
 		modulate.a = SPECTRAL_ALPHA + 0.15 * sin(float(Time.get_ticks_msec()) * 0.005 + _bob_phase)
 	_trail(d)
@@ -330,6 +342,10 @@ func _state_idle() -> void:
 func _state_chase() -> void:
 	if _player == null:
 		state = State.IDLE
+		return
+	if boss_skills and boss_skills.want_cast():
+		state = State.SKILL
+		boss_skills.cast()
 		return
 	var dx := _player.global_position.x - global_position.x
 	var dist := absf(dx)
@@ -461,6 +477,9 @@ func take_hit(info: DamageInfo) -> bool:
 	if special != &"":
 		_block(info, special)
 		return false
+	if boss_skills and boss_skills.blocks(info):
+		_block(info, &"", "KHIÊN! ĐÒN NẶNG / SKILL")
+		return false
 	var dodgeable := not (info.has_tag(&"time") or info.has_tag(&"skill") or info.has_tag(&"final"))
 	if traits.has(&"fast") and dodgeable and not slowed and randf() < FAST_EVADE_CHANCE:
 		evaded.emit()
@@ -477,7 +496,7 @@ func take_hit(info: DamageInfo) -> bool:
 		_die(info)
 		return true
 	var forced := info.has_tag(&"force") and not _is_tough()
-	if dmg >= poise or forced:
+	if (dmg >= poise or forced) and state != State.SKILL:   # trùm đang tung kỹ năng: không bị khựng
 		_cancel_attack()
 		_timer = maxf(_timer, 0.35) if state == State.HURT else 0.35   # không cắt ngắn choáng / đóng băng
 		state = State.HURT
@@ -505,17 +524,18 @@ func unmet_special(info: DamageInfo, slowed := false) -> StringName:
 	return &""
 
 
-## Đòn bị chặn: tiếng giáp, chớp xám, chữ gợi ý trên đầu, đạn bật ra.
-func _block(info: DamageInfo, special: StringName) -> void:
+## Đòn bị chặn: tiếng giáp, chớp xám, chữ gợi ý trên đầu, đạn bật ra. hint: chữ riêng (khiên của trùm).
+func _block(info: DamageInfo, special: StringName, hint := "") -> void:
 	info.blocked = true
 	if _immune_time < 0.8:
 		Sound.sfx("hit_guard", 0.05, -4.0)
 	_immune_time = 1.0
-	_immune_hint = str(SPECIALS[special]["hint"])
+	_immune_hint = hint if hint != "" else str(SPECIALS[special]["hint"])
 	var rider := info.source as Player
 	if rider and rider.current_form and not info.has_tag(&"skill"):
 		rider.gain_rage(info.damage * Player.RAGE_ON_DEAL * BLOCKED_RAGE * (0.5 if info.has_tag(&"ranged") else 1.0))
-	immune_hit.emit(special)
+	if special != &"":
+		immune_hit.emit(special)
 	queue_redraw()
 
 
@@ -651,6 +671,8 @@ func slow(duration: float) -> void:
 
 ## Choáng / đóng băng: dừng mọi đòn, đứng tại chỗ tới khi hết.
 func _hold(duration: float) -> void:
+	if boss_skills:
+		boss_skills.cancel()
 	_cancel_attack()
 	state = State.HURT
 	_timer = maxf(_timer, duration)
@@ -698,6 +720,8 @@ func _update_status(d: float) -> void:
 
 func _die(info: DamageInfo) -> void:
 	Sound.sfx("enemy_die", 0.1, -2.0)
+	if boss_skills:
+		boss_skills.on_boss_died()
 	_cancel_attack()
 	state = State.DEAD
 	queue_redraw()
@@ -708,6 +732,17 @@ func _die(info: DamageInfo) -> void:
 	died.emit(self)
 	await get_tree().create_timer(0.8).timeout
 	queue_free()
+
+
+## BossSkills: kỹ năng xong (hoặc bị huỷ), về đuổi đánh.
+func end_skill() -> void:
+	if state == State.SKILL:
+		state = State.CHASE
+		_play("idle")
+
+
+func play_anim(anim_name: String) -> void:
+	_play(anim_name)
 
 
 func _cancel_attack() -> void:
@@ -741,8 +776,6 @@ func _draw() -> void:
 	var bw := BAR_WIDTH * (GIANT_SCALE if traits.has(&"giant") else 1.0)
 	draw_rect(Rect2(-bw / 2.0 - 1.0, top - 1.0, bw + 2.0, 4.0), Color(0.05, 0.04, 0.08))
 	draw_rect(Rect2(-bw / 2.0, top, bw * ratio, 2.0), Color(0.9, 0.25, 0.25))
-	draw_string(ThemeDB.fallback_font, Vector2(-bw / 2.0, top - 2.0), "Lv%d" % level,
-		HORIZONTAL_ALIGNMENT_LEFT, -1, 6, Color(1, 1, 1, 0.9))
 	if _immune_time > 0.0:
 		# Đánh sai cách: chữ gợi ý nảy lên trên đầu (CẦN SÚNG!...), nhạt dần.
 		var font := ThemeDB.fallback_font
@@ -794,6 +827,13 @@ func _draw_wings() -> void:
 func _setup_sprite() -> void:
 	var has_art := sprite.sprite_frames != null and sprite_prefix != "" \
 		and sprite.sprite_frames.has_animation(sprite_prefix + "_idle")
+	if not has_art and player_look != "":
+		var frames := load(PLAYER_FRAMES_PATH) as SpriteFrames
+		if frames and frames.has_animation(player_look + "_idle"):
+			sprite.sprite_frames = frames
+			sprite_prefix = player_look
+			anim_alias = PLAYER_LOOK_ANIMS
+			has_art = true
 	sprite.visible = has_art
 	($Placeholder as CanvasItem).visible = not has_art
 	if has_art:
@@ -812,6 +852,7 @@ func _sprite_height() -> float:
 func _play(anim_name: String) -> void:
 	if not sprite.visible:
 		return
+	anim_name = str(anim_alias.get(anim_name, anim_name))   # hình mượn bộ hình người chơi (Rider đối thủ đổi form)
 	var full := "%s_%s" % [sprite_prefix, anim_name]
 	if sprite.sprite_frames.has_animation(full) and sprite.animation != full:
 		sprite.play(full)

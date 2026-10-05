@@ -64,13 +64,14 @@ enum Screen { MENU, ROOM, PICK, MATCH }
 var lan: VersusLan
 var screen := Screen.MENU
 ## Người trong phòng, chủ phòng giữ bản gốc và gửi cho các máy khác (_lobby):
-##   peer_id -> {"name", "slot", "rider", "form", "items", "level"} (form / items / level chỉ để hiện trong phòng)
+##   peer_id -> {"name", "slot", "rider", "form", "items", "level"} (form / items chỉ để hiện trong phòng)
 var players := {}
 var room_mode := "duel"          ## "duel" (1 VS 1) hoặc "all" (ALL COMBAT)
 var max_players := 2
 
 var me: Player                   ## nhân vật của máy này
 var foes := {}                   ## peer_id -> bản sao nhân vật của người khác (net_puppet)
+var _foe_time := {}              ## peer_id -> hệ số làm chậm quái người đó đang bật (Clock Up, Axel...): mình chậm theo
 var my_slot := 0                 ## 0 = P1 (chủ phòng), 1 = P2...
 var _wins := [0, 0, 0, 0]        ## số hiệp thắng theo slot
 var _round := 0
@@ -131,6 +132,7 @@ func _ready() -> void:
 	multiplayer.connection_failed.connect(_on_connect_failed)
 	multiplayer.server_disconnected.connect(_on_server_lost)
 	CombatDirector.shake_requested.connect(_on_shake)
+	CombatDirector.enemy_time_scale_changed.connect(_on_my_time_scale)
 	CombatDirector.final_attack_started.connect(_on_final_attack)
 	CombatDirector.final_attack_landed.connect(func() -> void:
 		if _backdrop:
@@ -299,8 +301,8 @@ func _open_pick() -> void:
 func _on_rider_chosen(id: StringName) -> void:
 	_pick_rider = id
 	var forms := GameState.owned_forms(id)
-	if forms.is_empty():
-		_on_form_chosen([] as Array[StringName])
+	if FormSelect.should_skip(forms):
+		_on_form_chosen(forms)          # form gốc luôn có sẵn; chỉ 1 form biến đổi thì mang luôn
 		return
 	await get_tree().process_frame
 	var pre: Array[StringName] = []
@@ -408,6 +410,8 @@ func _round_start(n: int, wins: Array) -> void:
 	_round = n
 	_wins = wins
 	_clear_projectiles()
+	_foe_time.clear()
+	CombatDirector.set_enemy_time_scale(1.0)
 	me.reset_for_stage()
 	me.respawn_at(Vector2(SPAWN_X[my_slot], GROUND_Y))
 	me.facing = 1 if SPAWN_X[my_slot] < VIEW.x / 2.0 else -1
@@ -538,6 +542,7 @@ func _build_fighters() -> void:
 	me.notice.connect(_on_notice)
 	me.shot_fired.connect(_on_my_shot)
 	me.lock_marked.connect(_on_my_lock)
+	me.status_inflicted.connect(_on_my_status_inflicted)
 	touch.player = me
 	_on_my_form_changed(&"")
 
@@ -579,6 +584,8 @@ func _remove_foe(id: int) -> void:
 		foes.erase(id)
 	_foe_targets.erase(id)
 	_foe_infos.erase(id)
+	_foe_time.erase(id)
+	_apply_foe_time()
 
 
 func _clear_fighters() -> void:
@@ -711,6 +718,57 @@ func _net_hit(damage: float, knockback: Vector2, direction: int, tags: Array, bi
 		_shake = maxf(_shake, 5.0 if t.has(&"final") else 3.0)
 
 
+## Skill của mình làm chậm / lộ yếu bản sao đối thủ: gửi sang máy của họ áp lên nhân vật thật.
+func _on_my_status_inflicted(target: Player, kind: String, time: float) -> void:
+	if not lan.is_online():
+		return
+	for id in foes:
+		if foes[id] == target:
+			_net_status.rpc_id(id, kind, time)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _net_status(kind: String, time: float) -> void:
+	if me != null and screen == Screen.MATCH:
+		me.apply_status(kind, time)
+
+
+## Mình bật / tắt tăng tốc thời gian (CombatDirector.enemy_time_scale): báo mọi máy khác, đối thủ chậm lại.
+func _on_my_time_scale(value: float) -> void:
+	if screen != Screen.MATCH:
+		return
+	_apply_foe_time()
+	if lan != null and lan.is_online():
+		_net_time.rpc(value)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _net_time(value: float) -> void:
+	if screen != Screen.MATCH:
+		return
+	_foe_time[multiplayer.get_remote_sender_id()] = value
+	_apply_foe_time()
+
+
+## Mỗi nhân vật chậm theo người KHÁC đang tăng tốc thời gian mạnh nhất. Bản sao của đối thủ cũng được đặt (theo
+## Clock Up của mình và của những người còn lại) để đạn bản sao bay chậm khớp với đạn thật trên máy họ.
+func _apply_foe_time() -> void:
+	if is_instance_valid(me):
+		me.set_time_slow(_lowest_time(-1))
+	for id in foes:
+		if is_instance_valid(foes[id]):
+			foes[id].set_time_slow(minf(CombatDirector.enemy_time_scale, _lowest_time(id)))
+
+
+## Hệ số làm chậm thấp nhất trong các đối thủ đang tăng tốc thời gian, trừ người `except`.
+func _lowest_time(except: int) -> float:
+	var lowest := 1.0
+	for id in _foe_time:
+		if id != except:
+			lowest = minf(lowest, float(_foe_time[id]))
+	return lowest
+
+
 ## Skill khoá của mình vừa nhắm đối thủ: báo máy của họ hiện khung ngắm trên nhân vật thật (kịp Né).
 func _on_my_lock(targets: Array, time: float) -> void:
 	if not lan.is_online():
@@ -728,12 +786,12 @@ func _net_lock(time: float) -> void:
 
 func _on_my_shot(p: Projectile) -> void:
 	if lan.is_online():
-		_net_shot.rpc(p.global_position, p.velocity, p.radius, p.color, p.pierce, p.life, p.style, p.hit_fx)
+		_net_shot.rpc(p.global_position, p.velocity, p.radius, p.color, p.pierce, p.life, p.style, p.hit_fx, p.homing)
 
 
 @rpc("any_peer", "call_remote", "reliable")
 func _net_shot(pos: Vector2, vel: Vector2, radius: float, color: Color, pierce: bool, life: float, style: String,
-		hit_fx: String) -> void:
+		hit_fx: String, homing := false) -> void:
 	var foe: Player = foes.get(multiplayer.get_remote_sender_id())
 	if foe == null:
 		return
@@ -747,6 +805,7 @@ func _net_shot(pos: Vector2, vel: Vector2, radius: float, color: Color, pierce: 
 	p.life = life
 	p.style = style
 	p.hit_fx = hit_fx
+	p.homing = homing
 	p.source = foe
 	world.add_child(p)
 	p.global_position = pos
@@ -799,8 +858,6 @@ func _on_my_status(text: String) -> void:
 
 
 func _status_text() -> String:
-	if me.current_form:
-		return "%s  Lv%d" % [_my_status, me.current_form.level]
 	return _my_status
 
 
@@ -905,10 +962,10 @@ func _slot_name(slot: int) -> String:
 	return "P%d" % (slot + 1)
 
 
-## "Kuuga Lv3 · Dragon · + Sword Vent" cho dòng người chơi trong phòng.
+## "Kuuga · Dragon · + Sword Vent" cho dòng người chơi trong phòng.
 func _loadout_text(entry: Dictionary) -> String:
 	var rider := str(entry.get("rider", ""))
-	var parts := PackedStringArray(["%s Lv%d" % [_rider_name(rider), int(entry.get("level", 1))]])
+	var parts := PackedStringArray([_rider_name(rider)])
 	var form := str(entry.get("form", ""))
 	parts.append(_form_name(rider, form) if not form.is_empty() else "form gốc")
 	var items: Array = entry.get("items", [])
@@ -1143,7 +1200,7 @@ func _build_ui() -> void:
 	_form_select.visible = false
 	_form_select.title = "CHỌN FORM BIẾN ĐỔI"
 	_form_select.confirm_text = "TIẾP"
-	_form_select.hint = "Tối đa 1 form · chọn form gốc thì chỉ có form gốc · trong trận đổi form bằng Kỹ năng (L), tốn nộ"
+	_form_select.hint = "Form gốc luôn có sẵn · chọn 1 form biến đổi · trong trận đổi form bằng Kỹ năng (L), tốn nộ"
 	_form_select.done.connect(_on_form_chosen)
 	ui.add_child(_form_select)
 	_weapon_select = ItemSelect.new()

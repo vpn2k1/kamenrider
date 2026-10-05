@@ -4,6 +4,16 @@ extends RefCounted
 ## ý thức sống trong Drive Driver, soi gương với Pen). Quái: Roidmude và vùng Don-yori (Heavy Acceleration).
 ## Trùm: Heart Roidmude. Bài học: chính nghĩa là hành động; cộng sự không cần biết hết quá khứ của nhau.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "haste", "name": "Heavy Acceleration", "color": Color(1.0, 0.3, 0.3)},
+	{"kind": "slam", "name": "Nắm đấm tim", "color": Color(1.0, 0.3, 0.3)},
+	{"kind": "combo", "name": "Nắm đấm liên hoàn", "color": Color(1.0, 0.3, 0.3)},
+	{"kind": "summon", "name": "Gọi Roidmude", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "quake", "name": "Nhịp tim chấn động", "color": Color(1.0, 0.3, 0.3)},
+]
+
 const WORLD := {
 	"id": "drive",
 	"year": 2014,
@@ -20,9 +30,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Type Speed (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Type Tridoron: Final Attack x1.5",
 	],
 	"stages": [
@@ -35,7 +45,7 @@ const WORLD := {
 		{"name": "Xa lộ trên cao", "form": &"formula", "form_name": "Type Formula",
 			"bg": "drive_4", "bg_theme": "highway"},
 		{"name": "Trùm: Heart Roidmude", "bg": "drive_b", "bg_theme": "boss_storm",
-			"boss": {"name": "Heart Roidmude", "hp": 290.0, "damage": 19.0, "poise": 30.0, "speed": 70.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Heart Roidmude", "hp": 290.0, "damage": 19.0, "poise": 30.0, "speed": 70.0,
 				"traits": [], "color": Color(0.9, 0.15, 0.2)}},
 	],
 }

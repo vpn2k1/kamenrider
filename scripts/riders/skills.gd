@@ -10,6 +10,9 @@ class_name Skills
 ##   "move"     (aim) "dash" lướt đánh cận chiến (mặc định) · "shot" một viên đạn · "spread" loạt đạn tỏa
 ##              · "wave" sóng chém to bay xuyên · "leap" nhảy vọt rồi bổ xuống · "pull" móc kéo quái về
 ##              · "boomerang" ném ra rồi bay về · "steer" như boomerang, giữ ↑ / ↓ để lái (Den-O Sword)
+##              · "dive_kick" nhảy lên đá chéo xuống · "steep_kick" bật cao đạp dốc xuống · "flying_kick" bay đá ngang
+##              · "slash_through" lướt chém xuyên qua quái · "uppercut" đấm móc hất tung
+##              (skill có tên trong Moves.SKILLS dùng move theo nguyên tác ghi ở đó, thay cho "move" trong dữ liệu)
 ##   "via"      (bind) "lock" khoá quái gần (mặc định) · "shot" bắn vật trói theo hướng · "area" trói mọi quái quanh mình
 ##   "bind"     giây trói (mặc định BIND_TIME)        "targets"  số quái của lock_multi (mặc định 3)
 ##   "charge"   (lock) giây tụ / dấu khoá trước khi ra đòn (mặc định LOCK_TIME)
@@ -42,25 +45,30 @@ const TYPES := ["aim", "lock", "lock_multi", "bind", "area", "counter", "buff"]
 const TYPE_MARK := {"aim": "Đ", "lock": "K", "lock_multi": "K×", "bind": "T", "area": "V", "counter": "P", "buff": "C"}
 const TYPE_NAME := {"aim": "định hướng", "lock": "khoá mục tiêu", "lock_multi": "khoá nhiều", "bind": "trói",
 	"area": "vùng", "counter": "phản đòn", "buff": "cường hoá"}
-const MOVES := ["dash", "shot", "spread", "wave", "leap", "pull", "boomerang", "steer"]
+const MOVES := ["dash", "shot", "spread", "wave", "leap", "pull", "boomerang", "steer", "dive_kick", "steep_kick",
+	"flying_kick", "slash_through", "uppercut"]
+## Move cận chiến (không phải đạn): RiderCaps không tính là &"ranged".
+const MELEE_MOVES := ["dash", "pull", "leap", "dive_kick", "steep_kick", "flying_kick", "slash_through", "uppercut"]
 
-const COST := [15.0, 30.0]           ## nộ của Skill 1 / Skill 2
+const COST := [20.0, 35.0]           ## nộ của Skill 1 / Skill 2
 const LOCK_EXTRA_COST := 5.0         ## skill khoá / trói đắt hơn cùng bậc (không trượt)
-const COOLDOWN := [2.0, 5.0]
+const COOLDOWN := [3.5, 7.0]
 const FINAL_COST := 60.0
-## Sát thương gốc [Đ] của bậc (trước sức đánh form, cấp): Skill 1 ngang cú đá kết chuỗi (12), Skill 2 hơn một chút.
+## Sát thương gốc [Đ] của bậc (trước sức đánh form, cấp): Skill 1 kém cú đá kết chuỗi (12), Skill 2 nhỉnh hơn nó một chút
+## (skill đã có lợi thế không trượt / trúng nhiều quái / trói, nên sát thương phải thấp hơn đòn thường cùng giá).
 ## Chỉ Final Attack (~60) mới là đòn mạnh; skill là công cụ (khoá, trói, vùng, buff), không thay Final.
-const BASE_DAMAGE := [9.0, 14.0]
-const MAX_DMG_MULT := 1.2            ## "dmg" ghi trong dữ liệu không vượt quá mức này
+const BASE_DAMAGE := [7.0, 11.0]
+const MAX_DMG_MULT := 1.1            ## "dmg" ghi trong dữ liệu không vượt quá mức này
 const TYPE_DAMAGE := {"aim": 1.0, "lock": 0.7, "lock_multi": 0.5, "bind": 0.5, "area": 0.8, "counter": 1.2, "buff": 0.0}
 const FINAL_TYPE_DAMAGE := {"aim": 1.0, "lock": 0.7, "lock_multi": 0.5, "bind": 0.8, "area": 0.8, "counter": 1.2}
 const LOCK_RANGE := 160.0
 const AREA_RADIUS := 70.0
-const BIND_TIME := 2.5
+const BIND_TIME := 1.8
 const LOCK_TIME := 0.4               ## dấu khoá hiện chừng này giây trước khi ra đòn
 const COUNTER_WINDOW := 0.5
 const FINAL_COUNTER_WINDOW := 1.2
-const BUFF_TIME := 6.0
+const BUFF_TIME := 5.0
+const BUFF_TIME_MULT := 0.8          ## thời hạn buff ghi trong dữ liệu nhân thêm hệ số này (cân bằng chung)
 
 
 ## Điền mặc định cho skill bậc `tier` (0 = Skill 1, 1 = Skill 2). Trả bản sao.
@@ -75,16 +83,17 @@ static func resolve(spec: Dictionary, tier: int) -> Dictionary:
 	# "damage" = sát thương MỖI nhịp: tổng của skill chia đều cho "hits" (nhiều nhịp không mạnh hơn một nhịp).
 	var total: float = BASE_DAMAGE[tier] * float(TYPE_DAMAGE.get(type, 1.0)) * minf(float(s.get("dmg", 1.0)), MAX_DMG_MULT)
 	s["damage"] = total / maxf(float(s.get("hits", 1)), 1.0)
+	if type == "aim" and Moves.skill_move(str(s.get("name", ""))) != "":
+		s["move"] = Moves.skill_move(str(s["name"]))   # chuyển động theo nguyên tác (Moves.SKILLS)
 	if type == "aim" and not s.has("move"):
 		s["move"] = "dash"
 	if type == "lock_multi" and not s.has("targets"):
 		s["targets"] = 3
-	if type == "bind" and not s.has("bind"):
-		s["bind"] = BIND_TIME
+	if type == "bind" and str(s.get("special", "")) != "drum":     # đánh trống cần đủ thời gian trói để gõ nhịp
+		s["bind"] = minf(float(s.get("bind", BIND_TIME)), BIND_TIME + 0.4)
 	if type == "buff":
 		var b: Dictionary = s.get("buff", {})
-		if not b.has("time"):
-			b["time"] = BUFF_TIME
+		b["time"] = float(b.get("time", BUFF_TIME)) * BUFF_TIME_MULT
 		s["buff"] = b
 	if not s.has("tags"):
 		s["tags"] = []

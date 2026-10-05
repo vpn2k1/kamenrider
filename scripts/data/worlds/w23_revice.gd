@@ -4,6 +4,16 @@ extends RefCounted
 ## (hay đùa, hay nói với khán giả). Quái: Deadmans (Giffjunior, Deadman). Trùm: Giff, thứ Deadmans tôn thờ.
 ## Hồi 3: Vice nói ra nỗi sợ {name} giấu kín, sợ tới cuối chuỗi phải đánh chính anh trai mình.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "slam", "name": "Nghiền nát", "color": Color(1.0, 0.4, 0.75)},
+	{"kind": "summon", "name": "Gọi Deadman", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "vortex", "name": "Nuốt chửng", "color": Color(1.0, 0.4, 0.75)},
+	{"kind": "rain", "name": "Mưa Giff", "color": Color(1.0, 0.4, 0.75), "count": 5},
+	{"kind": "quake", "name": "Giff giẫm", "color": Color(1.0, 0.4, 0.75)},
+]
+
 const WORLD := {
 	"id": "revice",
 	"year": 2021,
@@ -20,9 +30,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Rex Genome (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Ultimate Revice: Final Attack x1.5",
 	],
 	"stages": [
@@ -35,7 +45,7 @@ const WORLD := {
 		{"name": "Căn cứ Deadmans", "form": &"mammoth", "form_name": "Mammoth Genome",
 			"bg": "revice_4", "bg_theme": "underworld"},
 		{"name": "Trùm: Giff", "bg": "revice_b", "bg_theme": "boss_red",
-			"boss": {"name": "Giff", "hp": 290.0, "damage": 17.0, "poise": 30.0, "speed": 60.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Giff", "hp": 290.0, "damage": 17.0, "poise": 30.0, "speed": 60.0,
 				"traits": ["armored"], "color": Color(0.55, 0.16, 0.3)}},
 	],
 }
@@ -53,7 +63,7 @@ const RIDER := {
 			"skills": [
 				{"name": "Rex Bite", "type": "aim", "move": "dash", "tags": [&"heavy"], "fx": "claw", "summon": "stamp",
 					"color": Color(1.0, 0.4, 0.7)},
-				{"name": "Vice Assist", "type": "lock", "hits": 2, "summon": "tachyon", "fx": "slash",
+				{"name": "Vice Assist", "type": "lock", "hits": 2, "summon": "vice", "fx": "slash",
 					"color": Color(0.55, 0.4, 1.0), "icon": "ghost"},
 			]},
 		&"eagle": {"name": "Eagle Genome", "style": "lancer", "hp": 140.0, "armor": 12.0, "speed": 150.0,

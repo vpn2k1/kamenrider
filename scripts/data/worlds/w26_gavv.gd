@@ -5,6 +5,16 @@ extends RefCounted
 ## (Agent, Granute làm thuê). Trùm: Bocca Jaldak. Hồi 3: {name} nhớ lại những ngày vui bên anh Rei.
 ## Nguồn tra cứu: en/ja.wikipedia "Kamen Rider Gavv" (form, chiêu "<form> Finish", Gavvgablade, Over Mode).
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "summon", "name": "Gọi đặc vụ Stomach", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "dash", "name": "Hàm nuốt chửng", "color": Color(0.75, 0.4, 1.0)},
+	{"kind": "vortex", "name": "Miệng không đáy", "color": Color(0.75, 0.4, 1.0)},
+	{"kind": "rain", "name": "Mưa kẹo độc", "color": Color(1.0, 0.4, 0.75), "count": 5},
+	{"kind": "homing", "name": "Kẹo độc bay", "color": Color(1.0, 0.4, 0.75)},
+]
+
 const WORLD := {
 	"id": "gavv",
 	"year": 2024,
@@ -21,9 +31,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Poppingummy Form (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Over Mode: Final Attack x1.5",
 	],
 	"stages": [
@@ -36,7 +46,7 @@ const WORLD := {
 		{"name": "Lễ hội đồ ngọt về đêm", "form": &"zakuzakuchips", "form_name": "Zakuzakuchips Form",
 			"bg": "gavv_4", "bg_theme": "city_night"},
 		{"name": "Trùm: Bocca Jaldak", "bg": "gavv_b", "bg_theme": "boss_purple",
-			"boss": {"name": "Bocca Jaldak", "hp": 310.0, "damage": 18.0, "poise": 30.0, "speed": 62.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Bocca Jaldak", "hp": 310.0, "damage": 18.0, "poise": 30.0, "speed": 62.0,
 				"traits": ["armored"], "color": Color(0.25, 0.42, 0.48)}},
 	],
 }

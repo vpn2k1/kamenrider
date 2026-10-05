@@ -4,6 +4,16 @@ extends RefCounted
 ## Quái: Undead bất tử, chỉ phong ấn được vào lá bài. Darkroach tràn ra vì Void làm lệch luật Battle Fight.
 ## Trùm: Caucasus Undead, Vua Bích. Mạch truyện: Void đứng từ xa thử thách; Pen lỡ lời, biết quá rõ cách Void làm việc.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "guard", "name": "Khiên Caucasus", "color": Color(1.0, 0.85, 0.3)},
+	{"kind": "dash", "name": "Đại kiếm xung phong", "color": Color(1.0, 0.85, 0.3)},
+	{"kind": "combo", "name": "Đại kiếm liên hoàn", "color": Color(1.0, 0.85, 0.3)},
+	{"kind": "fan", "name": "Sóng kiếm", "color": Color(1.0, 0.85, 0.3), "style": "wave"},
+	{"kind": "beam", "name": "Tia Solgunner", "color": Color(1.0, 0.85, 0.3)},
+]
+
 const WORLD := {
 	"id": "blade",
 	"year": 2004,
@@ -20,9 +30,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Ace Form (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"King Form: Final Attack x1.5",
 	],
 	"stages": [
@@ -35,7 +45,7 @@ const WORLD := {
 		{"name": "Vách núi lộng gió", "form": &"jack", "form_name": "Jack Form",
 			"bg": "blade_4", "bg_theme": "mountain_dawn"},
 		{"name": "Trùm: Caucasus Undead", "bg": "blade_b", "bg_theme": "boss_storm",
-			"boss": {"name": "Caucasus Undead", "hp": 270.0, "damage": 16.0, "poise": 30.0, "speed": 62.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Caucasus Undead", "hp": 270.0, "damage": 16.0, "poise": 30.0, "speed": 62.0,
 				"traits": ["armored"], "color": Color(0.85, 0.72, 0.35)}},
 	],
 }

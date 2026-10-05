@@ -6,6 +6,17 @@ extends RefCounted
 ## Nguồn tra cứu: en/ja.wikipedia "Kamen Rider ZEZTZ" (Zeztz Driver đeo ngực, Capsem, form Physicam / Inazuma /
 ## Paradigm, chiêu "<tên> Vanish", form cuối Exdream, 4 Gore Nightmare), mynavi 2025-09-06.
 
+## Kỹ năng của trùm (scripts/enemies/boss_skills.gd): 2 kỹ năng đầu dùng từ đầu trận, tới kỹ năng thứ 4 khi nổi
+## giận (dưới 60% máu), mọi kỹ năng khi cuồng nộ (dưới 25% máu).
+const BOSS_SKILLS := [
+	{"kind": "rain", "name": "Ác mộng trút xuống", "color": Color(0.6, 0.3, 0.8), "count": 6},
+	{"kind": "warp", "name": "Lạc trong mộng", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "beam", "name": "Tia lãng quên", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "slam", "name": "Lãng quên", "color": Color(0.75, 0.4, 1.0)},
+	{"kind": "vortex", "name": "Xoáy ác mộng", "color": Color(0.6, 0.3, 0.8)},
+	{"kind": "summon", "name": "Gọi ác mộng", "color": Color(0.6, 0.3, 0.8)},
+]
+
 const WORLD := {
 	"id": "zeztz",
 	"year": 2025,
@@ -22,9 +33,9 @@ const WORLD := {
 	},
 	"unlocks": [
 		"Physicam Impact (form gốc)",
-		"sát thương +10%, máu +8%",
-		"sát thương +20%, máu +16%",
-		"sát thương +30%, máu +24%",
+		"",
+		"",
+		"",
 		"Exdream: Final Attack x1.5",
 	],
 	"stages": [
@@ -37,7 +48,7 @@ const WORLD := {
 		{"name": "Hành lang cửa lơ lửng", "form": &"gravity", "form_name": "Paradigm Gravity",
 			"bg": "zeztz_4", "bg_theme": "dreamscape"},
 		{"name": "Trùm: Oblivion Gore Nightmare", "bg": "zeztz_b", "bg_theme": "boss_red",
-			"boss": {"name": "Oblivion Gore Nightmare", "hp": 320.0, "damage": 19.0, "poise": 32.0, "speed": 75.0,
+			"boss": {"skills": BOSS_SKILLS, "name": "Oblivion Gore Nightmare", "hp": 320.0, "damage": 19.0, "poise": 32.0, "speed": 75.0,
 				"traits": [], "color": Color(0.42, 0.36, 0.62)}},
 	],
 }
