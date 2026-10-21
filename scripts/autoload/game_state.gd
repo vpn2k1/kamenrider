@@ -90,6 +90,7 @@ const INPUT_KEYS := {
 	"skill_2": [KEY_Y],          ## skill mạnh của form
 	"ultimate": [],   ## nút tuyệt chiêu trên màn hình: biến thân hoặc Final Attack
 	"help": [KEY_TAB, KEY_F1],   ## nút "?" góc trên phải: bảng thông tin màn + hướng dẫn (HelpOverlay)
+	"auto_attack": [KEY_T],   ## bật / tắt tự đánh (Player._auto_attack_step), không có ở chế độ đấu
 }
 
 var world_index := 0                    ## màn đang chơi (chọn ở màn chọn màn)
@@ -146,6 +147,7 @@ var versus_items: Array[StringName] = []   ## tối đa MAX_ITEMS
 ## false: không đọc / ghi save (bot test gọi use_test_profile để không đè lên tiến trình thật của người chơi).
 var persist := true
 var test_save := false   ## đang dùng save test (TEST_SAVE_PATH) đã mở hết
+var auto_attack := false ## tự đánh quái đang khoá (nút "Tự đánh" / phím T), nhớ trong settings.cfg; chế độ đấu luôn tắt
 
 
 func _ready() -> void:
@@ -263,6 +265,17 @@ func _save_path() -> String:
 
 
 # --- Tiến trình ----------------------------------------------------------
+
+## Bật / tắt tự đánh (nhớ cho lần chơi sau).
+func set_auto_attack(on: bool) -> void:
+	auto_attack = on
+	save_settings()
+
+
+## Tự đánh có tác dụng không: chế độ đấu luôn tắt (đấu công bằng).
+func auto_attack_on() -> bool:
+	return auto_attack and not versus
+
 
 func set_player_name(value: String) -> void:
 	var cleaned := value.strip_edges().left(MAX_NAME_LENGTH)
@@ -850,6 +863,7 @@ func save_settings() -> void:
 	cfg.load(SETTINGS_PATH)   # giữ các mục khác (âm thanh, Sound.save_settings)
 	cfg.set_value("player", "name", player_name)
 	cfg.set_value("player", "name_set", name_set)
+	cfg.set_value("play", "auto_attack", auto_attack)
 	cfg.save(SETTINGS_PATH)
 
 
@@ -860,6 +874,7 @@ func load_settings() -> void:
 	player_name = str(cfg.get_value("player", "name", DEFAULT_PLAYER_NAME))
 	name_set = bool(cfg.get_value("player", "name_set", false))
 	test_save = test_tools_enabled() and bool(cfg.get_value("debug", "test_save", false))
+	auto_attack = bool(cfg.get_value("play", "auto_attack", false))
 
 
 func load_game() -> void:

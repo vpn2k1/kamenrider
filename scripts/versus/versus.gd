@@ -39,16 +39,49 @@ const MENU_SCENE := "res://scenes/ui/main_menu.tscn"
 const TOUCH_SCRIPT := preload("res://scripts/ui/touch_controls.gd")
 const TOP_TEX := preload("res://art/tiles/street_top.png")
 const FILL_TEX := preload("res://art/tiles/street_fill.png")
-const BG_TEX := preload("res://art/backgrounds/tokyo.png")
-const BG_TINT := Color(0.78, 0.78, 0.86)
+const CRATE_TEX := preload("res://art/tiles/crate.png")
 const HUMAN_COLOR := Color(0.9, 0.9, 0.9)
 const VIEW := Vector2(480, 270)
 const GROUND_Y := 226.0
-## Bệ một chiều (x, y, rộng): hai bệ thấp hai bên, một bệ cao ở giữa.
-const PLATFORMS := [Vector3(60, 168, 110), Vector3(310, 168, 110), Vector3(185, 112, 110)]
 const MAX_PLAYERS := 4             ## ALL COMBAT
-## Chỗ đứng đầu hiệp theo slot: P1 trái, P2 phải, P3 / P4 vào giữa. Ai đứng nửa trái thì quay mặt sang phải.
+## Chỗ đứng đầu hiệp mặc định theo slot: P1 trái, P2 phải, P3 / P4 vào giữa. Ai đứng nửa trái thì quay mặt sang phải.
 const SPAWN_X := [90.0, 390.0, 190.0, 290.0]
+## Đấu trường: chủ phòng bốc ngẫu nhiên mỗi trận (_start_match gửi chỉ số cho mọi máy). Mỗi đấu trường:
+##   "name"      tên hiện lúc vào trận         "bg"       nền (art/backgrounds, 800×224, chân nền ngang mặt đất)
+##   "tint"      màu phủ nền                   "ground"   màu phủ gạch sàn / bệ
+##   "platforms" bệ một chiều [Vector3(x, mặt trên y, rộng)] · nhảy cao ~109 px nên hai tầng cách nhau ≤ 56 px
+##   "blocks"    khối đặc trên sàn [Rect2] (thùng, cột) · "ceiling" mép dưới trần (y; mặc định trần cao -40)
+##   "spawn"     chỗ đứng đầu hiệp theo slot (thay SPAWN_X), không trùng khối
+## Khung 480 × 270, mặt đất GROUND_Y = 226.
+const ARENAS := [
+	{"name": "Phố Tokyo", "bg": "tokyo", "tint": Color(0.78, 0.78, 0.86), "ground": Color.WHITE,
+		"platforms": [Vector3(60, 168, 110), Vector3(310, 168, 110), Vector3(185, 112, 110)]},
+	{"name": "Đấu trường trống", "bg": "decade_b", "tint": Color(0.8, 0.75, 0.85), "ground": Color(0.85, 0.8, 0.9),
+		"platforms": [], "blocks": [Rect2(150, 194, 32, 32), Rect2(298, 194, 32, 32)],
+		"spawn": [70.0, 410.0, 220.0, 260.0]},
+	{"name": "Kim tự tháp", "bg": "agito_b", "tint": Color(0.9, 0.85, 0.75), "ground": Color(1.0, 0.92, 0.75),
+		"platforms": [Vector3(40, 170, 100), Vector3(340, 170, 100), Vector3(120, 114, 90), Vector3(270, 114, 90),
+			Vector3(195, 58, 90)]},
+	{"name": "Tháp đôi", "bg": "blade_b", "tint": Color(0.75, 0.8, 0.95), "ground": Color(0.8, 0.88, 1.0),
+		"platforms": [Vector3(20, 170, 90), Vector3(20, 114, 90), Vector3(20, 58, 90), Vector3(370, 170, 90),
+			Vector3(370, 114, 90), Vector3(370, 58, 90), Vector3(180, 176, 120)]},
+	{"name": "Cầu treo", "bg": "kiva_b", "tint": Color(0.8, 0.72, 0.85), "ground": Color(0.9, 0.78, 0.85),
+		"platforms": [Vector3(90, 160, 300), Vector3(195, 104, 90)]},
+	{"name": "Bậc thang thời gian", "bg": "zi_o_b", "tint": Color(0.82, 0.8, 0.9), "ground": Color(0.95, 0.85, 0.95),
+		"platforms": [Vector3(30, 180, 80), Vector3(120, 136, 80), Vector3(200, 92, 80), Vector3(280, 136, 80),
+			Vector3(370, 180, 80)]},
+	{"name": "Mái nhà", "bg": "drive_b", "tint": Color(0.8, 0.78, 0.82), "ground": Color(0.9, 0.85, 0.85),
+		"platforms": [Vector3(30, 166, 70), Vector3(140, 122, 70), Vector3(270, 166, 70), Vector3(380, 122, 70),
+			Vector3(200, 70, 80)]},
+	{"name": "Hang đá", "bg": "hibiki_b", "tint": Color(0.7, 0.75, 0.7), "ground": Color(0.75, 0.85, 0.75),
+		"platforms": [Vector3(60, 172, 110), Vector3(310, 172, 110)], "ceiling": 96.0},
+	{"name": "Thành phố tương lai", "bg": "zero_one_b", "tint": Color(0.78, 0.85, 0.9), "ground": Color(0.85, 0.95, 1.0),
+		"platforms": [Vector3(40, 162, 90), Vector3(350, 162, 90), Vector3(190, 100, 100)],
+		"blocks": [Rect2(208, 162, 64, 64)], "spawn": [70.0, 410.0, 150.0, 330.0]},
+	{"name": "Dinh thự", "bg": "geats_b", "tint": Color(0.88, 0.82, 0.78), "ground": Color(1.0, 0.9, 0.8),
+		"platforms": [Vector3(20, 176, 60), Vector3(400, 176, 60), Vector3(110, 132, 80), Vector3(290, 132, 80),
+			Vector3(200, 88, 80)]},
+]
 const WINS_NEEDED := 2
 const COUNTDOWN := 3
 const ROUND_END_TIME := 2.5
@@ -89,6 +122,10 @@ var _banner_timer := 0.0
 var _shake := 0.0
 
 var world: Node2D
+var arena := 0                     ## chỉ số ARENAS của trận đang / vừa đấu
+var _map: Node2D                   ## sàn, bệ, khối của đấu trường (con của world, dựng lại khi đổi đấu trường)
+var _sky_rect: ColorRect
+var _bg: Sprite2D
 var camera: Camera2D
 var hud: VersusHud
 var touch: Node2D
@@ -381,15 +418,20 @@ func _ready_to_start() -> bool:
 
 func _on_start_pressed() -> void:
 	if multiplayer.is_server() and _ready_to_start() and screen == Screen.ROOM:
-		_start_match.rpc(players)
+		# Bốc ngẫu nhiên đấu trường (khác trận vừa rồi nếu được), mọi máy dựng cùng đấu trường.
+		var pick := randi() % ARENAS.size()
+		if ARENAS.size() > 1 and pick == arena:
+			pick = (pick + 1 + randi() % (ARENAS.size() - 1)) % ARENAS.size()
+		_start_match.rpc(players, pick)
 
 
 # --- Trận đấu ---------------------------------------------------------------
 
 @rpc("authority", "call_local", "reliable")
-func _start_match(state: Dictionary) -> void:
+func _start_match(state: Dictionary, arena_index := 0) -> void:
 	players = state
 	_match_id += 1
+	_build_map(clampi(arena_index, 0, ARENAS.size() - 1))
 	_build_fighters()
 	screen = Screen.MATCH
 	_menu_root.visible = false
@@ -414,11 +456,11 @@ func _round_start(n: int, wins: Array) -> void:
 	_foe_time.clear()
 	CombatDirector.set_enemy_time_scale(1.0)
 	me.reset_for_stage()
-	me.respawn_at(Vector2(SPAWN_X[my_slot], GROUND_Y))
-	me.facing = 1 if SPAWN_X[my_slot] < VIEW.x / 2.0 else -1
+	me.respawn_at(Vector2(_spawn_x(my_slot), GROUND_Y))
+	me.facing = 1 if _spawn_x(my_slot) < VIEW.x / 2.0 else -1
 	me.sprite.flip_h = me.facing < 0
 	me.input_locked = true
-	hud.round_text = "HIỆP %d" % n
+	hud.round_text = "HIỆP %d · %s" % [n, str(ARENAS[arena]["name"])]
 	if multiplayer.is_server():
 		_host_round_live = true
 		_alive.clear()
@@ -571,9 +613,9 @@ func _make_player(slot: int, rider: StringName, puppet: bool) -> Player:
 	tag.add_theme_constant_override("outline_size", 3)
 	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	p.add_child(tag)
-	p.position = Vector2(SPAWN_X[slot], GROUND_Y)
+	p.position = Vector2(_spawn_x(slot), GROUND_Y)
 	world.add_child(p)
-	p.facing = 1 if SPAWN_X[slot] < VIEW.x / 2.0 else -1
+	p.facing = 1 if _spawn_x(slot) < VIEW.x / 2.0 else -1
 	p.sprite.flip_h = p.facing < 0
 	return p
 
@@ -994,43 +1036,19 @@ func _build_arena() -> void:
 	var sky := CanvasLayer.new()
 	sky.layer = -10
 	add_child(sky)
-	var sky_rect := ColorRect.new()
-	sky_rect.color = BG_TEX.get_image().get_pixel(0, 0) * BG_TINT
-	sky.add_child(sky_rect)
-	sky_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)   # phủ cả màn hình máy (Screen)
-	var bg := Sprite2D.new()
-	bg.texture = BG_TEX
-	bg.centered = false
-	bg.modulate = BG_TINT
-	bg.position = Vector2((VIEW.x - BG_TEX.get_width()) / 2.0, GROUND_Y + 24.0 - BG_TEX.get_height())
-	add_child(bg)
+	_sky_rect = ColorRect.new()
+	sky.add_child(_sky_rect)
+	_sky_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)   # phủ cả màn hình máy (Screen)
+	_bg = Sprite2D.new()
+	_bg.centered = false
+	add_child(_bg)
 	_backdrop = FinisherBackdrop.new()     # sau nền, trước sàn đấu và nhân vật (thêm trước world)
 	add_child(_backdrop)
 
 	world = Node2D.new()
 	world.name = "World"
 	add_child(world)
-	# Nền đất, hai vách hai bên (không cho chạy ra khỏi khung 480) và trần (nhảy cao không bay mất).
-	# Mặt đất vẽ rộng / sâu hơn khung: máy 20:9 / tablet thấy rộng / cao hơn 480×270 (Screen).
-	_solid(Rect2(-40.0, GROUND_Y, VIEW.x + 80.0, 80.0))
-	_tiles(TOP_TEX, -240.0, GROUND_Y - 16.0, VIEW.x + 480.0, 32.0)
-	_tiles(FILL_TEX, -240.0, GROUND_Y + 16.0, VIEW.x + 480.0, 128.0)
-	_solid(Rect2(-40.0, -300.0, 40.0, 600.0))
-	_solid(Rect2(VIEW.x, -300.0, 40.0, 600.0))
-	_solid(Rect2(-40.0, -80.0, VIEW.x + 80.0, 40.0))
-	for p in PLATFORMS:
-		var body := StaticBody2D.new()
-		body.collision_layer = 0
-		body.set_collision_layer_value(Player.PLATFORM_LAYER, true)
-		var shape := CollisionShape2D.new()
-		var rect := RectangleShape2D.new()
-		rect.size = Vector2(p.z, 8.0)
-		shape.shape = rect
-		shape.one_way_collision = true
-		shape.position = Vector2(p.x + p.z / 2.0, p.y + 4.0)
-		body.add_child(shape)
-		world.add_child(body)
-		_tiles(TOP_TEX, p.x, p.y - 16.0, p.z, 32.0)
+	_build_map(0)
 
 	camera = Camera2D.new()
 	camera.position = VIEW / 2.0
@@ -1059,6 +1077,59 @@ func _build_arena() -> void:
 	layer.add_child(HelpOverlay.new())
 
 
+## Dựng (lại) đấu trường `index` của ARENAS: nền, sàn, vách, trần, bệ, khối. Nhân vật / đạn ở world nên không bị xoá.
+func _build_map(index: int) -> void:
+	arena = index
+	var a: Dictionary = ARENAS[index]
+	var tex := load("res://art/backgrounds/%s.png" % str(a["bg"])) as Texture2D
+	var tint: Color = a["tint"]
+	_sky_rect.color = tex.get_image().get_pixel(0, 0) * tint
+	_bg.texture = tex
+	_bg.modulate = tint
+	_bg.position = Vector2((VIEW.x - tex.get_width()) / 2.0, GROUND_Y + 24.0 - tex.get_height())
+	if is_instance_valid(_map):
+		_map.free()
+	_map = Node2D.new()
+	_map.name = "Map"
+	_map.modulate = a.get("ground", Color.WHITE)
+	world.add_child(_map)
+	world.move_child(_map, 0)              # sau nhân vật / đạn
+	# Nền đất, hai vách hai bên (không cho chạy ra khỏi khung 480) và trần (nhảy cao không bay mất).
+	# Mặt đất vẽ rộng / sâu hơn khung: máy 20:9 / tablet thấy rộng / cao hơn 480×270 (Screen).
+	_solid(Rect2(-40.0, GROUND_Y, VIEW.x + 80.0, 80.0))
+	_tiles(TOP_TEX, -240.0, GROUND_Y - 16.0, VIEW.x + 480.0, 32.0)
+	_tiles(FILL_TEX, -240.0, GROUND_Y + 16.0, VIEW.x + 480.0, 128.0)
+	_solid(Rect2(-40.0, -300.0, 40.0, 600.0))
+	_solid(Rect2(VIEW.x, -300.0, 40.0, 600.0))
+	var ceiling := float(a.get("ceiling", -40.0))
+	_solid(Rect2(-40.0, -80.0, VIEW.x + 80.0, ceiling + 80.0))
+	if ceiling > 0.0:
+		_tiles(FILL_TEX, -240.0, -200.0, VIEW.x + 480.0, ceiling + 200.0 - 16.0)   # trần hang đá thấp
+		_tiles(TOP_TEX, -240.0, ceiling - 16.0, VIEW.x + 480.0, 16.0)
+	for r in a.get("blocks", []):
+		_solid(r)
+		_tiles(CRATE_TEX, r.position.x, r.position.y, r.size.x, r.size.y)   # thùng / cột xếp bằng thùng
+	for p in a["platforms"]:
+		var body := StaticBody2D.new()
+		body.collision_layer = 0
+		body.set_collision_layer_value(Player.PLATFORM_LAYER, true)
+		var shape := CollisionShape2D.new()
+		var rect := RectangleShape2D.new()
+		rect.size = Vector2(p.z, 8.0)
+		shape.shape = rect
+		shape.one_way_collision = true
+		shape.position = Vector2(p.x + p.z / 2.0, p.y + 4.0)
+		body.add_child(shape)
+		_map.add_child(body)
+		_tiles(TOP_TEX, p.x, p.y - 16.0, p.z, 32.0)
+
+
+## Chỗ đứng đầu hiệp của slot trên đấu trường hiện tại.
+func _spawn_x(slot: int) -> float:
+	var list: Array = ARENAS[arena].get("spawn", SPAWN_X)
+	return float(list[slot % list.size()])
+
+
 func _solid(r: Rect2) -> void:
 	var body := StaticBody2D.new()
 	body.collision_layer = 1
@@ -1068,7 +1139,7 @@ func _solid(r: Rect2) -> void:
 	shape.shape = rect
 	shape.position = r.get_center()
 	body.add_child(shape)
-	world.add_child(body)
+	_map.add_child(body)
 
 
 func _tiles(tex: Texture2D, x: float, y: float, w: float, h: float) -> void:
@@ -1078,7 +1149,7 @@ func _tiles(tex: Texture2D, x: float, y: float, w: float, h: float) -> void:
 	tr.position = Vector2(x, y)
 	tr.size = Vector2(w, h)
 	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	world.add_child(tr)
+	_map.add_child(tr)
 
 
 func _build_ui() -> void:

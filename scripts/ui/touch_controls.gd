@@ -9,7 +9,8 @@ extends Node2D
 ##              Vòng cung ngoài: Bắn (form có súng), Chém (form có kiếm), Kỹ năng (đổi form). Nút chưa dùng được
 ##              thì tự ẩn (TouchButton), chỗ của nó để trống, các nút không bao giờ đè nhau.
 ##   Góc trên trái, bên trái thanh máu: Menu (về màn chọn màn). Góc trên phải: nút "?" mở bảng thông tin màn / cách
-##              chơi / nút bấm (HelpOverlay). Mỗi màn một Rider nên không có nút Đổi Rider.
+##              chơi / nút bấm (HelpOverlay), cạnh đó nút "Tự đánh" bật / tắt (viền xanh = bật; ẩn ở chế độ đấu).
+##              Mỗi màn một Rider nên không có nút Đổi Rider.
 ## Gán `player` để các nút biết hồi chiêu và điều kiện dùng.
 
 const ICON_DIR := "res://art/ui/icons/"
@@ -50,6 +51,7 @@ const LAYOUT := [
 	["dodge", "dodge", DODGE, DODGE_R, Color(0.5, 0.85, 1.0), false, "Né", ""],
 	["menu", "menu", Vector2(15, 14), 10.0, Color(0.85, 0.85, 0.95), false, "", ""],
 	["help", "help", Vector2(15, 14), 10.0, Color(0.85, 0.85, 0.95), false, "", ""],
+	["auto_attack", "fist", Vector2(44, 14), 10.0, Color(0.5, 1.0, 0.6), false, "", ""],
 ]
 
 var player: Player:
@@ -107,7 +109,7 @@ func _layout() -> void:
 		if LAYOUT[i][0] == "menu":
 			_buttons[i].position = lo + p
 			continue
-		if LAYOUT[i][0] == "help":       # "?" bám góc trên phải
+		if LAYOUT[i][0] == "help" or LAYOUT[i][0] == "auto_attack":   # "?" và "Tự đánh" bám góc trên phải
 			_buttons[i].position = Vector2(hi.x - p.x, lo.y + 14.0)
 			continue
 		if p.x < d.x / 2.0:

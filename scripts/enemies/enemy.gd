@@ -132,6 +132,12 @@ const PLAYER_LOOK_ANIMS := {"windup": "crouch", "attack": "light", "die": "hurt"
 @export var fall_limit := 420.0      ## rơi xuống quá độ cao này thì biến mất (màn chơi đặt theo đáy bố cục)
 @export var is_boss := false
 var boss_skills: BossSkills = null      ## kỹ năng của trùm (StageRun gắn), null với quái thường
+## Người chơi đang khoá quái này (Player.focus): vẽ dấu ▼ vàng trên đầu.
+var focused := false:
+	set(value):
+		if focused != value:
+			focused = value
+			queue_redraw()
 
 @onready var sprite: AnimatedSprite2D = $Sprite
 @onready var hitbox: Hitbox = $Hitbox
@@ -258,7 +264,7 @@ func _physics_process(delta: float) -> void:
 	if traits.has(&"spectral") and state != State.DEAD:
 		modulate.a = SPECTRAL_ALPHA + 0.15 * sin(float(Time.get_ticks_msec()) * 0.005 + _bob_phase)
 	_trail(d)
-	if aiming or behavior == "flyer" or _immune_time > 0.0 or _evade_time > 0.0 or _bound > 0.0 or _lock_mark > 0.0 or _exposed > 0.0:
+	if aiming or focused or behavior == "flyer" or _immune_time > 0.0 or _evade_time > 0.0 or _bound > 0.0 or _lock_mark > 0.0 or _exposed > 0.0:
 		queue_redraw()
 	# Nhân vận tốc với time scale: Faiz Axel / Clock Up làm quái chậm mà không ảnh hưởng người chơi.
 	velocity *= ts
@@ -777,6 +783,12 @@ func _draw() -> void:
 		draw_circle(_muzzle(), 3.0 + pulse, SHOT_LOW_COLOR if _shot_low else SHOT_HIGH_COLOR)
 	var top := -_sprite_height() - 4.0
 	_draw_skill_marks()
+	if focused:
+		# Mục tiêu đang khoá: tam giác vàng nhấp nhô trên thanh máu.
+		var bob := sin(float(Time.get_ticks_msec()) * 0.01) * 1.5
+		var tip := Vector2(0, top - 5.0 + bob)
+		draw_colored_polygon(PackedVector2Array([tip, tip + Vector2(-4, -6), tip + Vector2(4, -6)]),
+			Color(1.0, 0.85, 0.3, 0.95))
 	var ratio := clampf(hp / max_hp, 0.0, 1.0)
 	var bw := BAR_WIDTH * (GIANT_SCALE if traits.has(&"giant") else 1.0)
 	draw_rect(Rect2(-bw / 2.0 - 1.0, top - 1.0, bw + 2.0, 4.0), Color(0.05, 0.04, 0.08))

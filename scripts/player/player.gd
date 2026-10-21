@@ -135,6 +135,14 @@ const VERSUS_EXPOSE_MAX := 3.0
 const VERSUS_TIME_SOFTEN := 0.5              ## đối thủ tăng tốc thời gian (Clock Up, Axel): mình chậm bằng nửa mức quái
 const FLY_SPEED := 120.0                     ## buff bay (Hurricane Fly...): tốc độ lên / xuống
 const HIDDEN_ALPHA := 0.3
+# Tự khoá mục tiêu (chế độ cốt truyện): khoá quái vừa đánh trúng / quái gần nhất, ra đòn tự quay mặt, bắn tự ngắm.
+# Tự đánh (GameState.auto_attack, nút "Tự đánh" / phím T): mục tiêu trong tầm thì tự đấm / chém / bắn.
+const FOCUS_RANGE := 170.0                   ## px: tìm mục tiêu mới trong chừng này
+const FOCUS_KEEP := 230.0                    ## px: mục tiêu đang khoá đi xa hơn chừng này thì bỏ khoá
+const FOCUS_DY := 70.0                       ## px: chênh độ cao tối đa với mục tiêu
+const AUTO_MELEE := 42.0                     ## px: tự đánh cận chiến khi mục tiêu gần chừng này (đấm trúng tới ~46)
+const AUTO_SLASH := 58.0                     ## px: form có kiếm tự chém khi gần chừng này (chém trúng tới ~68)
+const AUTO_SHOOT := 230.0                    ## px: form có súng tự bắn khi mục tiêu xa hơn tầm đánh, gần chừng này
 
 @export var max_hp := 100
 ## Hiệu ứng mặc định, form ghi đè từng khóa qua RiderForm.fx().
@@ -173,6 +181,7 @@ var team: StringName = &"player"
 var versus_riders: Array[StringName] = []
 var net_puppet := false
 var net_invulnerable := false  ## net_puppet: đối thủ đang bất tử (theo gói trạng thái gần nhất)
+var focus: Enemy = null        ## quái đang khoá (tự quay mặt / tự ngắm / tự đánh), null ở chế độ đấu
 var _pending_form: StringName = &""   ## form sẽ vào khi biến thân / đổi Rider xong (nhặt form)
 
 var _state_timer := 0.0
@@ -252,6 +261,10 @@ func _draw() -> void:
 
 func _physics_process(delta: float) -> void:
 	_tick_timers(delta)
+	_update_focus()
+	if Input.is_action_just_pressed("auto_attack") and not GameState.versus and not input_locked:
+		GameState.set_auto_attack(not GameState.auto_attack)
+		notice.emit("TỰ ĐÁNH: BẬT" if GameState.auto_attack else "TỰ ĐÁNH: TẮT")
 	_air_time = 0.0 if is_on_floor() else _air_time + delta
 	if Input.is_action_just_pressed("jump") and not input_locked:
 		_jump_buffer = JUMP_BUFFER
@@ -439,6 +452,8 @@ func _state_normal(delta: float) -> void:
 		return
 	if Input.is_action_pressed("shoot"):
 		try_shoot()
+	elif _auto_attack_step():
+		return
 
 	if Input.is_action_just_pressed("attack_light"):
 		start_attack(&"light")
@@ -646,7 +661,8 @@ func _state_swap(delta: float) -> void:
 ## kind &"light" = nút Đánh: đấm theo chuỗi, đủ punch_count đòn thì ra cú đá (&"kick") rồi chuỗi về đầu.
 func start_attack(kind: StringName) -> void:
 	if kind == &"light" or kind == &"slash":
-		_face_close_enemy()
+		if not _face_focus():
+			_face_close_enemy()
 	var chain := 0
 	if kind == &"light":
 		var punches := current_form.punch_count() if current_form else HUMAN_PUNCHES
@@ -770,6 +786,9 @@ func _aim_dir() -> Vector2:
 	elif Input.is_action_pressed("move_down") and not is_on_floor():
 		y = 1.0
 	if x == 0.0 and y == 0.0:
+		var to := _focus_vector()
+		if to != Vector2.ZERO and signf(to.x) == facing:
+			return to.normalized()     # không giữ hướng: bắn thẳng vào quái đang khoá (phía trước mặt)
 		x = facing
 	return Vector2(signf(x), y).normalized()
 
@@ -1201,6 +1220,8 @@ func cooldown_of(action: String) -> Vector2:
 ## Action có dùng được ngay lúc này không (đủ nộ, đã mở khóa, đủ điều kiện).
 func is_action_available(action: String) -> bool:
 	match action:
+		"auto_attack":
+			return GameState.auto_attack       # tắt: viền nút xám
 		"special":
 			return current_form != null and current_form.special_available() \
 				and (not in_special_form() or current_form.special_anywhere()) and rage >= FORM_ENTER_MIN_RAGE
@@ -1235,6 +1256,8 @@ func is_action_visible(action: String) -> bool:
 			return skills != null and not skills.skill(0 if action == "skill_1" else 1).is_empty()
 		"help":
 			return HelpOverlay.enabled()
+		"auto_attack":
+			return not GameState.versus
 	return true
 
 
@@ -1245,6 +1268,8 @@ func action_label(action: String) -> String:
 			return current_form.special_label() if current_form else ""
 		"ultimate":
 			return "Tuyệt chiêu" if current_form else "Biến thân"
+		"auto_attack":
+			return "Tự: BẬT" if GameState.auto_attack else "Tự: TẮT"
 	return ""
 
 
@@ -1925,6 +1950,85 @@ func _melee_box(size: Vector2, offset: Vector2, ranged: bool) -> Array:
 	return [Vector2(front + MELEE_BACK, size.y), Vector2((front - MELEE_BACK) / 2.0, offset.y)]
 
 
+# --- Tự khoá mục tiêu / tự đánh ----------------------------------------------
+
+## Giữ mục tiêu đang khoá nếu còn sống và còn gần; không thì khoá quái gần nhất (ưu tiên phía trước mặt).
+func _update_focus() -> void:
+	if net_puppet or GameState.versus:
+		_set_focus(null)
+		return
+	if _focus_ok(focus, FOCUS_KEEP):
+		return
+	var best: Enemy = null
+	var best_d := INF
+	for node in get_tree().get_nodes_in_group("enemies"):
+		var e := node as Enemy
+		if not _focus_ok(e, FOCUS_RANGE):
+			continue
+		var d := absf(e.global_position.x - global_position.x)
+		if (e.global_position.x - global_position.x) * facing < 0.0:
+			d += 40.0                    # sau lưng: kém ưu tiên hơn quái phía trước
+		if d < best_d:
+			best_d = d
+			best = e
+	_set_focus(best)
+
+
+func _focus_ok(e: Enemy, range_px: float) -> bool:
+	if e == null or not is_instance_valid(e) or e.state == Enemy.State.DEAD or e.is_queued_for_deletion():
+		return false
+	var d := e.global_position - global_position
+	return absf(d.x) <= range_px and absf(d.y) <= FOCUS_DY
+
+
+func _set_focus(e: Enemy) -> void:
+	if e == focus:
+		return
+	if is_instance_valid(focus):
+		focus.focused = false
+	focus = e
+	if e:
+		e.focused = true
+
+
+## Từ người chơi tới ngực quái đang khoá (ZERO khi không khoá).
+func _focus_vector() -> Vector2:
+	if not _focus_ok(focus, FOCUS_KEEP):
+		return Vector2.ZERO
+	return (focus.global_position + Vector2(0, -24) * Units.SCALE) - (global_position + Vector2(0, -34))
+
+
+## Ra đòn (không giữ hướng, hoặc đang tự đánh): quay mặt về quái đang khoá. Trả true nếu đã quay theo mục tiêu.
+func _face_focus() -> bool:
+	if net_puppet or input_locked or not _focus_ok(focus, FOCUS_KEEP):
+		return false
+	if Input.get_axis("move_left", "move_right") != 0.0 and not GameState.auto_attack_on():
+		return false
+	face(1 if focus.global_position.x >= global_position.x else -1)
+	return true
+
+
+## Tự đánh (đang ở trạng thái thường): mục tiêu trong tầm thì đấm / chém, xa hơn mà form có súng thì bắn.
+## Trả true nếu đã ra đòn.
+func _auto_attack_step() -> bool:
+	if not GameState.auto_attack_on() or net_puppet or not _focus_ok(focus, FOCUS_KEEP):
+		return false
+	var d := focus.global_position - global_position
+	var dist := absf(d.x)
+	if absf(d.y) <= 40.0:
+		if current_form and current_form.has_blade() and dist <= AUTO_SLASH:
+			start_attack(&"slash")
+			return true
+		if dist <= AUTO_MELEE:
+			start_attack(&"light")
+			return true
+	if current_form and not current_form.get_shot().is_empty() and dist <= AUTO_SHOOT and shoot_cooldown <= 0.0:
+		face(1 if d.x >= 0.0 else -1)
+		try_shoot()
+		return false            # bắn không chiếm lượt: vẫn chạy / nhảy được
+	return false
+
+
 ## Bấm đánh mà không giữ hướng: trước mặt không có quái mà sát sau lưng có thì quay lại (quái đi xuyên qua người).
 func _face_close_enemy() -> void:
 	if net_puppet or input_locked or Input.get_axis("move_left", "move_right") != 0.0:
@@ -2109,6 +2213,8 @@ func _tick_timers(delta: float) -> void:
 func _on_hit_landed(target: Node, info: DamageInfo) -> void:
 	if info.has_tag(&"henshin"):
 		return
+	if target is Enemy and not GameState.versus:
+		_set_focus(target as Enemy)     # khoá quái vừa đánh trúng
 	if not _motion.is_empty() and not _motion.has("contact") and not info.has_tag(&"ranged"):
 		_motion["contact"] = target     # cú đá / lướt của vũ đạo vừa chạm quái
 	_hit_sound(info)

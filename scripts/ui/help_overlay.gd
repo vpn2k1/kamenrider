@@ -33,6 +33,7 @@ const KEY_ROWS := [
 	 [["skill_1", "skill_2"], "", "Skill 1 / Skill 2 của form (tốn nộ, hồi chiêu)"],
 	 [["final_attack"], "", "Final Attack (60 nộ)"],
 	 [["menu"], "", "Về màn chọn màn · quay lại · về màn hình chính"],
+	 [["auto_attack"], "", "Bật / tắt tự đánh quái đang khoá (dấu ▼ vàng)"],
 	 [[], "Enter", "Chọn trong menu, qua câu thoại"],
 	 [[], "Esc", "Bỏ qua hội thoại"]],
 ]
@@ -48,6 +49,7 @@ const TOUCH_ROWS := [
 	["skill1", "Skill 1 · Skill 2", "Skill của form, số ở góc = nộ cần"],
 	["ultimate", "Final · Biến thân", "Final Attack 60 nộ · dạng người: biến thân"],
 	["menu", "Menu · ?", "Menu (trên trái): về màn chọn màn · ? (trên phải, Tab / F1): bảng này"],
+	["fist", "Tự: BẬT / TẮT", "Trên phải: tự đánh quái đang khoá (dấu ▼ vàng; ra đòn tự quay mặt, bắn tự ngắm)"],
 ]
 
 ## Bật bảng hướng dẫn ngoài bản web (xem trước trên máy, bot test).

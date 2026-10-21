@@ -719,6 +719,9 @@ func _spawn_ahead() -> void:
 				_:
 					pos += Vector2(i * 24.0, 0.0)
 					run_dir = 1 if player.global_position.x > pos.x else -1
+			if side != "at":
+				# Màn hình rộng (điện thoại 20:9) thấy cả phía sau tường cuối màn / tường vô hình: kéo vào trong
+				pos.x = _walkable_x(Vector2(player.global_position.x, float(sp["floor"])), pos.x)
 			var e := _make_enemy(sp["kind"], _free_spawn_pos(pos))
 			e.behavior = sp["behavior"]
 			e.run_dir = run_dir
@@ -797,6 +800,8 @@ func _straggler_spot(view: Rect2) -> Vector2:
 	for side in [back, -back]:
 		for inset in [12.0, 60.0, 110.0]:
 			var x: float = view.get_center().x + side * (view.size.x / 2.0 - inset)
+			if absf(_walkable_x(player.global_position, x) - x) > 0.5:
+				continue      # mép màn hình nằm sau tường (màn hình rộng): thử chỗ khác
 			var top := StageBuilder.surface_below(layout, Vector2(x, floor_y - 40.0), 60.0)
 			if absf(top - floor_y) > 6.0:
 				continue
@@ -806,20 +811,63 @@ func _straggler_spot(view: Rect2) -> Vector2:
 	return Vector2.INF
 
 
-## Đấu trường trùm khóa camera và chặn người chơi bằng tường vô hình; tường không chặn quái, nên giữ quái
-## (cả trùm) trong khung nhìn, không thì trùm đi ra ngoài và người chơi không với tới được.
+## Tường vô hình (sau điểm xuất phát, hai bên đấu trường trùm) chỉ chặn người chơi, không chặn quái: giữ quái ở phía
+## người chơi tới được, không thì quái đứng sau tường (màn hình rộng như điện thoại 20:9 vẫn thấy chỗ đó) mà người chơi
+## không với tới. Đấu trường dùng tường của người chơi (camera ± HALF_W), không dùng khung nhìn (rộng hơn trên điện thoại).
 func _keep_in_arena() -> void:
-	if not _arena_locked:
-		return
-	var view := view_rect()
+	var walls := _invisible_walls()
+	var px := player.global_position.x
 	for e in get_tree().get_nodes_in_group("enemies"):
 		var en := e as Enemy
 		if en == null or en.state == Enemy.State.DEAD:
 			continue
-		var x := clampf(en.global_position.x, view.position.x + 16.0, view.end.x - 16.0)
-		if x != en.global_position.x:
-			en.global_position.x = x
-			en.run_dir = 1 if x < view.get_center().x else -1
+		var pos := en.global_position
+		for w in walls:
+			var r: Rect2 = w
+			if not r.has_area() or pos.y < r.position.y or pos.y > r.end.y:
+				continue
+			if r.end.x <= px and pos.x < r.end.x + 16.0:
+				en.global_position.x = r.end.x + 16.0
+				en.run_dir = 1
+			elif r.position.x >= px and pos.x > r.position.x - 16.0:
+				en.global_position.x = r.position.x - 16.0
+				en.run_dir = -1
+
+
+## Tường vô hình đang có tác dụng: tường sau điểm xuất phát (chỉ khi người chơi còn ở gần đầu màn, để đoạn đường sau
+## vòng ngang qua chỗ đó không bị tính nhầm) và hai bên đấu trường lúc đánh trùm.
+func _invisible_walls() -> Array:
+	var out: Array = []
+	var p := player.global_position
+	if _start_wall.has_area() and absf(p.x - _start_wall.get_center().x) < 700.0 \
+			and absf(p.y - (_start_wall.position.y + 300.0)) < 160.0:
+		out.append(_start_wall)
+	if _arena_locked:
+		var c := camera.global_position
+		out.append(Rect2(c.x - HALF_W - 20.0, c.y - 400.0, 20.0, 800.0))
+		out.append(Rect2(c.x + HALF_W, c.y - 400.0, 20.0, 800.0))
+	return out
+
+
+## Kẹp x (chỗ thả quái) vào khoảng người chơi đi tới được trên cùng tầng với `from` (vị trí người chơi / sàn): không vượt qua tường
+## thật (cuối màn, vách giếng) lẫn tường vô hình (sau điểm xuất phát, hai bên đấu trường).
+func _walkable_x(from: Vector2, x: float) -> float:
+	var y := from.y - 24.0
+	var lo := -INF
+	var hi := INF
+	var rects := _invisible_walls()
+	for so in layout["solids"]:
+		if so["kind"] == "wall":
+			rects.append(so["rect"])
+	for w in rects:
+		var r: Rect2 = w
+		if not r.has_area() or y < r.position.y or y > r.end.y:
+			continue
+		if r.end.x <= from.x:
+			lo = maxf(lo, r.end.x)
+		elif r.position.x >= from.x:
+			hi = minf(hi, r.position.x)
+	return clampf(x, lo + 18.0, hi - 18.0)
 
 
 func _check_player_position() -> void:
@@ -882,6 +930,7 @@ func _reach_goal() -> void:
 		var side := first_side if i % 2 == 0 else -first_side
 		var x := clampf(player.global_position.x + side * wave_rng.randf_range(110.0, 210.0) + side * 30.0 * i,
 			view.position.x + 30.0, view.end.x - 30.0)
+		x = _walkable_x(player.global_position, x)
 		var y := float(layout["exit_floor"]) - 60.0
 		if str(last_wave[i]) != "boss" and wave_rng.randf() < 0.3:
 			y = view.position.y + 10.0        # rơi từ trên xuống
@@ -1463,6 +1512,7 @@ func _on_boss_summon(count: int, boss: Enemy) -> void:
 	for i in count:
 		var side := 1 if i % 2 == 0 else -1
 		var x := clampf(boss.global_position.x + side * (50.0 + 20.0 * i), view.position.x + 30.0, view.end.x - 30.0)
+		x = _walkable_x(player.global_position, x)
 		var e := _make_enemy("basic" if i % 2 == 0 else "fast", Vector2(x, boss.global_position.y - 40.0))
 		enemies.add_child(e)
 		boss.boss_skills.add_minion(e)
